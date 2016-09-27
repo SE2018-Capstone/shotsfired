@@ -17,11 +17,11 @@
 %\subsection{}
 \indent Our project is a 2-4 player 2D multiplayer platformer shooter game. The multiplayer will be online. The best analogy to describe it is a fusion of Super Smash Bros and Metroid. To build this application we will use Typescript, a modified Javascript. Node.js will be our backend. \\
 
-This project is interesting for both technical and market availability. There is an opening in the market for a well made, free and fun web application that has easy inter-friend multiplayer capability through the internet. Super Smash Bros is an incredibly popular game due to its multiplayer component and a similar game with a modified control scheme to fit the computer (2D shooter) will be quite popular. \\
+This project is interesting for both technical and market availability. There is an opening in the market for a well made, free and fun web application that has easy inter-friend multiplayer capability through the internet. There are a ton of games that are very popular multiplayer component   \\
 
 Technology wise this project is even more interesting. The software must be constructed in such a way that the multiplayer appears seamless to the users, which is a significant challenge when done from the beginning and very interesting. Furthermore this gives us the opportunity to learn new a new language in Typescript. This project will also have interesting software architecture because there will need to be a well structured set of software components to represent game objects and the different players and networking tasks. The selection of Node.js as backend means that it will be easier to duplicate game logic between clients and server and we will be able to reuse code. \\
 
-This project makes sense in the chosen environment for a variety of reasons. Our goal for this is to make a fluid and responsive game in on the web to give the users the easiest possible conditions to join into a game with their friends. No install - no setup time. Mobile or desktop both have large mental barriers to entry and our aim is to tear those down. Not to mention that it is completely environment agnostic Mac, PC, Linux - it works for all. In terms of the software directly, this project will give us a chance to learn new technologies all the while working on a challenging problem like implementing multiplayer.  \\
+This project makes sense in the chosen environment for a variety of reasons. Our goal for this is to make a fluid and responsive game in on the web to give the users the easiest possible conditions to join into a game with their friends. No install - no setup time. Mobile or desktop both have large mental barriers to entry and our aim is to tear those down. Not to mention that it is completely environment agnostic Mac, PC, Linux - it works for all. In terms of the software directly, this project will give us a chance to learn new technologies all the while working on a challenging problem, the implementation of multiplayer.  \\
 
 \clearpage
 
@@ -36,7 +36,7 @@ This project makes sense in the chosen environment for a variety of reasons. Our
 \item Is a 2D platformer arena style game
 \begin{enumerate}
 \item 2-4 human players have their own character, and must navigate a small 2d map
-\item Percentage based health (the higher your percentage, the more likely you will fly off the map) 
+\item Numerical based health.
 \item A life is lost if you leave the map.
 \item Each player has a finite number of lives, set at the beginning of the game
 \item Each player has a default weapon with infinite ammo
@@ -45,9 +45,12 @@ This project makes sense in the chosen environment for a variety of reasons. Our
 \end{enumerate}
 
 \section{User Scenarios}
-\indent Each player will control a character on a small 2D map. They will use the arrow keys or W, A, S, and D keys to move their character and use the mouse to aim and shoot their weapon. A character will get blown off the map depending on their position on the map and how many times they have been shot. Once they are blown off of the map, they will lose one of their lives. After a character has lost all of their lives, they lose, and the winner of the game is the last character that is still on the map. A user would be able to complete a game in under 5 minutes so it is very quick and easy to play anytime. Due to the fact they are playing with friends, there is a bit of a competition between them, however, they are mainly playing for fun to pass the time. \\
 
-Consider a user that is with 2 other friends and they?re just trying to pass the time or have some fun. They each have their own laptops. Shots Fired is a 2-4 player game and is a game that everyone can play together. This satisfies the need of getting everyone involved in the same activity. To create a game with friends, one person would create a game and choose the option to play with friends. In this case, they will receive a code that their friends can input and use to join the same group. This way, friends can play together and not have to worry about having other people in their game. \\
+Consider a user that is with 2 other friends and they are just trying to pass the time or have some fun. They each have their own laptops. Shots Fired is a 2-4 player game and is a game that everyone can play together. This satisfies the need of getting everyone involved in the same activity. To create a game with friends, one person would create a game and choose the option to play with friends. In this case, they will receive a code that their friends can input and use to join the same group. This way, friends can play together and not have to worry about having other people in their game. \\
+
+Each player will control a character on a small 2D map. They will use the mouse and/or keyboard to fire their weapon. If hit, they lose health. When health is 0 they lose. A user would be able to complete a game in under 5 minutes so it is very quick and easy to play anytime. Due to the fact they are playing with friends, there is a bit of a competition between them, however, they are mainly playing for fun to pass the time.  \\
+
+
 
 \section{Non Functional Properties} 
 \begin{enumerate}
