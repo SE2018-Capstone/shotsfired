@@ -15,13 +15,13 @@
 \maketitle
 \section{The Project}
 %\subsection{}
-\indent Our project is a 2-4 player 2D multiplayer platformer shooter game. The multiplayer will be online. The best analogy to describe it is a fusion of Super Smash Bros and Metroid. To build this application we will use Typescript, a modified Javascript. Node.js will be our backend. \\
+\hspace*{5mm} Our project is a 2-4 player 2D multiplayer shooter game. The multiplayer will be online. To build this application we will use Typescript, a modified Javascript. Node.js will be our backend. \\
 
-This project is interesting for both technical and market availability. There is an opening in the market for a well made, free and fun web application that has easy inter-friend multiplayer capability through the internet. There are a ton of games that are very popular multiplayer component   \\
+This project is interesting for both technical and market availability reasons. There is an opening in the market for a well made, free and fun web application that has easy inter-friend multiplayer capability through the internet. There are a ton of games that are very popular due to their multiplayer component.   \\
 
-Technology wise this project is even more interesting. The software must be constructed in such a way that the multiplayer appears seamless to the users, which is a significant challenge when done from the beginning and very interesting. Furthermore this gives us the opportunity to learn new a new language in Typescript. This project will also have interesting software architecture because there will need to be a well structured set of software components to represent game objects and the different players and networking tasks. The selection of Node.js as backend means that it will be easier to duplicate game logic between clients and server and we will be able to reuse code. \\
+Technology wise this project is even more interesting. The software must be constructed in such a way that the multiplayer appears seamless to the users, which is a significant challenge when done from the beginning and very interesting. Furthermore this gives us the opportunity to learn a new language in Typescript. This project will also have interesting software architecture because there will need to be a well structured set of software components to represent game objects and the different players and online multiplayer tasks. The selection of Node.js as backend means that it will be easier to duplicate game logic between clients and server and we will be able to reuse code. \\
 
-This project makes sense in the chosen environment for a variety of reasons. Our goal for this is to make a fluid and responsive game in on the web to give the users the easiest possible conditions to join into a game with their friends. No install - no setup time. Mobile or desktop both have large mental barriers to entry and our aim is to tear those down. Not to mention that it is completely environment agnostic Mac, PC, Linux - it works for all. In terms of the software directly, this project will give us a chance to learn new technologies all the while working on a challenging problem, the implementation of multiplayer.  \\
+This project makes sense in the chosen environment for a variety of reasons. Our goal for this is to make a fluid and responsive game in on the web to give the users the easiest possible conditions to join into a game with their friends. No install - no setup time. Mobile or desktop both have large mental barriers to entry and our aim is to tear those down. Not to mention that it is completely environment agnostic Mac, PC, Linux - it works for all. In terms of the software directly, this project will give us a chance to learn new technologies all the while working on a challenging problem, the implementation of multiplayer.
 
 \clearpage
 
@@ -33,36 +33,52 @@ This project makes sense in the chosen environment for a variety of reasons. Our
 \end{enumerate}
 \item Capability for user to join a matched game
 \item Capability for user to play with known people in an isolated environment
-\item Is a 2D platformer arena style game
+\item Is a 2D arena style game
 \begin{enumerate}
-\item 2-4 human players have their own character, and must navigate a small 2d map
+\item 2-4 human players have their own character, and must navigate a small 2Dmap
 \item Numerical based health.
-\item A life is lost if you leave the map.
-\item Each player has a finite number of lives, set at the beginning of the game
-\item Each player has a default weapon with infinite ammo
+\item Each player has an equal finite amount of health
+\item Each player has a weapon with infinite ammo
 \end{enumerate}
 \item Can handle multiple simultaneous games
 \end{enumerate}
 
 \section{User Scenarios}
 
-Consider a user that is with 2 other friends and they are just trying to pass the time or have some fun. They each have their own laptops. Shots Fired is a 2-4 player game and is a game that everyone can play together. This satisfies the need of getting everyone involved in the same activity. To create a game with friends, one person would create a game and choose the option to play with friends. In this case, they will receive a code that their friends can input and use to join the same group. This way, friends can play together and not have to worry about having other people in their game. \\
 
-Each player will control a character on a small 2D map. They will use the mouse and/or keyboard to fire their weapon. If hit, they lose health. When health is 0 they lose. A user would be able to complete a game in under 5 minutes so it is very quick and easy to play anytime. Due to the fact they are playing with friends, there is a bit of a competition between them, however, they are mainly playing for fun to pass the time.  \\
+\textbf{First Scenario}\\\\
 
+Consider a user that is with 2 other friends and they are just trying to pass the time or have some fun. They each have their own laptops. Shots Fired is a 2-4 player game and is a game that everyone can play together. This satisfies the need of getting everyone involved in the same activity. To create a game with friends, one person would create a game and choose the option to play with friends. In this case, they will receive a code or url that their friends can input and use to join the same group. This way, friends can play together and not have to worry about having other people in their game. \\\\
 
-
-\section{Non Functional Properties} 
-\begin{enumerate}
-\item Output is rendered without noticeable lag between players if players are on computers with a reasonable internet connection. 
-\item Very easy to join a game. Low entry barrier. 
-\item Compatible with Chrome 52+.
-\end{enumerate}
-
+Each player will control a character on a small 2D map. They will use the mouse and/or keyboard to fire their weapon. If hit, they lose health. When health is 0 they lose. A user would be able to complete a game in under 5 minutes so it is very quick and easy to play anytime. Due to the fact they are playing with friends, there is a bit of a competition between them, however, they are mainly playing for fun to pass the time. 
 
 \clearpage
 
-\includegraphics[scale=.09]{mockup.jpg}
+\noindent\textbf{Second Scenario}\\\\
+
+Consider a user that is alone. They load the game. They do not have any friends, but they still want a way to relax and play a simple game with others. This game will support this use case. A user can join and be matched with other random people who have decided to play the game in this mode. The game itself will be the same as what is described in the first user scenario, but the user situation supported and the path to get to the end result will be different and will require code to handle the two cases. This scenario also allows for a user of a more competitive nature since they are not playing with friends and can try their hardest to do their best. 
+
+
+
+
+\section{Non Functional Properties}
+\begin{enumerate}
+\item
+Output is rendered without noticeable lag between players if players are on computers with a reasonable internet connection. \\\\
+It is important to have no noticeable lag since that will affect the user experience. If players experience lag, they will be less likely to play the game again since lag harms the gameplay. We want users to continue playing the game in the future. No lag will result in a much better playing experience in game.
+\item
+Very easy to join a game. Low barrier to entry.\\\\
+Having a low barrier to entry is important so that anyone can join the game. By using a code, a user can easily play a match with friends. By joining a match without a code, a user can easily play with other random people so both game modes allow for easy entry.
+\item
+Compatible with Chrome 52+.\\\\
+The compatibility with Chrome 52+ is important so that we have access to any new features that come out in browser. Chrome 52 is one of the most recent versions of Chrome that was released a few months ago so it should be commonly used right now. In addition, Chrome will update on its own which means that majority of users will be able to play the game and make use of new Chrome features if available.
+
+\end{enumerate}
+
+\clearpage
+
+\includegraphics[scale=.085]{mockup.jpg}\\
+A mockup of the in-game screen with the blocks acting as obstacles, circles as players, and the objects they're holding as guns.
 
 
 \end{document}  
