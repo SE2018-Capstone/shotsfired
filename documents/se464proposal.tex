@@ -29,7 +29,9 @@ This project makes sense in the chosen environment for a variety of reasons. Our
 \begin{enumerate}
 \item Is 2-4 player, each player plays on their own computer. 
 \begin{enumerate}
-\item Player will be able to control their avatar using keyboard and/or mouse. 
+\item Player will be able to control their avatar using keyboard and/or mouse.
+      They would press W to move forward, A and D to move left and right
+      respectively, and S to move downward.  They would aim their weapon using the mouse.
 \end{enumerate}
 \item Capability for user to join a matched game
 \item Capability for user to play with known people in an isolated environment
@@ -50,13 +52,29 @@ This project makes sense in the chosen environment for a variety of reasons. Our
 
 Consider a user that is with 2 other friends and they are just trying to pass the time or have some fun. They each have their own laptops. Shots Fired is a 2-4 player game and is a game that everyone can play together. This satisfies the need of getting everyone involved in the same activity. To create a game with friends, one person would create a game and choose the option to play with friends. In this case, they will receive a code or url that their friends can input and use to join the same group. This way, friends can play together and not have to worry about having other people in their game. \\\\
 
-Each player will control a character on a small 2D map. They will use the mouse and/or keyboard to fire their weapon. If hit, they lose health. When health is 0 they lose. A user would be able to complete a game in under 5 minutes so it is very quick and easy to play anytime. Due to the fact they are playing with friends, there is a bit of a competition between them, however, they are mainly playing for fun to pass the time. 
+Each player will control a character on a small 2D map.  Their view would show
+a top-down view of the map, with their character in the center. Using the keys
+WASD, they would move their character around, and they will use the mouse
+to aim and fire their weapon. If hit, they lose health. When health is 0 they
+lose. A user would be able to complete a game in under 5 minutes so it is very
+quick and easy to play anytime. Due to the fact they are playing with friends,
+there is a bit of a competition between them, however, they are mainly playing
+for fun to pass the time. 
 
 \clearpage
 
 \noindent\textbf{Second Scenario}\\\\
 
-Consider a user that is alone. They load the game. They do not have any friends, but they still want a way to relax and play a simple game with others. This game will support this use case. A user can join and be matched with other random people who have decided to play the game in this mode. The game itself will be the same as what is described in the first user scenario, but the user situation supported and the path to get to the end result will be different and will require code to handle the two cases. This scenario also allows for a user of a more competitive nature since they are not playing with friends and can try their hardest to do their best. 
+Consider a user that is alone. They load the game. They do not have any
+friends, but they still want a way to relax and play a simple game with others.
+This game will support this use case. The user would open the game, then select
+the "Quick play" option.  The system would then place the user along with other
+users who selected "Quick play" in an automatically created instance.  Once the
+instance has 4 players or there are more than one player and a time limit is
+reached, the game will begin.  The game itself will be the same as what is
+described in the first user scenario.  This scenario also allows for a user of
+a more competitive nature since they are not playing with friends and can try
+their hardest to do their best.
 
 
 
@@ -64,14 +82,33 @@ Consider a user that is alone. They load the game. They do not have any friends,
 \section{Non Functional Properties}
 \begin{enumerate}
 \item
-Output is rendered without noticeable lag between players if players are on computers with a reasonable internet connection. \\\\
-It is important to have no noticeable lag since that will affect the user experience. If players experience lag, they will be less likely to play the game again since lag harms the gameplay. We want users to continue playing the game in the future. No lag will result in a much better playing experience in game.
+Performance:  Output is rendered without noticeable lag between players if players are on
+computers with a reasonable internet connection. \\\\
+It is important to have no noticeable lag since that will affect the user
+experience. If players experience lag, they will be less likely to play the
+game again since lag harms the gameplay. We want users to continue playing
+the game in the future. No lag will result in a much better playing
+experience in game.
 \item
-Very easy to join a game. Low barrier to entry.\\\\
-Having a low barrier to entry is important so that anyone can join the game. By using a code, a user can easily play a match with friends. By joining a match without a code, a user can easily play with other random people so both game modes allow for easy entry.
+Usability: Very easy to join a game. Low barrier to entry.\\\\
+Having a low barrier to entry is important so that anyone can join the game. By
+using a code, a user can easily play a match with friends. By joining a
+match without a code, a user can easily play with other random people so
+both game modes allow for easy entry.
 \item
-Compatible with Chrome 52+.\\\\
-The compatibility with Chrome 52+ is important so that we have access to any new features that come out in browser. Chrome 52 is one of the most recent versions of Chrome that was released a few months ago so it should be commonly used right now. In addition, Chrome will update on its own which means that majority of users will be able to play the game and make use of new Chrome features if available.
+Simplicity:  Simple controls and objective, easy to pick up and play\\\\
+Part of the low barrier to entry is how easy it is to learn how to
+play the game and be able to have fun with it.  The rules of the game
+should be simple and intuitive enough to immediately grasp what
+one should do.
+\item
+Compatibility: Compatible with Chrome 52+.\\\\
+The compatibility with Chrome 52+ is important so that we have access to any
+new features that come out in browser. Chrome 52 is one of the most recent
+versions of Chrome that was released a few months ago so it should be
+commonly used right now. In addition, Chrome will update on its own which
+means that majority of users will be able to play the game and make use of
+new Chrome features if available.
 
 \end{enumerate}
 
