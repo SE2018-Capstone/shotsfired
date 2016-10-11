@@ -1,10 +1,11 @@
-var app = require('express')();
+var express = require('express');
+var path = require('path');
+var app = express();
 var http = require('http').Server(app);
-var socket = require('socket.io');
-var io = socket(http);
 
+app.use(express.static(__dirname));
 app.get('/', function(req: any, res: any){
-  res.send('<h1>Hi world</h1>');
+  res.sendFile(path.resolve(__dirname, './index.html'));
 });
 
 http.listen(3000, function(){

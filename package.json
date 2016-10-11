@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "client": "webpack-dev-server --inline --hot",
-    "server": "node ./dev-server.js"
+    "server": "node ./dev-server.js",
+    "build-client": "webpack --config webpack.config.client.js",
+    "build-server": "webpack --config webpack.config.server.js"
   },
   "repository": {
     "type": "git",

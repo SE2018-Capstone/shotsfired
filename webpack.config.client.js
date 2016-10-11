@@ -1,14 +1,14 @@
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
+const path = require('path');
 
 module.exports = {
   entry: [
-    'webpack-dev-server/client?http://0.0.0.0:3000', // WebpackDevServer host and port
-    'webpack/hot/only-dev-server', // "only" prevents reload on syntax errors
     './src/index.tsx',
   ],
   output: {
     filename: './dist/bundle.js',
+    path: path.resolve(__dirname, ''),
   },
 
   // Enable sourcemaps for debugging webpack's output.
@@ -16,7 +16,7 @@ module.exports = {
 
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js']
+    extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.json']
   },
 
   plugins: [
@@ -26,7 +26,7 @@ module.exports = {
   module: {
     loaders: [
       // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
-      { test: /\.tsx?$/, loader: 'ts-loader' },
+      { test: /\.tsx?$/, loaders: ['react-hot-loader/webpack', 'ts-loader'] },
       { test: /\.json?$/, loader: 'json-loader' }
     ],
 
@@ -36,5 +36,5 @@ module.exports = {
     ]
   },
 
-  externals: [nodeExternals()],
+//  externals: [nodeExternals()],
 };
