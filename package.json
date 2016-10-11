@@ -4,7 +4,8 @@
   "description": "Game",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --inline --hot"
   },
   "repository": {
     "type": "git",
@@ -23,8 +24,11 @@
     "react-dom": "^15.3.2"
   },
   "devDependencies": {
+    "react-hot-loader": "^3.0.0-beta.5",
     "source-map-loader": "^0.1.5",
     "ts-loader": "^0.9.0",
-    "typescript": "^2.1.0-dev.20161010"
+    "typescript": "^2.1.0-dev.20161010",
+    "webpack": "^1.13.2",
+    "webpack-dev-server": "^1.16.2"
   }
 }
