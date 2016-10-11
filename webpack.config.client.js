@@ -1,4 +1,5 @@
 const webpack = require('webpack');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
   entry: [
@@ -34,4 +35,6 @@ module.exports = {
       { test: /\.js$/, loader: 'source-map-loader' }
     ]
   },
+
+  externals: [nodeExternals()],
 };
