@@ -1,13 +1,14 @@
-var express = require('express');
-var path = require('path');
+import * as express from 'express';
+import * as path from 'path';
+import * as http from 'http';
 var app = express();
-var http = require('http').Server(app);
+var server = http.createServer(app);
 
-app.use(express.static(__dirname));
-app.get('/', function(req: any, res: any){
-  res.sendFile(path.resolve(__dirname, './index.html'));
+app.use(express.static(path.resolve(__dirname, '../')));
+app.get('/', function (req: express.Request, res: express.Response) {
+  res.sendFile(path.resolve(__dirname, '../index.html'));
 });
 
-http.listen(3000, function(){
+server.listen(3000, function () {
   console.log('listening on *:3000');
 });

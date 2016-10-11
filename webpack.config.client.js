@@ -1,5 +1,3 @@
-const webpack = require('webpack');
-const nodeExternals = require('webpack-node-externals');
 const path = require('path');
 
 module.exports = {
@@ -19,14 +17,10 @@ module.exports = {
     extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.json']
   },
 
-  plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-  ],
-
   module: {
     loaders: [
       // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
-      { test: /\.tsx?$/, loaders: ['react-hot-loader/webpack', 'ts-loader'] },
+      { test: /\.tsx?$/, loaders: ['ts-loader'] },
       { test: /\.json?$/, loader: 'json-loader' }
     ],
 

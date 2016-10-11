@@ -8,6 +8,8 @@ var clientCompiler = webpack(clientConfig);
 clientCompiler.watch({
   aggregateTimeout: 300,
 }, (err, stats) => {
+  if (err)
+    console.error(err);
 });
 
 const serverConfig = require('./webpack.config.server.js');
@@ -15,6 +17,8 @@ var serverCompiler = webpack(serverConfig);
 serverCompiler.watch({
   aggregateTimeout: 300,
 }, (err, stats) => {
+  if (err)
+    console.error(err);
 });
 
 nodemon({
