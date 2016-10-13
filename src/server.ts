@@ -12,7 +12,7 @@ app.get('/', function (req: express.Request, res: express.Response) {
   res.sendFile(path.resolve(__dirname, '../index.html'));
 });
 
-io.on('connection', function(socket: any){
+io.on('connection', function(socket: SocketIO.Socket){
   console.log('a user connected');
   socket.on('chat message', function(msg: String){
     io.emit('chat message', msg);

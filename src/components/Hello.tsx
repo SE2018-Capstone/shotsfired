@@ -5,7 +5,7 @@ export interface HelloProps { compiler: string; framework: string; }
 
 export class Hello extends React.Component<HelloProps, {}> {
   input: HTMLInputElement;
-  socket: any;
+  socket: SocketIOClient.Socket;
 
   constructor(props: HelloProps) {
     super(props);
@@ -24,7 +24,7 @@ export class Hello extends React.Component<HelloProps, {}> {
   render() {
     return <h1>
       <div>
-        Hello from {this.props.compiler} and {this.props.framework}!
+        Bye from {this.props.compiler} and {this.props.framework}!
       </div>
       <form onSubmit={this.onSubmit.bind(this)}>
         <input ref={(i) => this.input = i}/>

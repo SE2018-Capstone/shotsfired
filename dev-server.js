@@ -8,6 +8,7 @@ var clientCompiler = webpack(clientConfig);
 clientCompiler.watch({
   aggregateTimeout: 300,
 }, (err, stats) => {
+  console.log(stats.toString("minimal"))
   if (err)
     console.error(err);
 });
@@ -17,12 +18,14 @@ var serverCompiler = webpack(serverConfig);
 serverCompiler.watch({
   aggregateTimeout: 300,
 }, (err, stats) => {
+  console.log(stats.toString("minimal"))
   if (err)
     console.error(err);
 });
 
 nodemon({
-  script: './dist/backend.js'
+  script: './dist/backend.js',
+  watch: ['backend.js'],
 });
 
 nodemon.on('start', function () {
