@@ -8,7 +8,11 @@
     "client": "webpack-dev-server --inline --hot",
     "server": "node ./dev-server.js",
     "build-client": "webpack --config webpack.config.client.js",
-    "build-server": "webpack --config webpack.config.server.js"
+    "build-server": "webpack --config webpack.config.server.js",
+    "watch-client": "webpack --watch --config webpack.config.client.js",
+    "watch-server": "webpack --watch --config webpack.config.server.js",
+    "start": "npm run build-client; npm run build-server; node dist/backend.js",
+    "nodemon": "nodemon dist/backend.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +28,7 @@
     "@types/react": "^0.14.39",
     "@types/react-dom": "^0.14.17",
     "express": "^4.14.0",
+    "json-loader": "^0.5.4",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "socket.io": "^1.5.0"

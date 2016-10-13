@@ -9,7 +9,7 @@ export class Hello extends React.Component<HelloProps, {}> {
 
   constructor(props) {
     super(props);
-    var socket = io('localhost:4000');
+    var socket = io('localhost:3000');
     socket.on('chat message', function(msg){
       console.log(msg);
     });
