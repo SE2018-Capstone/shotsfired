@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as http from 'http';
 import * as socketio from 'socket.io';
 var app = express();
-var server = http.Server(app);
+var server = http.createServer(app);
 var io = socketio(server);
 
 app.use(express.static(path.resolve(__dirname, '../')));
@@ -14,7 +14,7 @@ app.get('/', function (req: express.Request, res: express.Response) {
 
 io.on('connection', function(socket: any){
   console.log('a user connected');
-  socket.on('chat message', function(msg){
+  socket.on('chat message', function(msg: String){
     io.emit('chat message', msg);
   });
 });

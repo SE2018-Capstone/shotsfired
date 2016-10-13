@@ -4,22 +4,18 @@ import * as io from 'socket.io-client';
 export interface HelloProps { compiler: string; framework: string; }
 
 export class Hello extends React.Component<HelloProps, {}> {
-  input: React.Component;
+  input: HTMLInputElement;
   socket: any;
 
-  constructor(props) {
+  constructor(props: HelloProps) {
     super(props);
-    var socket = io('localhost:3000');
-    socket.on('chat message', function(msg){
+    this.socket = io('localhost:3000');
+    this.socket.on('chat message', function(msg: String){
       console.log(msg);
     });
-    socket.on('connect', function(){});
-    socket.on('event', function(data){});
-    socket.on('disconnect', function(){});
-    this.socket = socket;
   }
 
-  onSubmit(e) {
+  onSubmit(e: Event) {
     e.preventDefault();
     this.socket.emit('chat message', this.input.value);
     this.input.value = '';
