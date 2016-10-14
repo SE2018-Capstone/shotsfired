@@ -1,20 +1,49 @@
 import * as React from 'react';
+import 'p2';
+import 'pixi';
+import * as Phaser from 'phaser';
 
-export class GameCanvas extends React.Component<{}, {}> {
+export interface GameCanvasProps { width: number; height: number; }
+
+export class GameCanvas extends React.Component<GameCanvasProps, {}> {
   canvas: HTMLCanvasElement;     
   ctx: CanvasRenderingContext2D;
+  game: Phaser.Game;
+  line: Phaser.Line;
   
-  componentDidMount() {
-    this.ctx = this.canvas.getContext('2d');
-    this.ctx.fillStyle = "rgb(0,0,0)";
-    this.ctx.fillRect(0, 0, 640, 480);
+  
+  phaserInit() {
+    const {width, height} = this.props;
+    this.game = new Phaser.Game(width, height, Phaser.AUTO, 'canvasDiv', {
+      create: this.phaserCreate.bind(this),
+      update: this.phaserUpdate.bind(this),
+      render: this.phaserRender.bind(this),
+    });
+  }
+  
+  phaserCreate() {
+    this.game.stage.backgroundColor = '#124184';
+    this.line = new Phaser.Line(100, 100, 200, 200);
+  }
+  
+  phaserUpdate() {
+    const {line, game} = this;
+    line.centerOn(game.input.activePointer.x, game.input.activePointer.y);
+    line.rotate(0.05);
+  }
+  
+  phaserRender() {
+    const {line, game} = this;
+    game.debug.geom(line);
+    game.debug.lineInfo(line, 32, 32)
   }
     
-  render() {
-    return <canvas
-      width={640}
-      height={480}
-      ref={(c) => this.canvas = c}
-    />;
+  componentDidMount() {
+    this.phaserInit();
   }
+  
+  render() {
+    return <div id="canvasDiv"></div>;
+  }
+  
 }

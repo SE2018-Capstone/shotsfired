@@ -10,10 +10,11 @@
           "node"
         ]
     },
-    "files": [
-        "./src/components/app.tsx",
-        "./src/components/main.tsx",
-        "./src/index.tsx",
-        "./src/server.ts"
+    "include": [
+        "./src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
     ]
 }
