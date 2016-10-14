@@ -10,9 +10,6 @@
           "node"
         ]
     },
-    "rootDirs": [
-      "src"
-    ],
     "include": [
         "./src/**/*"
     ],
