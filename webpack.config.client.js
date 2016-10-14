@@ -7,7 +7,7 @@ var p2 = path.join(phaserModule, 'build/custom/p2.js');
 
 module.exports = {
   entry: [
-    './src/index.tsx',
+    './src/client/index.tsx',
   ],
   output: {
     filename: './dist/bundle.js',
