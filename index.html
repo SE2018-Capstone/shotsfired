@@ -3,11 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <title>Hello React!</title>
+    <style>
+      html, body, #root {
+        height: 100%;
+        width: 100%;
+        margin: 0px;
+      }
+    </style>
   </head>
   <body>
-    <div id="example"></div>
-
-    <!-- Main -->
+    <div id="root"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.0.3/pixi.js"></script>
     <script type="text/javascript" src="./dist/bundle.js"></script>
   </body>
 </html>
