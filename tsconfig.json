@@ -11,7 +11,8 @@
         ]
     },
     "files": [
-        "./src/components/Hello.tsx",
+        "./src/components/app.tsx",
+        "./src/components/main.tsx",
         "./src/index.tsx",
         "./src/server.ts"
     ]
