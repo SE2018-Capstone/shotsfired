@@ -7,7 +7,7 @@ var config = require('./webpack.config.client.js');
 config = Object.assign({}, config, {
   target: 'node',
   node: { __dirname: false, __filename: false },
-  entry: './src/server.ts',
+  entry: './src/server/server.ts',
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'backend.js'
