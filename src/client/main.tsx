@@ -1,15 +1,15 @@
 import * as React from 'react';
 import * as socketIo from 'socket.io-client';
 import { GameCanvas } from './game-canvas';
-import { Game } from '../core/game';
+import { Game, GameState } from '../core/game';
 
 export class Main extends React.Component<{}, {}> {
-  game: Game;
+  game: GameState;
   socket: SocketIOClient.Socket;
   
   constructor() {
     super();
-    this.game = new Game();  
+    this.game = Game.init();
     this.socket = socketIo('localhost:3000');
     this.socket.on('state update', function(update:any) {
       console.log(update);

@@ -2,9 +2,9 @@ import * as React from 'react';
 import 'p2';
 import 'pixi';
 import * as Phaser from 'phaser';
-import { Game } from '../core/game';
+import { GameState } from '../core/game';
 
-export interface GameCanvasProps { width: number; height: number; gameState: Game }
+export interface GameCanvasProps { width: number; height: number; gameState: GameState; }
 
 
 export class GameCanvas extends React.Component<GameCanvasProps, {}> {
@@ -45,23 +45,17 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     game.physics.enable(this.shooter, Phaser.Physics.ARCADE);
     this.shooter.scale.setMagnitude(0.3);
     this.shooter.anchor.setTo(0.5, 0.5);
-    this.shooter.body.allowRotation = false;
-    this.shooter.body.collideWorldBounds = true;
     game.camera.follow(this.shooter);
     
     this.bullets = game.add.group();
     this.bullets.enableBody = true;
     this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
-    this.bullets.createMultiple(50, 'bullet');
-    this.bullets.setAll('checkWorldBounds', true);
-    this.bullets.setAll('outOfBoundsKill', true);
   }
   
   phaserUpdate() {
     const {game, prevTime, shooter} = this;
     
     const delta = game.time.now - prevTime;
-    this.props.gameState.update(delta);
     
     let vel = 300;
     shooter.body.velocity.x = 0;
