@@ -8,8 +8,8 @@ export interface EntityState {
   radius: number;
 };
 
-export module Entity {
-  export function init(pos: Vec = new Vec(0, 0), radius: number = 10) {
+export class Entity {
+  static init(pos: Vec = new Vec(0, 0), radius: number = 10) {
     return {
       pos: new Vec(0, 0),
       vel: new Vec(0, 0),

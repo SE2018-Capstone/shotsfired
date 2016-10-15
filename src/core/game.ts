@@ -23,16 +23,16 @@ export interface GameState {
   };
 };
 
-export module Game {
-  export function init(width: number = 640, height: number = 480) {
+export class Game {
+  static init(width: number = 640, height: number = 480) {
     return {
       world: { width, height },
       entities: { players: [], bullets: [] },
     } as GameState;
   }
   
-  export function update(delta: number, input: InputState) {
-    console.log(init());
-    console.log(input, delta);
+  static update(prev: GameState, input: InputState) {
+    console.log(this.init());
+    console.log(input);
   }
 }

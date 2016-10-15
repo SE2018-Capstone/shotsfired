@@ -4,8 +4,8 @@ export interface PlayerState extends EntityState {
   health: number;
 }
 
-export module Player {
-  export function init() {
+export class Player {
+  static init() {
     return Object.assign(Entity.init(), {
       health: 10,
     }) as PlayerState;

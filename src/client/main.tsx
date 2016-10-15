@@ -4,12 +4,12 @@ import { GameCanvas } from './game-canvas';
 import { Game, GameState } from '../core/game';
 
 export class Main extends React.Component<{}, {}> {
-  game: GameState;
+  gameState: GameState;
   socket: SocketIOClient.Socket;
   
   constructor() {
     super();
-    this.game = Game.init();
+    this.gameState = Game.init(1280, 720);
     this.socket = socketIo('localhost:3000');
     this.socket.on('state update', function(update:any) {
       console.log(update);
@@ -19,7 +19,7 @@ export class Main extends React.Component<{}, {}> {
   render() {
     return (
       <div>
-        <GameCanvas width={640} height={480} gameState={this.game}/>
+        <GameCanvas gameState={this.gameState}/>
       </div>
     );
   }
