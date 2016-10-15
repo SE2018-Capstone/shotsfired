@@ -9,7 +9,9 @@ export class Main extends React.Component<{}, {}> {
   
   constructor() {
     super();
-    this.gameState = Game.init(1280, 720);
+    this.gameState = Game.init({width: 1280, height: 720});
+    const player = Game.addPlayer(this.gameState);
+    this.gameState.activePlayer = player.id;
     this.socket = socketIo('localhost:3000');
     this.socket.on('state update', function(update:any) {
       console.log(update);
@@ -19,7 +21,7 @@ export class Main extends React.Component<{}, {}> {
   render() {
     return (
       <div>
-        <GameCanvas gameState={this.gameState}/>
+        <GameCanvas game={this.gameState}/>
       </div>
     );
   }

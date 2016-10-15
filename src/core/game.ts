@@ -1,4 +1,4 @@
-import { PlayerState } from './player';
+import { Player, PlayerState } from './player';
 import { BulletState } from './bullet';
 
 export interface InputState {
@@ -21,18 +21,35 @@ export interface GameState {
     players: PlayerState[];
     bullets: BulletState[];
   };
+  activePlayer: number | null;
 };
 
 export class Game {
-  static init(width: number = 640, height: number = 480) {
-    return {
-      world: { width, height },
+  static init(overrides: any = {}) {
+    return Object.assign({
+      world: { width: 640, height: 480 },
       entities: { players: [], bullets: [] },
-    } as GameState;
+      activePlayer: null
+    }, overrides) as GameState;
   }
-  
-  static update(prev: GameState, input: InputState) {
-    console.log(this.init());
-    console.log(input);
+
+  // Current issue is that the state that the parts base their
+  // information of is changing as they're all running, so behavior
+  // might change based on the order of iteration, which is bad.
+  // Immutability is the only way to fix this
+  static update(state: GameState, input: InputState) {
+    // console.log(this.init());
+    // console.log(input);
+    state.entities.players.forEach(player => {
+      Player.update(player, input, state);
+    });
+  }
+
+  static addPlayer(state: GameState) {
+    let player = Player.init();
+    player.pos.x = state.world.width / 2;
+    player.pos.y = state.world.height / 2;
+    state.entities.players.push(player);
+    return player;
   }
 }

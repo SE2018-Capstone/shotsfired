@@ -1,6 +1,6 @@
-import { EntityState } from './entity';
+import { EntityState, Entity } from './entity';
 
 export interface BulletState extends EntityState {};
 
-export class Bullet {
+export class Bullet extends Entity {
 }
