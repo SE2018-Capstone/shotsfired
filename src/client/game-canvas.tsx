@@ -3,8 +3,9 @@ import 'p2';
 import 'pixi';
 import * as Phaser from 'phaser';
 import { Game } from '../core/game';
+import { ClientSocket } from './client-socket';
 
-export interface GameCanvasProps { width: number; height: number; gameState: Game }
+export interface GameCanvasProps { width: number; height: number; gameState: Game, socket: ClientSocket }
 
 
 export class GameCanvas extends React.Component<GameCanvasProps, {}> {
@@ -61,7 +62,7 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     const {game, prevTime, shooter} = this;
     
     const delta = game.time.now - prevTime;
-    this.props.gameState.update(delta);
+    this.props.socket.sendFrame({moveUp: false, moveLeft: false, moveRight: false, moveDown:false, shoot:false, orientation: 180, clientTimestamp: 1, serverTimestamp:0, frameDuration:2});
     
     let vel = 300;
     shooter.body.velocity.x = 0;
