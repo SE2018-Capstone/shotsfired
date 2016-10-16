@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { Main } from './main';
 
-
 /*
   This class centers its contents
 */

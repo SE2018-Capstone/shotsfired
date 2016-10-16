@@ -3,8 +3,9 @@ import * as socketIo from 'socket.io-client';
 import { GameCanvas } from './game-canvas';
 import { GameState } from '../core/game';
 import { ClientController } from './client-controller';
+import { Splash } from './splash';
 
-enum Stages { LOADING, RUNNING };
+enum Stages { SPLASH, LOADING, RUNNING };
 export interface ClientState { stage: Stages; }
 export class Main extends React.Component<{}, ClientState> {
   gameState: GameState;
@@ -14,6 +15,10 @@ export class Main extends React.Component<{}, ClientState> {
 
   constructor() {
     super();
+    this.state = { stage: Stages.SPLASH };
+  }
+
+  socketInit() {
     this.socket = socketIo();
     this.socket.on('registration', (initialData: {playerId: string, gameState: GameState}) => {
       console.log('connection!');
@@ -31,6 +36,8 @@ export class Main extends React.Component<{}, ClientState> {
 
   render() {
     switch(this.state.stage) {
+      case Stages.SPLASH:
+        return <Splash socketInit={() => this.socketInit()} />;
       case Stages.LOADING:
         return <div> Loading... </div>;
       case Stages.RUNNING:
