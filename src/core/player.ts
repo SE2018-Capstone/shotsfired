@@ -32,6 +32,7 @@ export class Player extends Entity {
     if (input.left) { inputVel.x -= step; }
     if (input.right) { inputVel.x += step; }
 
+    player.orientation = input.angle;
     player.pos.x += inputVel.x;
     player.pos.y += inputVel.y;
   }

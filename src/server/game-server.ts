@@ -2,7 +2,7 @@ import { Server }  from 'http';
 import { GameState, Game, InputFrame } from '../core/game';
 import * as SocketIO from 'socket.io';
 
-const TICKS_PER_SECOND = 1;
+const TICKS_PER_SECOND = 30;
 export class GameServer {
   io: SocketIO.Server;
   game: GameState;

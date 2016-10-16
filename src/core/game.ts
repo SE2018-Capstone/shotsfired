@@ -17,6 +17,7 @@ export interface GameState {
   world: {
     width: number;
     height: number;
+    maxPlayers: 4;
   };
   entities: {
     players: PlayerState[];
@@ -27,7 +28,7 @@ export interface GameState {
 export class Game {
   static init(overrides: any = {}) {
     return Object.assign({
-      world: { width: 640, height: 480 },
+      world: { width: 640, height: 480, maxPlayers: 4 },
       entities: { players: [], bullets: [] },
     }, overrides) as GameState;
   }

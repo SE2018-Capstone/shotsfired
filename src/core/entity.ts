@@ -25,7 +25,7 @@ export interface EntityState {
   vel: Vector;
   accel: Vector;
   // inputVel: Vector; // The velocity due to user input
-  orientation: Vector; // Unit vector
+  orientation: number; // angle in radians
   radius: number; // Collision hitbox
 };
 
@@ -35,11 +35,13 @@ export class Entity {
       pos: {x: 640, y: 320},
       vel: {x: 0, y: 0},
       accel: {x: 0, y: 0},
-      orientation: {x: 0, y: 0},
+      orientation: 0,
       radius: 10,
     }, overrides);
   }
 
+  // TODO: Make this able to keep players running if they were running
+  // We need player input to be able to be inputted normally, but extrapolated when only simulated?
   static update(entity: EntityState, delta: number, game: GameState) {
     entity.vel = Vec.add(entity.vel, entity.accel);
     entity.pos = Vec.add(entity.pos, Vec.mul(entity.vel, delta / 1000));

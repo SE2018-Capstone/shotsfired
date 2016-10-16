@@ -16,7 +16,7 @@ export interface GameCanvasProps {
 export class GameCanvas extends React.Component<GameCanvasProps, {}> {
   phaserGame: Phaser.Game;
   prevTime: number;
-  enemies: Phaser.Group;
+  enemies: Phaser.Sprite[];
   player: Phaser.Sprite;
   // bullets: Phaser.Group;
 
@@ -43,18 +43,22 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
 
     let {phaserGame} = this;
     phaserGame.stage.backgroundColor = '#124184';
+    phaserGame.stage.disableVisibilityChange = true; // TODO: Remove for prod
 
-    let enemies = phaserGame.add.group();
-    enemies.createMultiple(4, 'shooter');
-    // enemies.setAll('scale.magnitude', 0.3);
-    // enemies.setAll('anchor', new Phaser.Point(0.5, 0.5));
-    this.enemies = enemies;
+    this.enemies = [];
+    for (let i = 0; i < this.props.game.world.maxPlayers; i++) { // move 4 to a constant
+      this.enemies[i] = phaserGame.add.sprite(0, 0, 'shooter');
+      this.enemies[i].exists = false;
+    }
 
     let player = phaserGame.add.sprite(0, 0, 'shooter');
-    player.scale.setMagnitude(0.3);
-    player.anchor.setTo(0.5, 0.5);
     phaserGame.camera.follow(player);
     this.player = player;
+
+    this.enemies.concat([player]).forEach(shooter => {
+      shooter.scale.setMagnitude(0.3);
+      shooter.anchor.setTo(0.5, 0.5);
+    });
 
     this.prevTime = this.phaserGame.time.now;
   }
@@ -85,6 +89,19 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     player.x = playerState.pos.x;
     player.y = playerState.pos.y;
     player.rotation = phaserGame.physics.arcade.angleToPointer(player);
+
+    // TODO: Make this cleaner
+    let i = 0;
+    game.entities.players.filter(p => p.id !== playerId).forEach(player => {
+      let enemy = this.enemies[i++];
+      enemy.exists = true;
+      enemy.x = player.pos.x;
+      enemy.y = player.pos.y;
+      enemy.rotation = player.orientation;
+    });
+    for (;i < this.enemies.length; i++) {
+      this.enemies[i].exists = false;
+    }
   }
 
   phaserRender() {
