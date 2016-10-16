@@ -29,7 +29,6 @@ export class Game {
     return Object.assign({
       world: { width: 640, height: 480 },
       entities: { players: [], bullets: [] },
-      activePlayer: null
     }, overrides) as GameState;
   }
 
@@ -37,19 +36,30 @@ export class Game {
   // information of is changing as they're all running, so behavior
   // might change based on the order of iteration, which is bad.
   // Immutability is the only way to fix this
-  static update(state: GameState, input: InputFrame) {
+  static update(state: GameState, delta: number) {
 
     // process inputs
 
     // events
 
-    let events: any = [];
+    let events: any[] = [];
     state.entities.players.forEach(player => {
-      events.concat(
-        Player.update(player, input, state)
+      events = events.concat(
+        Player.update(player, delta, state)
       );
+    }, []);
+
+    return events;
+  }
+
+  static applyInputs(state: GameState, inputs: InputFrame[]) {
+    const players = state.entities.players;
+    var events: any[] = []; // switch to eventarray
+    inputs.forEach(input => {
+      events = events.concat(Player.applyInput(players[input.playerId], input, state));
     });
 
+    return events;
   }
 
   static addPlayer(state: GameState) {

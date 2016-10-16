@@ -2,14 +2,35 @@ import { Server }  from 'http';
 import { GameState, Game, InputFrame } from '../core/game';
 import * as SocketIO from 'socket.io';
 
+const TICKS_PER_SECOND = 1;
 export class GameServer {
   io: SocketIO.Server;
   game: GameState;
+  frameBuffer: InputFrame[];
+  lastTick: number;
 
   constructor(server: Server) {
     this.game = Game.init();
     this.io = SocketIO(server);
     this.io.on('connection', this.onConnection.bind(this));
+
+    this.frameBuffer = [];
+    this.lastTick = Date.now();
+    this.tick();
+  }
+
+  tick() {
+    let {game, frameBuffer, lastTick} = this;
+    this.frameBuffer = [];
+    let delta = Date.now() - lastTick;
+    lastTick += delta;
+
+    // Handle client disconnect
+
+    Game.applyInputs(game, frameBuffer);
+    Game.update(game, delta);
+    this.sendState();
+    setTimeout(this.tick.bind(this), (1/TICKS_PER_SECOND) * 1000);
   }
 
   onConnection(socket: SocketIO.Socket) {
@@ -22,7 +43,11 @@ export class GameServer {
   }
 
   acceptFrames(frames: InputFrame[]) {
-    console.log('Frames!:', frames[0].angle);
+    this.frameBuffer = this.frameBuffer.concat(frames);
+  }
+
+  sendState() {
+    this.io.emit('state update', this.game); // might need timestamp?
   }
 
 }

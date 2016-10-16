@@ -1,5 +1,4 @@
 import { Game, GameState, InputFrame } from '../core/game';
-import * as socketIo from 'socket.io-client';
 
 // TODO: Move to a core file for interop
 const UPDATE_EVENT = 'state update';
@@ -16,12 +15,13 @@ export class ClientController {
   }
 
   update(input: InputFrame) {
-    this.sendFrame([input]);
-    Game.update(this.game, input);
+    this.sendFrame([input]); // TODO: Move this to a separate frequency
+    Game.applyInputs(this.game, [input]);
+    Game.update(this.game, input.duration);
   }
 
   receiveState(update: GameState) {
-    Object.apply(this.game, update);
+    Object.assign(this.game, update);
   }
 
   sendFrame(frames: InputFrame[]) {

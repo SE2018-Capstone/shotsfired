@@ -78,7 +78,7 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
       playerId: playerId,
     };
 
-    // Tell the controller that an frame has occured
+    // Tell the controller that a frame has occured
     this.props.onTick(input);
 
     const playerState = game.entities.players[playerId];

@@ -36,6 +36,7 @@ export class Main extends React.Component<{}, ClientState> {
       case Stages.RUNNING:
         return (
           <div>
+          <div> Player: {this.activePlayer} </div>
             <GameCanvas
               game={this.gameState}
               playerId={this.activePlayer}
