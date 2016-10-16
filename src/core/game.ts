@@ -38,11 +38,18 @@ export class Game {
   // might change based on the order of iteration, which is bad.
   // Immutability is the only way to fix this
   static update(state: GameState, input: InputState) {
-    // console.log(this.init());
-    // console.log(input);
+
+    // process inputs
+
+    // events
+
+    let events: any = [];
     state.entities.players.forEach(player => {
-      Player.update(player, input, state);
+      events.concat(
+        Player.update(player, input, state)
+      );
     });
+
   }
 
   static addPlayer(state: GameState) {

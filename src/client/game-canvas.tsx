@@ -2,9 +2,11 @@ import * as React from 'react';
 import 'p2';
 import 'pixi';
 import * as Phaser from 'phaser';
-import { Game, GameState, InputState } from '../core/game';
+import { GameState } from '../core/game';
+import { Clock } from '../core/clock';
 
 export interface GameCanvasProps {game: GameState;}
+
 
 export class GameCanvas extends React.Component<GameCanvasProps, {}> {
   phaserGame: Phaser.Game;
@@ -70,7 +72,8 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
       fired: phaserGame.input.activePointer.isDown,
       duration: delta,
     };
-    Game.update(this.props.game, input);
+
+    Clock.tick(this.props.game, input);
 
     const playerState = game.entities.players[game.activePlayer];
     player.x = playerState.pos.x;
