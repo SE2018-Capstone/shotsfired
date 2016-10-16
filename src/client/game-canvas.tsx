@@ -2,12 +2,15 @@ import * as React from 'react';
 import 'p2';
 import 'pixi';
 import * as Phaser from 'phaser';
-import { GameState } from '../core/game';
+import { GameState, InputState } from '../core/game';
 import { Clock } from '../core/clock';
 
-export interface GameCanvasProps {game: GameState;}
 
-
+/*
+  This class is the "View" class which uses Phaser for input commands and output visuals.
+  The game object parameter should not be modified directly at any point in this class
+*/
+export interface GameCanvasProps {game: GameState; playerId: number;}
 export class GameCanvas extends React.Component<GameCanvasProps, {}> {
   phaserGame: Phaser.Game;
   prevTime: number;
@@ -40,7 +43,6 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     phaserGame.stage.backgroundColor = '#124184';
 
     let enemies = phaserGame.add.group();
-    enemies = phaserGame.add.group();
     enemies.createMultiple(4, 'shooter');
     // enemies.setAll('scale.magnitude', 0.3);
     // enemies.setAll('anchor', new Phaser.Point(0.5, 0.5));
@@ -57,13 +59,13 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
 
   phaserUpdate() {
     const {phaserGame, player, prevTime} = this;
-    const game = this.props.game;
+    const {game, playerId} = this.props;
 
     const delta = phaserGame.time.now - prevTime;
     this.prevTime = phaserGame.time.now;
 
     const isDown = (key: number) => !!phaserGame.input.keyboard.isDown(key);
-    const input = {
+    const input: InputState = {
       left: isDown(Phaser.Keyboard.LEFT),
       right: isDown(Phaser.Keyboard.RIGHT),
       up: isDown(Phaser.Keyboard.UP),
@@ -71,11 +73,13 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
       angle: phaserGame.physics.arcade.angleToPointer(player),
       fired: phaserGame.input.activePointer.isDown,
       duration: delta,
+      playerId: playerId,
     };
 
-    Clock.tick(this.props.game, input);
+    // Pass the input to the game to update
+    Clock.tick(game, input);
 
-    const playerState = game.entities.players[game.activePlayer];
+    const playerState = game.entities.players[playerId];
     player.x = playerState.pos.x;
     player.y = playerState.pos.y;
     player.rotation = phaserGame.physics.arcade.angleToPointer(player);

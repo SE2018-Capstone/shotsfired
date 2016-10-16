@@ -4,10 +4,10 @@ import { GameState, InputState } from './game';
 export interface EntityState {
   pos: Vec;
   vel: Vec;
-  inputVel: Vec;
   accel: Vec;
-  orientation: Vec;
-  radius: number;
+  inputAccel: Vec; // The acceleration due to user input
+  orientation: Vec; // Unit vector
+  radius: number; // Collision hitbox
 };
 
 export class Entity {

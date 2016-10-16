@@ -9,6 +9,7 @@ export interface InputState {
   angle: number;
   fired: boolean;
   duration: number;
+  playerId: number;
 };
 
 
@@ -21,7 +22,6 @@ export interface GameState {
     players: PlayerState[];
     bullets: BulletState[];
   };
-  activePlayer: number | null;
 };
 
 export class Game {

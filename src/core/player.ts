@@ -19,7 +19,7 @@ export class Player extends Entity {
   static update(player: PlayerState, input: InputState, game: GameState) {
     super.update(player, input, game);
 
-    if (player.id === game.activePlayer) {
+    if (player.id === input.playerId) {
       this.handleControls(player, input);
     }
   }
