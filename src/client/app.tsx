@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { Splash } from './splash';
+import { Main } from './main';
 
 /*
   This class centers its contents
@@ -15,7 +15,7 @@ export class App extends React.Component<{}, {}> {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
-        <Splash />
+        <Main />
       </div>
     );
   }
