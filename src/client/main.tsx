@@ -10,19 +10,19 @@ export class Main extends React.Component<{}, ClientState> {
   gameState: GameState;
   controller: ClientController;
   socket: SocketIOClient.Socket;
-  activePlayer: number;
+  activePlayer: string;
 
   constructor() {
     super();
     this.socket = socketIo();
-    this.socket.on('registration', (initialData: {playerId: number, gameState: GameState}) => {
+    this.socket.on('registration', (initialData: {playerId: string, gameState: GameState}) => {
       console.log('connection!');
       this.startGame(initialData.gameState, initialData.playerId);
     });
     this.state = { stage: Stages.LOADING };
   }
 
-  startGame(initialState: GameState, playerId: number) {
+  startGame(initialState: GameState, playerId: string) {
       this.gameState = initialState;
       this.activePlayer = playerId;
       this.controller = new ClientController(this.gameState, this.socket);
@@ -36,6 +36,7 @@ export class Main extends React.Component<{}, ClientState> {
       case Stages.RUNNING:
         return (
           <div>
+          <div> Player: {this.activePlayer} </div>
             <GameCanvas
               game={this.gameState}
               playerId={this.activePlayer}

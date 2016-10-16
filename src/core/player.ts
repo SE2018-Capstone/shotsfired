@@ -3,7 +3,7 @@ import { InputFrame, GameState } from './game';
 
 export interface PlayerState extends EntityState {
   health: number;
-  id: number;
+  id: string;
 }
 
 const INPUT_VEL = 200;
@@ -16,20 +16,24 @@ export class Player extends Entity {
     }, overrides) as PlayerState;
   }
 
-  static update(player: PlayerState, input: InputFrame, game: GameState) {
-    super.update(player, input, game);
-
-    if (player.id === input.playerId) {
-      this.handleControls(player, input);
-    }
+  static update(player: PlayerState, delta: number, game: GameState) {
+    super.update(player, delta, game);
   }
 
-  private static handleControls(player: PlayerState, input: InputFrame) {
+  public static applyInput(player: PlayerState, input: InputFrame, game: GameState) {
+    if (input.playerId !== player.id) { return; }
+
     // Controls
     const step = (input.duration / 1000) * INPUT_VEL;
-    if (input.up) { player.pos.y -= step; }
-    if (input.down) { player.pos.y += step; }
-    if (input.left) { player.pos.x -= step; }
-    if (input.right) { player.pos.x += step; }
+    const inputVel = {x: 0, y: 0};
+
+    if (input.up) { inputVel.y -= step; }
+    if (input.down) { inputVel.y += step; }
+    if (input.left) { inputVel.x -= step; }
+    if (input.right) { inputVel.x += step; }
+
+    player.orientation = input.angle;
+    player.pos.x += inputVel.x;
+    player.pos.y += inputVel.y;
   }
 }
