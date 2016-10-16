@@ -15,6 +15,10 @@ export class Vec {
     return {x, y};
   }
 
+  static subtract(a: Vector, b: Vector){
+    return {x: a.x - b.x, y: a.y - b.y} as Vector;
+  }
+
   static mul(v: Vector, scale: number) {
     return {x: v.x * scale, y: v.y * scale};
   }
@@ -27,7 +31,11 @@ export interface EntityState {
   // inputVel: Vector; // The velocity due to user input
   orientation: number; // angle in radians
   radius: number; // Collision hitbox
+  id: string;
+  key: string;
 };
+
+let lastId = 0;
 
 export class Entity {
   static init(overrides: any = {}) {
@@ -37,6 +45,7 @@ export class Entity {
       accel: {x: 0, y: 0},
       orientation: 0,
       radius: 10,
+      id: (lastId++).toString(),
     }, overrides);
   }
 
@@ -45,5 +54,9 @@ export class Entity {
   static update(entity: EntityState, delta: number, game: GameState) {
     entity.vel = Vec.add(entity.vel, entity.accel);
     entity.pos = Vec.add(entity.pos, Vec.mul(entity.vel, delta / 1000));
+  }
+
+  static colliding(verifier: EntityState, other: EntityState) {
+    return verifier.pos.subtract(other.pos).length() < Math.min(verifier.radius, other.radius)
   }
 }

@@ -23,8 +23,9 @@ export class ClientController {
     }
 
     this.sendFrame([input]); // TODO: Move this to a separate frequency
-    Game.applyInputs(game, [input]);
-    Game.update(game, input.duration);
+    let events = Game.applyInputs(game, [input]);
+    events = events.concat(Game.update(game, input.duration));
+    Game.resolveEvents(events, game);
   }
 
   receiveState(update: GameState) {
