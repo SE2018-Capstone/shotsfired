@@ -16,7 +16,6 @@ export class Main extends React.Component<{}, ClientState> {
   constructor() {
     super();
     this.state = { stage: Stages.SPLASH };
-    this.socketInit = this.socketInit.bind(this);
   }
 
   socketInit() {
@@ -38,7 +37,7 @@ export class Main extends React.Component<{}, ClientState> {
   render() {
     switch(this.state.stage) {
       case Stages.SPLASH:
-        return <Splash socketInit={this.socketInit} />;
+        return <Splash socketInit={() => this.socketInit()} />;
       case Stages.LOADING:
         return <div> Loading... </div>;
       case Stages.RUNNING:
