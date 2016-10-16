@@ -33,7 +33,8 @@
     "pixi.js": "^4.0.3",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
-    "socket.io": "^1.5.0"
+    "socket.io": "^1.5.0",
+    "victor": "^1.1.0"
   },
   "devDependencies": {
     "@types/express": "^4.0.33",
@@ -41,6 +42,7 @@
     "@types/pixi.js": "^3.0.30",
     "@types/socket.io": "^1.4.27",
     "@types/socket.io-client": "^1.4.27",
+    "@types/victor": "^0.2.28",
     "expose-loader": "^0.7.1",
     "json-loader": "^0.5.4",
     "nodemon": "^1.11.0",

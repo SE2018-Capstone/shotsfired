@@ -2,113 +2,103 @@ import * as React from 'react';
 import 'p2';
 import 'pixi';
 import * as Phaser from 'phaser';
-import { Game } from '../core/game';
+import { GameState, InputState } from '../core/game';
+import { Clock } from '../core/clock';
 
-export interface GameCanvasProps { width: number; height: number; gameState: Game }
 
-
+/*
+  This class is the "View" class which uses Phaser for input commands and output visuals.
+  The game object parameter should not be modified directly at any point in this class
+*/
+export interface GameCanvasProps {game: GameState; playerId: number;}
 export class GameCanvas extends React.Component<GameCanvasProps, {}> {
-  canvas: HTMLCanvasElement;     
-  ctx: CanvasRenderingContext2D;
-  game: Phaser.Game;
+  phaserGame: Phaser.Game;
   prevTime: number;
-  shooter: Phaser.Sprite;
-  bullets: Phaser.Group;
-  FIRE_RATE = 100;
-  nextFire = 0;
-  
+  enemies: Phaser.Group;
+  player: Phaser.Sprite;
+  // bullets: Phaser.Group;
+
   phaserInit() {
-    const {width, height} = this.props;
-    this.game = new Phaser.Game(width, height, Phaser.AUTO, 'canvasDiv', {
+    const {game} = this.props;
+    const {width, height} = game.world;
+    this.phaserGame = new Phaser.Game(width, height, Phaser.AUTO, 'canvasDiv', {
       preload: this.phaserPreload.bind(this),
       create: this.phaserCreate.bind(this),
       update: this.phaserUpdate.bind(this),
       render: this.phaserRender.bind(this),
     });
   }
-  
+
   phaserPreload() {
-    const {game} = this;
-    const {width, height} = this.props;
-    game.world.setBounds(0, 0, width, height);
-    game.load.image('shooter', '../../res/shooter.png');
-    game.load.image('bullet', '../../res/purple_ball.png');
+    const {phaserGame} = this;
+    const {width, height} = this.props.game.world;
+    phaserGame.world.setBounds(0, 0, width, height);
+    phaserGame.load.image('shooter', '../../res/shooter.png');
+    // game.load.image('bullet', '../../res/purple_ball.png');
   }
-  
+
   phaserCreate() {
-    this.prevTime = this.game.time.now;
-    
-    let {game} = this;
-    game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.stage.backgroundColor = '#124184';
-    this.shooter = game.add.sprite(320, 240, 'shooter');
-    game.physics.enable(this.shooter, Phaser.Physics.ARCADE);
-    this.shooter.scale.setMagnitude(0.3);
-    this.shooter.anchor.setTo(0.5, 0.5);
-    this.shooter.body.allowRotation = false;
-    this.shooter.body.collideWorldBounds = true;
-    game.camera.follow(this.shooter);
-    
-    this.bullets = game.add.group();
-    this.bullets.enableBody = true;
-    this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
-    this.bullets.createMultiple(50, 'bullet');
-    this.bullets.setAll('checkWorldBounds', true);
-    this.bullets.setAll('outOfBoundsKill', true);
+
+    let {phaserGame} = this;
+    phaserGame.stage.backgroundColor = '#124184';
+
+    let enemies = phaserGame.add.group();
+    enemies.createMultiple(4, 'shooter');
+    // enemies.setAll('scale.magnitude', 0.3);
+    // enemies.setAll('anchor', new Phaser.Point(0.5, 0.5));
+    this.enemies = enemies;
+
+    let player = phaserGame.add.sprite(0, 0, 'shooter');
+    player.scale.setMagnitude(0.3);
+    player.anchor.setTo(0.5, 0.5);
+    phaserGame.camera.follow(player);
+    this.player = player;
+
+    this.prevTime = this.phaserGame.time.now;
   }
-  
+
   phaserUpdate() {
-    const {game, prevTime, shooter} = this;
-    
-    const delta = game.time.now - prevTime;
-    this.props.gameState.update(delta);
-    
-    let vel = 300;
-    shooter.body.velocity.x = 0;
-    shooter.body.velocity.y = 0;
-    if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
-      shooter.body.velocity.x -= vel;
-    } 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
-      shooter.body.velocity.x += vel;
-    } 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
-      shooter.body.velocity.y -= vel;
-    } 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
-      shooter.body.velocity.y += vel;
-    }
-    shooter.rotation = game.physics.arcade.angleToPointer(shooter);
-    
-    if (game.input.activePointer.isDown && game.time.now > this.nextFire && this.bullets.countDead() > 0) {
-      this.nextFire = game.time.now + this.FIRE_RATE;
-      let bullet = this.bullets.getFirstDead() as Phaser.Sprite;
-      bullet.reset(shooter.x - 8, shooter.y - 8);
-      game.physics.arcade.moveToPointer(bullet, 300);
-    }
-    
-    this.prevTime = game.time.now;
+    const {phaserGame, player, prevTime} = this;
+    const {game, playerId} = this.props;
+
+    const delta = phaserGame.time.now - prevTime;
+    this.prevTime = phaserGame.time.now;
+
+    const isDown = (key: number) => !!phaserGame.input.keyboard.isDown(key);
+    const input: InputState = {
+      left: isDown(Phaser.Keyboard.LEFT),
+      right: isDown(Phaser.Keyboard.RIGHT),
+      up: isDown(Phaser.Keyboard.UP),
+      down: isDown(Phaser.Keyboard.DOWN),
+      angle: phaserGame.physics.arcade.angleToPointer(player),
+      fired: phaserGame.input.activePointer.isDown,
+      duration: delta,
+      playerId: playerId,
+    };
+
+    // Pass the input to the game to update
+    Clock.tick(game, input);
+
+    const playerState = game.entities.players[playerId];
+    player.x = playerState.pos.x;
+    player.y = playerState.pos.y;
+    player.rotation = phaserGame.physics.arcade.angleToPointer(player);
   }
-  
+
   phaserRender() {
   }
-    
+
   componentDidMount() {
     this.phaserInit();
   }
-  
+
+  // Don't bother rerendering since this is all canvas
   shouldComponentUpdate(nextProps: GameCanvasProps) {
-    let shouldUpdate = false;
-    Object.keys(this.props).forEach((key) => {
-      if (key !== 'game' && (this.props as any)[key] !== (nextProps as any)[key]) {
-        return shouldUpdate;
-      }
-    });
-    return shouldUpdate;
+    return false;
   }
-  
+
   render() {
     return <div id="canvasDiv"></div>;
   }
-  
+
 }
