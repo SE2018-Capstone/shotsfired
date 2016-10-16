@@ -8,7 +8,10 @@ export interface EntityState {
   inputAccel: Vec; // The acceleration due to user input
   orientation: Vec; // Unit vector
   radius: number; // Collision hitbox
+  id: number
 };
+
+let lastId = 0;
 
 export class Entity {
   static init(overrides: any = {}) {
@@ -19,9 +22,14 @@ export class Entity {
       inputVel: new Vec(0, 0),
       orientation: new Vec(0, 0),
       radius: 10,
+      id: lastId++,
     }, overrides);
   }
 
   static update(entity: EntityState, input: InputFrame, game: GameState) {
+  }
+  
+  static colliding(verifier: EntityState, other: EntityState) {
+    return verifier.pos.subtract(other.pos).length() < Math.min(verifier.radius, other.radius)
   }
 }

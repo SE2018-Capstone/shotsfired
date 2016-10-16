@@ -3,25 +3,23 @@ import { InputFrame, GameState } from './game';
 
 export interface PlayerState extends EntityState {
   health: number;
-  id: number;
 }
 
 const INPUT_VEL = 200;
-var lastId = 0;
 export class Player extends Entity {
   static init(overrides: any = {}) {
     return Object.assign(super.init(), {
       health: 10,
-      id: lastId++,
     }, overrides) as PlayerState;
   }
 
   static update(player: PlayerState, input: InputFrame, game: GameState) {
-    super.update(player, input, game);
-
+    super.update(player, input, game) 
     if (player.id === input.playerId) {
       this.handleControls(player, input);
     }
+    let events: any = []
+    return events;
   }
 
   private static handleControls(player: PlayerState, input: InputFrame) {
@@ -31,5 +29,9 @@ export class Player extends Entity {
     if (input.down) { player.pos.y += step; }
     if (input.left) { player.pos.x -= step; }
     if (input.right) { player.pos.x += step; }
+  }
+  
+  static collidesWithBullet(player: PlayerState, dmg: number) {
+    player.health = player.health - dmg; 
   }
 }
