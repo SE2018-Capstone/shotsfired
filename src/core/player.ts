@@ -1,5 +1,5 @@
 import { Entity, EntityState } from './entity';
-import { InputState, GameState } from './game';
+import { InputFrame, GameState } from './game';
 
 export interface PlayerState extends EntityState {
   health: number;
@@ -16,7 +16,7 @@ export class Player extends Entity {
     }, overrides) as PlayerState;
   }
 
-  static update(player: PlayerState, input: InputState, game: GameState) {
+  static update(player: PlayerState, input: InputFrame, game: GameState) {
     super.update(player, input, game);
 
     if (player.id === input.playerId) {
@@ -24,7 +24,7 @@ export class Player extends Entity {
     }
   }
 
-  private static handleControls(player: PlayerState, input: InputState) {
+  private static handleControls(player: PlayerState, input: InputFrame) {
     // Controls
     const step = (input.duration / 1000) * INPUT_VEL;
     if (input.up) { player.pos.y -= step; }

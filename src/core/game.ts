@@ -1,7 +1,7 @@
 import { Player, PlayerState } from './player';
 import { BulletState } from './bullet';
 
-export interface InputState {
+export interface InputFrame {
   left: boolean;
   right: boolean;
   up: boolean;
@@ -37,7 +37,7 @@ export class Game {
   // information of is changing as they're all running, so behavior
   // might change based on the order of iteration, which is bad.
   // Immutability is the only way to fix this
-  static update(state: GameState, input: InputState) {
+  static update(state: GameState, input: InputFrame) {
 
     // process inputs
 

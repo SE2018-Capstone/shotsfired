@@ -2,15 +2,17 @@ import * as React from 'react';
 import 'p2';
 import 'pixi';
 import * as Phaser from 'phaser';
-import { GameState, InputState } from '../core/game';
-import { Clock } from '../core/clock';
-
+import { GameState, InputFrame } from '../core/game';
 
 /*
   This class is the "View" class which uses Phaser for input commands and output visuals.
   The game object parameter should not be modified directly at any point in this class
 */
-export interface GameCanvasProps {game: GameState; playerId: number;}
+export interface GameCanvasProps {
+  game: GameState;
+  playerId: number;
+  onTick: (input: InputFrame) => void;
+}
 export class GameCanvas extends React.Component<GameCanvasProps, {}> {
   phaserGame: Phaser.Game;
   prevTime: number;
@@ -65,7 +67,7 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     this.prevTime = phaserGame.time.now;
 
     const isDown = (key: number) => !!phaserGame.input.keyboard.isDown(key);
-    const input: InputState = {
+    const input: InputFrame = {
       left: isDown(Phaser.Keyboard.LEFT),
       right: isDown(Phaser.Keyboard.RIGHT),
       up: isDown(Phaser.Keyboard.UP),
@@ -76,8 +78,8 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
       playerId: playerId,
     };
 
-    // Pass the input to the game to update
-    Clock.tick(game, input);
+    // Tell the controller that an frame has occured
+    this.props.onTick(input);
 
     const playerState = game.entities.players[playerId];
     player.x = playerState.pos.x;
