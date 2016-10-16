@@ -1,5 +1,5 @@
 import Vec = require('victor');
-import { GameState, InputState } from './game';
+import { GameState, InputFrame } from './game';
 
 export interface EntityState {
   pos: Vec;
@@ -22,6 +22,6 @@ export class Entity {
     }, overrides);
   }
 
-  static update(entity: EntityState, input: InputState, game: GameState) {
+  static update(entity: EntityState, input: InputFrame, game: GameState) {
   }
 }
