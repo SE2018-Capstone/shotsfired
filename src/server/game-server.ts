@@ -2,11 +2,12 @@ import { Server }  from 'http';
 import { GameState, Game, InputFrame } from '../core/game';
 import * as SocketIO from 'socket.io';
 
-const TICKS_PER_SECOND = 30;
+const TICKS_PER_SECOND = 60;
 export class GameServer {
   io: SocketIO.Server;
   game: GameState;
   frameBuffer: InputFrame[];
+  disconnects: string[];
   lastTick: number;
 
   constructor(server: Server) {
@@ -15,18 +16,20 @@ export class GameServer {
     this.io.on('connection', this.onConnection.bind(this));
 
     this.frameBuffer = [];
+    this.disconnects = [];
     this.lastTick = Date.now();
     this.tick();
   }
 
   tick() {
-    let {game, frameBuffer, lastTick} = this;
+    let {game, frameBuffer, disconnects, lastTick} = this;
     this.frameBuffer = [];
+    this.disconnects = [];
     let delta = Date.now() - lastTick;
     lastTick += delta;
 
     // Handle client disconnect
-
+    disconnects.forEach(id => Game.removePlayer(game, id));
     Game.applyInputs(game, frameBuffer);
     Game.update(game, delta);
     this.sendState();
@@ -40,6 +43,11 @@ export class GameServer {
       gameState: this.game,
     });
     socket.on('new frames', this.acceptFrames.bind(this));
+    socket.on('disconnect', () => this.onDisconnection(player.id));
+  }
+
+  onDisconnection(playerId: string) {
+    this.disconnects.push(playerId);
   }
 
   acceptFrames(frames: InputFrame[]) {

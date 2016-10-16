@@ -9,7 +9,7 @@ export interface InputFrame {
   angle: number;
   fired: boolean;
   duration: number;
-  playerId: number;
+  playerId: string;
 };
 
 
@@ -20,7 +20,7 @@ export interface GameState {
     maxPlayers: 4;
   };
   entities: {
-    players: PlayerState[];
+    players: {[s: string]: PlayerState};
     bullets: BulletState[];
   };
 };
@@ -29,7 +29,7 @@ export class Game {
   static init(overrides: any = {}) {
     return Object.assign({
       world: { width: 640, height: 480, maxPlayers: 4 },
-      entities: { players: [], bullets: [] },
+      entities: { players: {}, bullets: [] },
     }, overrides) as GameState;
   }
 
@@ -44,9 +44,10 @@ export class Game {
     // events
 
     let events: any[] = [];
-    state.entities.players.forEach(player => {
+    let players = state.entities.players;
+    Object.keys(players).filter((p:string) => !!p).forEach((id:string) => {
       events = events.concat(
-        Player.update(player, delta, state)
+        Player.update(players[id], delta, state)
       );
     }, []);
 
@@ -57,6 +58,7 @@ export class Game {
     const players = state.entities.players;
     var events: any[] = []; // switch to eventarray
     inputs.forEach(input => {
+      if (!players[input.playerId]) { return; }
       events = events.concat(Player.applyInput(players[input.playerId], input, state));
     });
 
@@ -67,7 +69,11 @@ export class Game {
     let player = Player.init();
     player.pos.x = state.world.width / 2;
     player.pos.y = state.world.height / 2;
-    state.entities.players.push(player);
+    state.entities.players[player.id] = player;
     return player;
+  }
+
+  static removePlayer(state: GameState, playerId: string) {
+    delete state.entities.players[playerId];
   }
 }

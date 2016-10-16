@@ -10,7 +10,7 @@ import { GameState, InputFrame } from '../core/game';
 */
 export interface GameCanvasProps {
   game: GameState;
-  playerId: number;
+  playerId: string;
   onTick: (input: InputFrame) => void;
 }
 export class GameCanvas extends React.Component<GameCanvasProps, {}> {
@@ -92,7 +92,9 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
 
     // TODO: Make this cleaner
     let i = 0;
-    game.entities.players.filter(p => p.id !== playerId).forEach(player => {
+    let players = game.entities.players;
+    Object.keys(players).filter(id => id !== playerId).forEach(id => {
+      let player = players[id];
       let enemy = this.enemies[i++];
       enemy.exists = true;
       enemy.x = player.pos.x;

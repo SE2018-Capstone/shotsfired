@@ -3,7 +3,7 @@ import { InputFrame, GameState } from './game';
 
 export interface PlayerState extends EntityState {
   health: number;
-  id: number;
+  id: string;
 }
 
 const INPUT_VEL = 200;
