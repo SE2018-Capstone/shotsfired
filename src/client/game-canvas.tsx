@@ -46,7 +46,7 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     phaserGame.stage.disableVisibilityChange = true; // TODO: Remove for prod
 
     this.enemies = [];
-    for (let i = 0; i < this.props.game.world.maxPlayers; i++) { // move 4 to a constant
+    for (let i = 0; i < this.props.game.settings.maxPlayers; i++) { // move 4 to a constant
       this.enemies[i] = phaserGame.add.sprite(0, 0, 'shooter');
       this.enemies[i].exists = false;
     }
@@ -60,9 +60,15 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
       shooter.anchor.setTo(0.5, 0.5);
     });
 
-
     this.bullets = phaserGame.add.group();
     this.bullets.createMultiple(50, 'bullet');
+
+    // Make sure that keys don't scroll the page
+    const {LEFT, RIGHT, UP, DOWN} = Phaser.Keyboard;
+    phaserGame.input.keyboard.addKeyCapture(LEFT);
+    phaserGame.input.keyboard.addKeyCapture(RIGHT);
+    phaserGame.input.keyboard.addKeyCapture(UP);
+    phaserGame.input.keyboard.addKeyCapture(DOWN);
 
     this.prevTime = this.phaserGame.time.now;
   }

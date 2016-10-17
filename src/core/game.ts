@@ -19,19 +19,22 @@ export interface GameState {
   world: {
     width: number;
     height: number;
-    maxPlayers: 4;
   };
   entities: {
     players: {[id:string]:PlayerState};
     bullets: {[id:string]:BulletState};
+  };
+  settings: {
+    maxPlayers: number;
   };
 };
 
 export class Game {
   static init(overrides: any = {}) {
     return Object.assign({
-      world: { width: 640, height: 480, maxPlayers: 4 },
+      world: { width: 640, height: 480 },
       entities: { players: {}, bullets: {} },
+      settings: { maxPlayers: 4 }
     }, overrides) as GameState;
   }
 
