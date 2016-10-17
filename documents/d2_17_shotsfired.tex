@@ -31,6 +31,11 @@ on the mouse. Each player will have a fixed amount of health and when they get
 shot, they will lose one health. After a character loses all of their health,
 they die and the game is over.
 
+There isn't much that is simulated, however we do cut some corners to get this
+demoable. Firstly, we don't have this deployed on a server, so we have to demo
+it on localhost. Secondly, we don't have a robust matchmaking system, so if
+any more than 4 people tried to log on, it would break.
+
 \section{Status Report}
 \hspace*{5mm}
 Currently, we have the functionality of the actual character game play completed. There
@@ -61,23 +66,22 @@ however we will need to do something to fix these issues so that there is no del
 
 \section{Architecture Overview}
 
-MVC Architecture for Client:\\
+High level topology:\\
 \begin{center}
-\includegraphics[scale=0.7]{images/mvc-architecture.png}
+\includegraphics[scale=0.9]{images/architecture.png}
 \end{center}
-
-Entity Hierarchy:\\
-\begin{center}
-\includegraphics[scale=0.9]{images/entity-hierarchy.png}
-\end{center}
-In our system, we have two different entities representing objects that can be seen on screen.\\
-
-\clearpage
-
-Client / Server Architecture:\\
-\begin{center}
-\includegraphics[scale=0.7]{images/client-server-architecture.png}
-\end{center}
+Green components are running on a server, blue components are running on a user's browser, and orange components are shared between them. Some notes about the architecture:
+\begin{itemize}
+  \item The client and server have very similar environments.
+Both are written in Typescript, which will run as Javascript in the players browser, and will run as Javascript on our node.js backend.
+Thus, we can share our core game engine between them to maximize repeatibility and synchronization between client and server.
+  \item We using an MVC structure, seperating our model very cleanly from the
+view and the controller so that we can synchronize the client's models easily
+with the server, while being able to completely ignore the client's views and controllers.
+  \item To synchronize the client and server, the client sends the inputs on a frame-by-frame basis, while buffering these inputs.
+The server receives these inputs, applies them to its master copy, and sends the client back the new master copy.
+The client looks at this new master copy, resets its world to be in that state, then re-applys all buffered inputs since the last input the server acknowledged in its master copy.
+\end{itemize}
 
 
 
