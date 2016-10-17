@@ -20,11 +20,11 @@ export class Main extends React.Component<{}, ClientState> {
 
   socketInit() {
     this.socket = socketIo();
-    this.socket.on('registration', (initialData: {playerId: string, gameState: GameState}) => {
+    this.socket.on('start game', (initialData: {playerId: string, gameState: GameState}) => {
       console.log('connection!');
       this.startGame(initialData.gameState, initialData.playerId);
     });
-    this.state = { stage: Stages.LOADING };
+    this.setState({ stage: Stages.LOADING });
   }
 
   startGame(initialState: GameState, playerId: string) {
@@ -37,7 +37,7 @@ export class Main extends React.Component<{}, ClientState> {
   render() {
     switch(this.state.stage) {
       case Stages.SPLASH:
-        return <Splash socketInit={() => this.socketInit()} />;
+        return <Splash onQuickPlay={() => this.socketInit()} />;
       case Stages.LOADING:
         return <div> Loading... </div>;
       case Stages.RUNNING:

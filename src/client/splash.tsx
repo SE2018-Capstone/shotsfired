@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 interface SplashProps {
-  socketInit: () => void;
+  onQuickPlay: () => void;
 }
 export class Splash extends React.Component<SplashProps, {}> {
   render() {
@@ -17,7 +17,7 @@ export class Splash extends React.Component<SplashProps, {}> {
         }}>
         <h1> SHOTS FIRED! </h1>
         <button
-          onClick={this.props.socketInit}
+          onClick={this.props.onQuickPlay}
           style={{
             backgroundColor: '#008CBA',
             color: "#FFFFFF",

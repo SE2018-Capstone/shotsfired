@@ -60,9 +60,15 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
       shooter.anchor.setTo(0.5, 0.5);
     });
 
-
     this.bullets = phaserGame.add.group();
     this.bullets.createMultiple(50, 'bullet');
+
+    // Make sure that keys don't scroll the page
+    const {LEFT, RIGHT, UP, DOWN} = Phaser.Keyboard;
+    phaserGame.input.keyboard.addKeyCapture(LEFT);
+    phaserGame.input.keyboard.addKeyCapture(RIGHT);
+    phaserGame.input.keyboard.addKeyCapture(UP);
+    phaserGame.input.keyboard.addKeyCapture(DOWN);
 
     this.prevTime = this.phaserGame.time.now;
   }
