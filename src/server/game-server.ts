@@ -26,7 +26,7 @@ export class GameServer {
     this.frameBuffer = [];
     this.disconnects = [];
     let delta = Date.now() - lastTick;
-    lastTick += delta;
+    this.lastTick += delta;
 
     // Handle client disconnect
     disconnects.forEach(id => Game.removePlayer(game, id));
