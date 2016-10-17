@@ -40,6 +40,7 @@ export class Entity {
   // We need player input to be able to be inputted normally, but extrapolated when only simulated?
   static update(entity: EntityState, delta: number, game: GameState) {
     entity.vel = Vec.add(entity.vel, entity.accel);
+
     entity.pos = Vec.add(entity.pos, Vec.mul(entity.vel, delta / 1000));
 
     let events: Event[] = [];

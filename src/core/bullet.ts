@@ -10,7 +10,7 @@ export interface BulletState extends EntityState {
   type: 'bullet';
 };
 
-const BULLET_SPEED = 1;
+const BULLET_SPEED = 300;
 export class Bullet extends Entity {
 
   static init(overrides: any = {}) {
