@@ -43,25 +43,22 @@ export class Game {
 
     let {players, bullets} = game.entities;
 
-    let events: any = [];
+    let events: Event[] = [];
+
+    Object.keys(game.entities).forEach(entityType => {
+      let entities = (game.entities as any)[entityType] as {[s: string]: EntityState};
+      Object.keys(entities).forEach(id => {
+        if (!entities[id].alive) { delete entities[id]; }
+      });
+    });
 
     // Consider putting all entities together
     events = Object.keys(players).reduce((events, playerId) => {
-      if (!players[playerId].alive) {
-        delete players[playerId];
-        return events;
-      } else {
-        return events.concat(Player.update(players[playerId], delta, game));
-      }
+      return events.concat(Player.update(players[playerId], delta, game));
     }, events);
 
     events = Object.keys(bullets).reduce((events, bulletId) => {
-      if (!bullets[bulletId].alive) {
-        delete bullets[bulletId];
-        return events;
-      } else {
-        return events.concat(Bullet.update(bullets[bulletId], delta, game));
-      }
+      return events.concat(Bullet.update(bullets[bulletId], delta, game));
     }, events);
 
     return events;
@@ -98,7 +95,6 @@ export class Game {
               let bullet = Bullet.spawnFrom(sender);
               bullets[bullet.id] = bullet;
               break;
-            case 'bullet': break;
           }
           break;
       }
