@@ -30,8 +30,9 @@ export class GameServer {
 
     // Handle client disconnect
     disconnects.forEach(id => Game.removePlayer(game, id));
-    Game.applyInputs(game, frameBuffer);
-    Game.update(game, delta);
+    let events = Game.applyInputs(game, frameBuffer);
+    events = events.concat(Game.update(game, delta));
+    Game.resolveEvents(game, events);
     this.sendState();
     setTimeout(this.tick.bind(this), (1/TICKS_PER_SECOND) * 1000);
   }

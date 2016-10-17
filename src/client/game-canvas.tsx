@@ -18,7 +18,7 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
   prevTime: number;
   enemies: Phaser.Sprite[];
   player: Phaser.Sprite;
-  // bullets: Phaser.Group;
+  bullets: Phaser.Group;
 
   phaserInit() {
     const {game} = this.props;
@@ -36,7 +36,7 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     const {width, height} = this.props.game.world;
     phaserGame.world.setBounds(0, 0, width, height);
     phaserGame.load.image('shooter', '../../res/shooter.png');
-    // game.load.image('bullet', '../../res/purple_ball.png');
+    phaserGame.load.image('bullet', '../../res/purple_ball.png');
   }
 
   phaserCreate() {
@@ -59,6 +59,13 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
       shooter.scale.setMagnitude(0.3);
       shooter.anchor.setTo(0.5, 0.5);
     });
+
+
+    this.bullets = phaserGame.add.group();
+    this.bullets.createMultiple(50, 'bullet');
+    this.bullets.setAll('checkWorldBounds', true);
+    this.bullets.setAll('outOfBoundsKill', true);
+
 
     this.prevTime = this.phaserGame.time.now;
   }
@@ -84,15 +91,21 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
 
     // Tell the controller that a frame has occured
     this.props.onTick(input);
+    let { players, bullets } = game.entities;
 
-    const playerState = game.entities.players[playerId];
-    player.x = playerState.pos.x;
-    player.y = playerState.pos.y;
-    player.rotation = phaserGame.physics.arcade.angleToPointer(player);
+    if (players[playerId]) {
+      const playerState = game.entities.players[playerId];
+      player.x = playerState.pos.x;
+      player.y = playerState.pos.y;
+      player.rotation = phaserGame.physics.arcade.angleToPointer(player);
+    } else {
+      player.alive = false;
+      player.exists = false;
+    }
+
 
     // TODO: Make this cleaner
     let i = 0;
-    let players = game.entities.players;
     Object.keys(players).filter(id => id !== playerId).forEach(id => {
       let player = players[id];
       let enemy = this.enemies[i++];
@@ -104,6 +117,14 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     for (;i < this.enemies.length; i++) {
       this.enemies[i].exists = false;
     }
+
+    this.bullets.setAll('alive', false);
+    this.bullets.setAll('exists', false);
+    Object.keys(bullets).forEach(id => {
+      let bullet = bullets[id];
+      let bulletSprite = this.bullets.getFirstDead() as Phaser.Sprite;
+      bulletSprite.reset(bullet.pos.x, bullet.pos.y);
+    });
   }
 
   phaserRender() {
