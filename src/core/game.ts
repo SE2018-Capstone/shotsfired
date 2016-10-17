@@ -1,5 +1,7 @@
 import { Player, PlayerState } from './player';
-import { BulletState } from './bullet';
+import { Bullet, BulletState } from './bullet';
+import { EntityState, Entity } from './entity';
+import { Event } from './event';
 
 export interface InputFrame {
   left: boolean;
@@ -20,8 +22,8 @@ export interface GameState {
     maxPlayers: 4;
   };
   entities: {
-    players: {[s: string]: PlayerState};
-    bullets: BulletState[];
+    players: {[id:string]:PlayerState};
+    bullets: {[id:string]:BulletState};
   };
 };
 
@@ -29,7 +31,7 @@ export class Game {
   static init(overrides: any = {}) {
     return Object.assign({
       world: { width: 640, height: 480, maxPlayers: 4 },
-      entities: { players: {}, bullets: [] },
+      entities: { players: {}, bullets: {} },
     }, overrides) as GameState;
   }
 
@@ -37,32 +39,66 @@ export class Game {
   // information of is changing as they're all running, so behavior
   // might change based on the order of iteration, which is bad.
   // Immutability is the only way to fix this
-  static update(state: GameState, delta: number) {
+  static update(game: GameState, delta: number) {
 
-    // process inputs
+    let {players, bullets} = game.entities;
 
-    // events
+    let events: Event[] = [];
 
-    let events: any[] = [];
-    let players = state.entities.players;
-    Object.keys(players).filter((p:string) => !!p).forEach((id:string) => {
-      events = events.concat(
-        Player.update(players[id], delta, state)
-      );
-    }, []);
+    Object.keys(game.entities).forEach(entityType => {
+      let entities = (game.entities as any)[entityType] as {[s: string]: EntityState};
+      Object.keys(entities).forEach(id => {
+        if (!entities[id].alive) { delete entities[id]; }
+      });
+    });
+
+    // Consider putting all entities together
+    events = Object.keys(players).reduce((events, playerId) => {
+      return events.concat(Player.update(players[playerId], delta, game));
+    }, events);
+
+    events = Object.keys(bullets).reduce((events, bulletId) => {
+      return events.concat(Bullet.update(bullets[bulletId], delta, game));
+    }, events);
 
     return events;
   }
 
   static applyInputs(state: GameState, inputs: InputFrame[]) {
     const players = state.entities.players;
-    var events: any[] = []; // switch to eventarray
+
+    var events: Event[] = [];
     inputs.forEach(input => {
       if (!players[input.playerId]) { return; }
       events = events.concat(Player.applyInput(players[input.playerId], input, state));
     });
 
     return events;
+  }
+
+  static resolveEvents(game: GameState, events: Event[]) {
+    let { players, bullets }  = game.entities;
+
+    events.forEach(event => {
+      let sender = players[event.initiator] || bullets[event.initiator] || null;
+      let receiver = players[event.receptor] || bullets[event.receptor] || null;
+      switch(event.type) {
+        case 'COLLISION':
+          switch(sender.type) {
+            case 'player': Player.collideWith(sender, receiver, game); break;
+            case 'bullet': Bullet.collideWith(sender, receiver, game); break;
+          }
+          break;
+        case 'SPAWN_BULLET':
+          switch(sender.type) {
+            case 'player':
+              let bullet = Bullet.spawnFrom(sender);
+              bullets[bullet.id] = bullet;
+              break;
+          }
+          break;
+      }
+    });
   }
 
   static addPlayer(state: GameState) {

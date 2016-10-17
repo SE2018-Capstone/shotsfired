@@ -1,4 +1,5 @@
 import { Game, GameState, InputFrame } from '../core/game';
+import { Event } from '../core/event';
 
 // TODO: Move to a core file for interop
 const UPDATE_EVENT = 'state update';
@@ -22,13 +23,16 @@ export class ClientController {
       this.serverUpdate = null;
     }
 
-    this.sendFrame([input]); // TODO: Move this to a separate frequency
-    Game.applyInputs(game, [input]);
-    Game.update(game, input.duration);
+    let events: Event[] = [];
+    if (game.entities.players[input.playerId]) {
+      this.sendFrame([input]); // TODO: Move this to a separate frequency
+      events = events.concat(Game.applyInputs(game, [input]));
+    }
+    events = events.concat(Game.update(game, input.duration));
+    Game.resolveEvents(game, events);
   }
 
   receiveState(update: GameState) {
-    console.log('Server update!', update);
     this.serverUpdate = update;
   }
 
