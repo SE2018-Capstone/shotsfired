@@ -63,9 +63,6 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
 
     this.bullets = phaserGame.add.group();
     this.bullets.createMultiple(50, 'bullet');
-    this.bullets.setAll('checkWorldBounds', true);
-    this.bullets.setAll('outOfBoundsKill', true);
-
 
     this.prevTime = this.phaserGame.time.now;
   }

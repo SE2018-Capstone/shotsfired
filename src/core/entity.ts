@@ -52,8 +52,8 @@ export class Entity {
     return events;
   }
 
-  static colliding(verifier: EntityState, other: EntityState) {
-    return Vec.mag(Vec.subtract(verifier.pos, other.pos)) < Math.min(verifier.radius, other.radius);
+  static colliding(a: EntityState, b: EntityState) {
+    return Vec.mag(Vec.subtract(a.pos, b.pos)) < a.radius + b.radius;
   }
 
   static interact(entity: EntityState, other: EntityState, state: GameState) {

@@ -41,6 +41,7 @@ export class Player extends Entity {
     player.pos.y += inputVel.y;
 
     let events: any = [];
+     // TODO: Investigate whether this Date.now business messes up with server
     if (input.fired && player.lastFire + player.gunCooldown < Date.now()) {
       player.lastFire = Date.now();
       events.push(EventFactory.createEvent('SPAWN_BULLET', player.id, null));

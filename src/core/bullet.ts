@@ -44,11 +44,11 @@ export class Bullet extends Entity {
     }
   }
 
-  static spawnFrom(player: PlayerState) {
+  static spawnFrom(entity: EntityState) {
     let base = Bullet.init();
-    base.source = player.id;
-    base.pos = {x: player.pos.x, y: player.pos.y};
-    base.vel = Vec.mul(Vec.direction(player.orientation), BULLET_SPEED);
+    base.source = entity.id;
+    base.pos = {x: entity.pos.x, y: entity.pos.y};
+    base.vel = Vec.mul(Vec.direction(entity.orientation), BULLET_SPEED);
     return base;
   }
 }
