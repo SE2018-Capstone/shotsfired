@@ -2,7 +2,7 @@ import * as React from 'react';
 import 'p2';
 import 'pixi';
 import * as Phaser from 'phaser';
-import { GameState, InputFrame } from '../core/game';
+import { GameState, InputFrame, Game } from '../core/game';
 
 /*
   This class is the "View" class which uses Phaser for input commands and output visuals.
@@ -46,7 +46,7 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     phaserGame.stage.disableVisibilityChange = true; // TODO: Remove for prod
 
     this.enemies = [];
-    for (let i = 0; i < this.props.game.settings.maxPlayers; i++) { // move 4 to a constant
+    for (let i = 0; i < Game.settings.maxPlayers; i++) { // move 4 to a constant
       this.enemies[i] = phaserGame.add.sprite(0, 0, 'shooter');
       this.enemies[i].exists = false;
     }

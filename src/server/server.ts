@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as path from 'path';
 import * as http from 'http';
 import * as SocketIO from 'socket.io';
-import { GameServer } from './game-server';
+import { LobbyServer } from './lobby-server';
 var app = express();
 var server = http.createServer(app);
 
@@ -15,4 +15,4 @@ server.listen(3000, function () {
   console.log('listening on *:3000');
 });
 
-new GameServer(server);
+new LobbyServer(server);
