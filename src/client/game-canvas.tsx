@@ -46,7 +46,7 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     phaserGame.stage.disableVisibilityChange = true; // TODO: Remove for prod
 
     this.enemies = [];
-    for (let i = 0; i < this.props.game.world.maxPlayers; i++) { // move 4 to a constant
+    for (let i = 0; i < this.props.game.settings.maxPlayers; i++) { // move 4 to a constant
       this.enemies[i] = phaserGame.add.sprite(0, 0, 'shooter');
       this.enemies[i].exists = false;
     }

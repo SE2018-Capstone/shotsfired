@@ -54,7 +54,7 @@ export class GameServer {
     if (numPlayers === 2) {
       // TODO: Maybe emit an event to start a countdown on the clients?
       setTimeout(() => this.startGame(), GAME_START_TIME);
-    } else if (numPlayers === 4) {
+    } else if (numPlayers === this.game.settings.maxPlayers) {
       this.startGame();
     }
   }
