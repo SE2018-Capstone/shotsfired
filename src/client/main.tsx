@@ -4,8 +4,9 @@ import { GameCanvas } from './game-canvas';
 import { GameState } from '../core/game';
 import { ClientController } from './client-controller';
 import { Splash } from './splash';
+import { GameOver } from './game-over'
 
-enum Stages { SPLASH, LOADING, RUNNING };
+enum Stages { SPLASH, LOADING, RUNNING, GAMEOVER };
 export interface ClientState { stage: Stages; }
 export class Main extends React.Component<{}, ClientState> {
   gameState: GameState;
@@ -28,10 +29,14 @@ export class Main extends React.Component<{}, ClientState> {
   }
 
   startGame(initialState: GameState, playerId: string) {
-      this.gameState = initialState;
-      this.activePlayer = playerId;
-      this.controller = new ClientController(this.gameState, this.socket);
-      this.setState({stage: Stages.RUNNING});
+    this.gameState = initialState;
+    this.activePlayer = playerId;
+    this.controller = new ClientController(this.gameState, this.socket);
+    this.setState({stage: Stages.RUNNING});
+  }
+
+  resetToMainMenu() {
+    this.setState({stage: Stages.SPLASH});
   }
 
   render() {
@@ -51,6 +56,8 @@ export class Main extends React.Component<{}, ClientState> {
             />
           </div>
         );
+      case Stages.GAMEOVER:
+        return <GameOver isWinner={false} resetToMainMenu={() => this.resetToMainMenu()} />;
     }
   }
 }
