@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as socketIo from 'socket.io-client';
-import { GameCanvas } from './game-canvas';
-import { GameState } from '../core/game';
+import { InkGameCanvas } from './ink-game-canvas';
+import { GameState } from '../ink-core/game';
 import { ClientController } from './client-controller';
 import { Splash } from './splash';
 
@@ -16,6 +16,9 @@ export class Main extends React.Component<{}, ClientState> {
   constructor() {
     super();
     this.state = { stage: Stages.SPLASH };
+
+    // Comment away to enable the START GAME
+    this.socketInit();
   }
 
   socketInit() {
@@ -44,7 +47,7 @@ export class Main extends React.Component<{}, ClientState> {
         return (
           <div>
           <div> Player: {this.activePlayer} </div>
-            <GameCanvas
+            <InkGameCanvas
               game={this.gameState}
               playerId={this.activePlayer}
               onTick={(input) => this.controller.update(input)}

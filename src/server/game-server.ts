@@ -22,7 +22,10 @@ export class GameServer {
     this.disconnects = [];
     this.lastTick = Date.now();
     this.tick();
-    this.gameStartPromise = new Promise((resolve) => this.startGame = resolve);
+
+    // Toggle which one is commented to enable/disable lobby
+    // this.gameStartPromise = new Promise((resolve) => this.startGame = resolve);
+    this.gameStartPromise = Promise.resolve({});
   }
 
   tick() {

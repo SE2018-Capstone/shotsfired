@@ -1,4 +1,4 @@
-import { Game, GameState, InputFrame } from '../core/game';
+import { Game, GameState, InputFrame } from '../ink-core/game';
 import { Event } from '../core/event';
 
 // TODO: Move to a core file for interop
@@ -24,10 +24,10 @@ export class ClientController {
     }
 
     let events: Event[] = [];
-    if (game.entities.players[input.playerId]) {
+    // if (game.entities.players[input.playerId]) {
       this.sendFrame([input]); // TODO: Move this to a separate frequency
       events = events.concat(Game.applyInputs(game, [input]));
-    }
+    // }
     events = events.concat(Game.update(game, input.duration));
     Game.resolveEvents(game, events);
   }
