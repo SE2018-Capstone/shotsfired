@@ -2,6 +2,7 @@ import * as React from 'react';
 import 'p2';
 import 'pixi';
 import * as Phaser from 'phaser';
+import { Bullet } from '../ink-core/bullet'
 import { GameState, InputFrame } from '../ink-core/game';
 
 /*
@@ -35,6 +36,7 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
     const {phaserGame} = this;
     const {width, height} = this.props.game.world;
     phaserGame.world.setBounds(0, 0, width, height);
+    phaserGame.load.image('bullet', '../../res/purple_ball.png');
   }
 
   phaserCreate() {
@@ -43,7 +45,8 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
     phaserGame.stage.backgroundColor = '#124184';
     phaserGame.stage.disableVisibilityChange = true; // TODO: Remove for prod
 
-
+    this.bullets = phaserGame.add.group();
+    this.bullets.createMultiple(1000, 'bullet');
 
 
     this.prevTime = this.phaserGame.time.now;
@@ -58,14 +61,27 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
 
     const input: InputFrame = {
       down: phaserGame.input.activePointer.isDown,
-      mouseX: phaserGame.input.activePointer.clientX,
-      mouseY: phaserGame.input.activePointer.clientY,
+      mouseX: phaserGame.input.activePointer.x,
+      mouseY: phaserGame.input.activePointer.y,
       duration: delta
     }
 
+    let { bullets } = game.entities ;
+
     if (input.down) {
       console.log("mouse is down at (" + input.mouseX + "," + input.mouseY + ")");
+      let bullet = Bullet.init();
+      bullet.pos = {x: input.mouseX, y: input.mouseY};
+      bullets[bullet.id] = bullet;
+    
     }
+
+    Object.keys(bullets).forEach(id => {
+      let bullet = bullets[id];
+      let bulletSprite = this.bullets.getFirstDead() as Phaser.Sprite;
+      bulletSprite.reset(bullet.pos.x, bullet.pos.y);
+    })
+
 
     this.props.onTick(input);
   }

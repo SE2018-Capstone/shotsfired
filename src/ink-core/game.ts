@@ -1,3 +1,4 @@
+import { BulletState } from './bullet'
 import { Event } from '../core/event';
 
 export interface InputFrame {
@@ -13,6 +14,9 @@ export interface GameState {
     width: number;
     height: number;
   };
+  entities: {
+    bullets: {[id:string]:BulletState}
+  }
   settings: {
   };
 };
@@ -21,6 +25,7 @@ export class Game {
   static init(overrides: any = {}) {
     return Object.assign({
       world: { width: 640, height: 480 },
+      entities: { bullets: {} },
       settings: {}
     }, overrides) as GameState;
   }
