@@ -1,6 +1,9 @@
 import { Event } from '../core/event';
 
 export interface InputFrame {
+  down: boolean
+  mouseX: number
+  mouseY: number
   duration: number;
 };
 
@@ -27,7 +30,12 @@ export class Game {
   }
 
   static applyInputs(state: GameState, inputs: InputFrame[]): Event[] {
-    return [];
+    var events: Event[] = [];
+    inputs.forEach(input => {
+      events = events.concat();
+    });
+
+    return events;
   }
 
   static resolveEvents(game: GameState, events: Event[]): void {

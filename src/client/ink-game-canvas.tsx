@@ -55,6 +55,19 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
 
     const delta = phaserGame.time.now - prevTime;
     this.prevTime = phaserGame.time.now;
+
+    const input: InputFrame = {
+      down: phaserGame.input.activePointer.isDown,
+      mouseX: phaserGame.input.activePointer.clientX,
+      mouseY: phaserGame.input.activePointer.clientY,
+      duration: delta
+    }
+
+    if (input.down) {
+      console.log("mouse is down at (" + input.mouseX + "," + input.mouseY + ")");
+    }
+
+    this.props.onTick(input);
   }
 
   phaserRender() {
