@@ -11,7 +11,7 @@ export class GameServer {
   disconnects: string[];
   lastTick: number;
   gameStartPromise: Promise<{}>;
-  startGame: () => void; // resolves the promise
+  startGame: () => void = () => {}; // resolves the promise
 
   constructor(server: Server) {
     this.game = Game.init();
