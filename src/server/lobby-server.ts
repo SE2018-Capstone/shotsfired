@@ -38,17 +38,15 @@ export class LobbyServer {
   onDisconnection(playerNum: number) {
     this.players.splice(playerNum, 1);
     if (this.players.length < Game.settings.minPlayers) {
-      if (this.gameStartTimer != -1) {
-        clearTimeout(this.gameStartTimer);
-      }
+      this.resetTimer();
     }
   }
 
   resetTimer() {
-      if (this.gameStartTimer != -1) {
+      if (this.gameStartTimer != null) {
         clearTimeout(this.gameStartTimer);
       }
-      this.gameStartTimer = -1;
+      this.gameStartTimer = null;
   }
 
   refreshLobby() {
