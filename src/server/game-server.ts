@@ -1,13 +1,26 @@
 import { GameState, Game, InputFrame } from '../core/game';
 import * as SocketIO from 'socket.io';
 import * as _ from 'lodash';
-
 import { SEND_STATE_UPDATE, StatePayload } from './server-interface';
 import { SEND_FRAMES } from '../client/client-interface';
+import * as process from 'process';
 
 const TICKS_PER_SECOND = 60;
 const DEV_DELAY = 0; // Delays the updates sent to clients to simulate slower connections
 export class GameServer {
+  sockets: SocketIO.Socket[];
+  constructor() {
+    process.on('message', (m: any, socket: SocketIO.Socket) => {
+      this.sockets.push(socket);
+      if (m === 'startgame') {
+        new GameInstance(this.sockets);
+        this.sockets = [];
+      }
+    });
+  }
+}
+
+class GameInstance {
   game: GameState;
   sockets: SocketIO.Socket[];
   disconnects: string[] = [];
