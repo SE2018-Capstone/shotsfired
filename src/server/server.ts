@@ -1,7 +1,8 @@
 import * as express from 'express';
 import * as path from 'path';
 import * as http from 'http';
-import * as SocketIO from 'socket.io';
+import * as child_process from 'child_process';
+import * as os from 'os';
 import { LobbyServer } from './lobby-server';
 import * as process from 'process';
 
@@ -18,4 +19,8 @@ server.listen(process.env.PORT || 3000, function () {
   console.log('Listening on port ', process.env.PORT || 3000);
 });
 
-new LobbyServer(server);
+let game_processes: child_process.ChildProcess[] = [];
+for (let i = 0; i < os.cpus().length; i++) {
+  game_processes.push(child_process.fork(__dirname + "/backendgame.js"));
+}
+new LobbyServer(server, game_processes, app);

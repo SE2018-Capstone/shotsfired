@@ -9,11 +9,11 @@
   "scripts": {
     "build-client": "webpack --config webpack.config.client.js",
     "build-server": "webpack --config webpack.config.server.js",
-    "start": "npm run build-client; npm run build-server; node dist/backend.js",
+    "start": "npm run build-client; npm run build-server; node dist/backendlobby.js",
     "watch-client": "webpack --watch --config webpack.config.client.js",
     "watch-server": "webpack --watch --config webpack.config.server.js",
-    "nodemon": "nodemon dist/backend.js",
     "watch": "npm run watch-client & npm run watch-server & npm run nodemon & wait"
+    "nodemon": "nodemon dist/backendlobby.js dist/backendgame.js"
   },
   "repository": {
     "type": "git",

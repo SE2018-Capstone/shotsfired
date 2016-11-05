@@ -1,8 +1,22 @@
 import { GameState, Game, InputFrame } from '../core/game';
 import * as SocketIO from 'socket.io';
+import * as process from 'process';
 
 const TICKS_PER_SECOND = 60;
 export class GameServer {
+  sockets: SocketIO.Socket[];
+  constructor() {
+    process.on('message', (m: any, socket: SocketIO.Socket) => {
+      this.sockets.push(socket);
+      if (m === 'startgame') {
+        new GameInstance(this.sockets);
+        this.sockets = [];
+      }
+    });
+  }
+}
+
+class GameInstance {
   game: GameState;
   sockets: SocketIO.Socket[];
   frameBuffer: InputFrame[];
