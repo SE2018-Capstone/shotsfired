@@ -42,7 +42,9 @@ export class Bullet {
        || bullet.pos.y > game.world.height + bullet.radius) {
          bullet.alive = false;
     }
+    let events: Event[] = []
     // return super.update(bullet, delta, game);
+    return events;
   }
 
   // static collideWith(bullet: BulletState, other: EntityState, state: GameState) {

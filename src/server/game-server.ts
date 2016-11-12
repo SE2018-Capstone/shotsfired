@@ -24,8 +24,8 @@ export class GameServer {
     this.tick();
 
     // Toggle which one is commented to enable/disable lobby
-    // this.gameStartPromise = new Promise((resolve) => this.startGame = resolve);
-    this.gameStartPromise = Promise.resolve({});
+    this.gameStartPromise = new Promise((resolve) => this.startGame = resolve);
+    //this.gameStartPromise = Promise.resolve({});
   }
 
   tick() {

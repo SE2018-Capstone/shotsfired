@@ -18,7 +18,7 @@ export class Main extends React.Component<{}, ClientState> {
     this.state = { stage: Stages.SPLASH };
 
     // Comment away to enable the START GAME
-    this.socketInit();
+    //this.socketInit();
   }
 
   socketInit() {

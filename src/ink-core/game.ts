@@ -1,11 +1,12 @@
-import { BulletState } from './bullet'
-import { Event } from '../core/event';
+import { Bullet, BulletState } from './bullet'
+import { Event } from '../ink-core/event';
 
 export interface InputFrame {
-  down: boolean
-  mouseX: number
-  mouseY: number
+  down: boolean;
+  mouseX: number;
+  mouseY: number;
   duration: number;
+  playerId: string;
 };
 
 
@@ -31,7 +32,14 @@ export class Game {
   }
 
   static update(game: GameState, delta: number): Event[] {
-    return [];
+    let {bullets} = game.entities;
+    let events: Event[] = [];
+
+    // events = Object.keys(bullets).reduce((events, bulletId) => {
+    //   return events.concat(Bullet.update(bullets[bulletId], delta, game));
+    // }, events);
+  
+    return events;
   }
 
   static applyInputs(state: GameState, inputs: InputFrame[]): Event[] {

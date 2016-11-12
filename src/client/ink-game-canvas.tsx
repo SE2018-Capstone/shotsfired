@@ -64,9 +64,11 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
       down: phaserGame.input.activePointer.isDown,
       mouseX: phaserGame.input.activePointer.x,
       mouseY: phaserGame.input.activePointer.y,
-      duration: delta
+      duration: delta,
+      playerId: playerId
     }
 
+    this.props.onTick(input);
     let { bullets } = game.entities ;
 
     if (input.down) {
@@ -83,8 +85,6 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
       bulletSprite.reset(bullet.pos.x, bullet.pos.y);
     })
 
-
-    this.props.onTick(input);
   }
 
   phaserRender() {
