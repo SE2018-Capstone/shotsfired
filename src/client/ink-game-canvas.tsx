@@ -36,7 +36,8 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
     const {phaserGame} = this;
     const {width, height} = this.props.game.world;
     phaserGame.world.setBounds(0, 0, width, height);
-    phaserGame.load.image('bullet', '../../res/purple_ball.png');
+    // phaserGame.load.image('bullet', '../../res/purple_ball.png');
+    phaserGame.load.image('stroke', '../../res/black_circle.png');
   }
 
   phaserCreate() {
@@ -46,7 +47,7 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
     phaserGame.stage.disableVisibilityChange = true; // TODO: Remove for prod
 
     this.bullets = phaserGame.add.group();
-    this.bullets.createMultiple(1000, 'bullet');
+    this.bullets.createMultiple(1000, 'stroke');
 
 
     this.prevTime = this.phaserGame.time.now;
