@@ -19,7 +19,7 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
   prevTime: number;
   enemies: Phaser.Sprite[];
   player: Phaser.Sprite;
-  bullets: Phaser.Group;
+  // bullets: Phaser.Group;
 
   phaserInit() {
     const {game} = this.props;
@@ -46,9 +46,10 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
     phaserGame.stage.backgroundColor = '#124184';
     phaserGame.stage.disableVisibilityChange = true; // TODO: Remove for prod
 
-    this.bullets = phaserGame.add.group();
-    this.bullets.createMultiple(1000, 'stroke');
+    // this.bullets = phaserGame.add.group();
+    // this.bullets.createMultiple(1000, 'stroke');
 
+    phaserGame.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
 
     this.prevTime = this.phaserGame.time.now;
   }
@@ -65,10 +66,12 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
       mouseX: phaserGame.input.activePointer.x,
       mouseY: phaserGame.input.activePointer.y,
       duration: delta,
-      playerId: playerId
+      playerId: playerId,
+      reset: !!phaserGame.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)
     }
 
     this.props.onTick(input);
+
     let { bullets, players } = game.entities ;
 
     if (input.down) {
@@ -79,13 +82,38 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
     
     }
 
+    if (input.reset) {
+      console.log("resetting canvas");
+      // Object.keys(bullets).forEach(id => {
+      //   let bullet = bullets[id];
+      //   if (bullet.sprite) {
+      //     bullet.sprite.destroy();
+      //   }
+      //   if (bullet.image) {
+      //     console.log("destroying...");
+      //     bullet.image.destroy();
+      //   }
+      //   else if (bullet.image !== null) {
+      //     console.log("not null destroying...?");
+      //     bullet.image.destroy();
+      //   }
+
+      // })
+      // game.entities.bullets = {};
+    }
+
     Object.keys(bullets).forEach(id => {
       let bullet = bullets[id];
-      if (!bullet.sprite) {
-        let bulletSprite = phaserGame.add.sprite(0, 0, 'stroke');
-        bulletSprite.x = bullet.pos.x;
-        bulletSprite.y = bullet.pos.y;
-        bullet.sprite = bulletSprite;
+      if (!bullet.hasImage) {
+        // let bulletSprite = phaserGame.add.sprite(0, 0, 'stroke');
+        let bulletImage = phaserGame.add.image(0, 0, 'stroke');
+        bulletImage.x = bullet.pos.x;
+        bulletImage.y = bullet.pos.y;
+        bullet.image = bulletImage;
+        // bulletSprite.x = bullet.pos.x;
+        // bulletSprite.y = bullet.pos.y;
+        // bullet.sprite = bulletSprite;
+        bullet.hasImage = true;
       }
       // let bulletSprite = this.bullets.getFirstDead() as Phaser.Sprite;
       // bulletSprite.reset(bullet.pos.x, bullet.pos.y);
@@ -102,11 +130,21 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
 
   // Don't bother rerendering since this is all canvas
   shouldComponentUpdate(nextProps: GameCanvasProps) {
-    return false;
+    return true;
+  }
+
+  readTextInput(event: Event) {
+    console.log("input was: " + event.srcElement.nodeValue);
   }
 
   render() {
-    return <div id="canvasDiv"></div>;
+    return (
+      <div id="canvasDiv">
+        <div id="info">
+          <input type="text" name="guess" onChange={this.readTextInput.bind(this)}/>
+        </div>
+      </div>
+      );
   }
 
 }

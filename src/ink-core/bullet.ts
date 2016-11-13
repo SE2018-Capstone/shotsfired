@@ -18,6 +18,8 @@ export interface BulletState {
   alive: boolean;
   type: string;
   sprite: Phaser.Sprite;
+  image: Phaser.Image;
+  hasImage: boolean;
 };
 
 let lastId = 0;
@@ -32,7 +34,9 @@ export class Bullet {
       type: 'bullet',
       id: ("" + lastId++),
       pos: {x: 640, y: 320},
-      sprite: null
+      sprite: null,
+      image: null,
+      hasImage: false
     }, overrides) as BulletState;
   }
 
@@ -65,6 +69,10 @@ export class Bullet {
     //   events.push(EventFactory.createEvent('SPAWN_BULLET', player.id, null));
     // }
     return events;
+  }
+
+  static reset() {
+    lastId = 0;
   }
 
 

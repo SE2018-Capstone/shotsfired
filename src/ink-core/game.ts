@@ -7,6 +7,7 @@ export interface InputFrame {
   mouseY: number;
   duration: number;
   playerId: string;
+  reset: boolean;
 };
 
 
@@ -39,6 +40,7 @@ export class Game {
     let {bullets, players} = game.entities;
     let events: Event[] = [];
 
+    
 
     // events = Object.keys(bullets).reduce((events, bulletId) => {
     //   return events.concat(Bullet.update(bullets[bulletId], delta, game));
@@ -50,8 +52,12 @@ export class Game {
   static applyInputs(state: GameState, inputs: InputFrame[]): Event[] {
     var events: Event[] = [];
     let { bullets, players } = state.entities;
+    let willReset = false;
 
     inputs.forEach(input => {
+      if (input.reset) {
+        willReset = true;        
+      }
       if (input.down) {
         let bullet = Bullet.init();
         bullet.pos = {x: input.mouseX, y: input.mouseY};
@@ -59,6 +65,29 @@ export class Game {
       }
       events = events.concat();
     });
+
+    if (willReset) {
+      Object.keys(bullets).forEach(id => {
+        let bullet = bullets[id];
+        // bullet.image.alive = false;
+        // bullet.image.exists = false;
+        if (bullet.image) {
+          console.log("destroying...");
+          bullet.image.destroy();
+        }
+        else if (bullet.image !== null) {
+          console.log("not null destroying...");
+          bullet.image.destroy();
+        }
+        else if (bullet.hasImage) {
+          console.log("has image destroying...");
+          bullet.image.destroy();
+        }
+                
+      })
+      state.entities.bullets = {};
+      Bullet.reset();
+    }
 
     return events;
   }
