@@ -79,7 +79,7 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
       // let bullet = Bullet.init();
       // bullet.pos = {x: input.mouseX, y: input.mouseY};
       // bullets[bullet.id] = bullet;
-    
+
     }
 
     if (input.reset) {
@@ -130,7 +130,7 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
 
   // Don't bother rerendering since this is all canvas
   shouldComponentUpdate(nextProps: GameCanvasProps) {
-    return true;
+    return false;
   }
 
   readTextInput(event: Event) {
@@ -140,9 +140,6 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
   render() {
     return (
       <div id="canvasDiv">
-        <div id="info">
-          <input type="text" name="guess" onChange={this.readTextInput.bind(this)}/>
-        </div>
       </div>
       );
   }

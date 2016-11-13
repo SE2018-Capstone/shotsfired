@@ -6,7 +6,7 @@ import { ClientController } from './client-controller';
 import { Splash } from './splash';
 
 enum Stages { SPLASH, LOADING, RUNNING };
-export interface ClientState { stage: Stages; }
+export interface ClientState { stage: Stages; time: number;}
 export class Main extends React.Component<{}, ClientState> {
   gameState: GameState;
   controller: ClientController;
@@ -15,7 +15,7 @@ export class Main extends React.Component<{}, ClientState> {
 
   constructor() {
     super();
-    this.state = { stage: Stages.SPLASH };
+    this.state = { stage: Stages.SPLASH, time: 0 };
 
     // Comment away to enable the START GAME
     //this.socketInit();
@@ -27,15 +27,20 @@ export class Main extends React.Component<{}, ClientState> {
       console.log('connection!');
       this.startGame(initialData.gameState, initialData.playerId);
     });
-    this.setState({ stage: Stages.LOADING });
+    this.setState({ stage: Stages.LOADING, time: this.state.time });
   }
 
   startGame(initialState: GameState, playerId: string) {
       this.gameState = initialState;
       this.activePlayer = playerId;
-      this.controller = new ClientController(this.gameState, this.socket);
-      this.setState({stage: Stages.RUNNING});
+      this.controller = new ClientController(this.gameState, this.socket, (t) => this.setState({stage: this.state.stage, time: t}));
+      this.setState({stage: Stages.RUNNING, time: this.state.time });
   }
+
+  readTextInput(event: Event) {
+    console.log("input was: " + event.srcElement.nodeValue);
+  }
+
 
   render() {
     switch(this.state.stage) {
@@ -52,6 +57,10 @@ export class Main extends React.Component<{}, ClientState> {
               playerId={this.activePlayer}
               onTick={(input) => this.controller.update(input)}
             />
+            <div id="score"> {this.state.time} </div>
+            <div id="info">
+              <input type="text" name="guess" onChange={this.readTextInput.bind(this)}/>
+            </div>
           </div>
         );
     }
