@@ -69,20 +69,26 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
     }
 
     this.props.onTick(input);
-    let { bullets } = game.entities ;
+    let { bullets, players } = game.entities ;
 
     if (input.down) {
       console.log("mouse is down at (" + input.mouseX + "," + input.mouseY + ")");
-      let bullet = Bullet.init();
-      bullet.pos = {x: input.mouseX, y: input.mouseY};
-      bullets[bullet.id] = bullet;
+      // let bullet = Bullet.init();
+      // bullet.pos = {x: input.mouseX, y: input.mouseY};
+      // bullets[bullet.id] = bullet;
     
     }
 
     Object.keys(bullets).forEach(id => {
       let bullet = bullets[id];
-      let bulletSprite = this.bullets.getFirstDead() as Phaser.Sprite;
-      bulletSprite.reset(bullet.pos.x, bullet.pos.y);
+      if (!bullet.sprite) {
+        let bulletSprite = phaserGame.add.sprite(0, 0, 'stroke');
+        bulletSprite.x = bullet.pos.x;
+        bulletSprite.y = bullet.pos.y;
+        bullet.sprite = bulletSprite;
+      }
+      // let bulletSprite = this.bullets.getFirstDead() as Phaser.Sprite;
+      // bulletSprite.reset(bullet.pos.x, bullet.pos.y);
     })
 
   }

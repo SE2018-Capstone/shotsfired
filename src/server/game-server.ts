@@ -1,5 +1,5 @@
 import { Server }  from 'http';
-import { GameState, Game, InputFrame } from '../core/game';
+import { GameState, Game, InputFrame } from '../ink-core/game';
 import * as SocketIO from 'socket.io';
 
 const TICKS_PER_SECOND = 60;
@@ -45,11 +45,11 @@ export class GameServer {
   }
 
   onConnection(socket: SocketIO.Socket) {
-    let player = Game.addPlayer(this.game);
+    let playerId = Game.addPlayer(this.game);
     socket.on('new frames', this.acceptFrames.bind(this));
-    socket.on('disconnect', () => this.onDisconnection(player.id));
+    socket.on('disconnect', () => this.onDisconnection(playerId));
     this.gameStartPromise.then(() => socket.emit('start game', {
-      playerId: player.id,
+      playerId: playerId,
       gameState: this.game,
     }));
 
