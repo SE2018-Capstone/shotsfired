@@ -12,6 +12,7 @@ export interface InputFrame {
   fired: boolean;
   duration: number;
   playerId: string;
+  timestamp: number; // Used for client-server synchronization
 };
 
 
@@ -31,7 +32,7 @@ export interface GameState {
 };
 
 export class Game {
-  static settings = { minPlayers: 2, maxPlayers: 4 };
+  static settings = { minPlayers: 2, maxPlayers: 2 };
   static init(overrides: any = {}) {
     return Object.assign({
       settings: { minPlayers: Game.settings.minPlayers,

@@ -1,42 +1,55 @@
 import { Game, GameState, InputFrame } from '../core/game';
 import { Event } from '../core/event';
 
-// TODO: Move to a core file for interop
-const UPDATE_EVENT = 'state update';
-const SEND_EVENT = 'new frames';
+import { SEND_STATE_UPDATE, StatePayload } from '../server/server-interface';
+import { SEND_FRAMES } from './client-interface';
 
 export class ClientController {
   game: GameState;
   socket: SocketIOClient.Socket;
-  serverUpdate: GameState | null;
+  serverUpdate: StatePayload | null = null;
+  unsyncedFrames: InputFrame[] = []; // Frames that the server copy does not include yet
 
   constructor(game: GameState, socket: SocketIOClient.Socket) {
     this.game = game;
     this.socket = socket;
-    this.socket.on(UPDATE_EVENT, this.receiveState.bind(this));
+    this.socket.on(SEND_STATE_UPDATE, this.receiveServerUpdate.bind(this));
   }
 
   update(input: InputFrame) {
-    const {game, serverUpdate} = this;
+    const {serverUpdate, unsyncedFrames} = this;
+
     if (serverUpdate) {
-      Object.assign(game, serverUpdate);
+      Object.assign(this.game, serverUpdate.game);
+
+      // The server's copy of the game world may be outdated, therefore
+      // we must simulate the game state up to the current frame
+      const newUnsyncedFrames = unsyncedFrames.filter(
+        ({timestamp}) => timestamp > serverUpdate.timestamp);
+      const newUnsyncedEvents = Game.applyInputs(this.game, newUnsyncedFrames);
+      Game.resolveEvents(this.game, newUnsyncedEvents);
+      Game.update(this.game, input.timestamp - serverUpdate.timestamp);
+
+      this.unsyncedFrames = newUnsyncedFrames;
       this.serverUpdate = null;
     }
 
+    // Apply the current input to the game state
     let events: Event[] = [];
-    if (game.entities.players[input.playerId]) {
-      this.sendFrame([input]); // TODO: Move this to a separate frequency
-      events = events.concat(Game.applyInputs(game, [input]));
+    if (this.game.entities.players[input.playerId]) {
+      this.unsyncedFrames.push(input);
+      this.sendFramesToServer([input]);
+      events = events.concat(Game.applyInputs(this.game, [input]));
     }
-    events = events.concat(Game.update(game, input.duration));
-    Game.resolveEvents(game, events);
+    events = events.concat(Game.update(this.game, input.duration));
+    Game.resolveEvents(this.game, events);
   }
 
-  receiveState(update: GameState) {
+  receiveServerUpdate(update: StatePayload) {
     this.serverUpdate = update;
   }
 
-  sendFrame(frames: InputFrame[]) {
-    this.socket.emit(SEND_EVENT, frames);
+  sendFramesToServer(frames: InputFrame[]) {
+    this.socket.emit(SEND_FRAMES, frames);
   }
 }
