@@ -67,7 +67,9 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
       mouseY: phaserGame.input.activePointer.y,
       duration: delta,
       playerId: playerId,
-      reset: !!phaserGame.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)
+      reset: !!phaserGame.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR),
+      guess: "",
+      score: 0
     }
 
     this.props.onTick(input);
@@ -133,15 +135,12 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
     return false;
   }
 
-  readTextInput(event: Event) {
-    console.log("input was: " + event.srcElement.nodeValue);
-  }
+  // readTextInput(event: Event) {
+  //   console.log("input was: " + event.srcElement.nodeValue);
+  // }
 
   render() {
-    return (
-      <div id="canvasDiv">
-      </div>
-      );
+    return <div id="canvasDiv"></div>;
   }
 
 }

@@ -1,4 +1,5 @@
 import { Bullet, BulletState } from './bullet'
+import { Player, PlayerState } from './player'
 import { Event } from '../ink-core/event';
 
 export interface InputFrame {
@@ -8,6 +9,8 @@ export interface InputFrame {
   duration: number;
   playerId: string;
   reset: boolean;
+  guess: string;
+  score: number;
 };
 
 
@@ -18,7 +21,7 @@ export interface GameState {
   };
   entities: {
     bullets: {[id:string]:BulletState}
-    players: {[id:string]:string}
+    players: {[id:string]:PlayerState}
   }
   settings: {
     maxPlayers: number;
@@ -40,7 +43,6 @@ export class Game {
     let {bullets, players} = game.entities;
     let events: Event[] = [];
 
-    
 
     // events = Object.keys(bullets).reduce((events, bulletId) => {
     //   return events.concat(Bullet.update(bullets[bulletId], delta, game));
@@ -63,10 +65,25 @@ export class Game {
         bullet.pos = {x: input.mouseX, y: input.mouseY};
         bullets[bullet.id] = bullet;
       }
+      if (input.guess !== "") {
+        let player = players[input.playerId];
+        player.guess = input.guess;
+      }
+      if (input.score !== 0) {
+        let player = players[input.playerId];
+        player.score += input.score;
+        this.resetGuesses(state);
+      }
       events = events.concat();
     });
 
     if (willReset) {
+      //just for verifying object contains guess
+      Object.keys(players).forEach(id => {
+        let player = players[id];
+        console.log("Player " + id + "'s guess is: " + player.guess);
+      })
+
       Object.keys(bullets).forEach(id => {
         let bullet = bullets[id];
         // bullet.image.alive = false;
@@ -95,13 +112,24 @@ export class Game {
   static resolveEvents(game: GameState, events: Event[]): void {
   }
 
+  static resetGuesses(game: GameState) {
+    let {players} = game.entities;
+    Object.keys(players).forEach(id => {
+      Player.resetGuess(players[id]);
+    })
+  }
 
   static addPlayer(state: GameState) {
-    let player = "" + lastId++;
-    // let player = Player.init();
+    // let player = "" + lastId++;
+    let player = Player.init();
+    if (player.id === "0") {
+      player.isDrawer = true;
+    }
+
     // player.pos.x = state.world.width / 2;
     // player.pos.y = state.world.height / 2;
-    state.entities.players[player] = player;
+    state.entities.players[player.id] = player;
+    console.log("player id is: " + player.id);
     return player;
   }
 

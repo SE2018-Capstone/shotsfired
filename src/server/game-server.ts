@@ -45,11 +45,11 @@ export class GameServer {
   }
 
   onConnection(socket: SocketIO.Socket) {
-    let playerId = Game.addPlayer(this.game);
+    let player = Game.addPlayer(this.game);
     socket.on('new frames', this.acceptFrames.bind(this));
-    socket.on('disconnect', () => this.onDisconnection(playerId));
+    socket.on('disconnect', () => this.onDisconnection(player.id));
     this.gameStartPromise.then(() => socket.emit('start game', {
-      playerId: playerId,
+      playerId: player.id,
       gameState: this.game,
     }));
 
