@@ -1,4 +1,5 @@
 import { Game, GameState } from './game'
+import { Event, EventFactory } from './event'
 
 
 export interface PlayerState {
@@ -20,8 +21,17 @@ export class Player {
     }, overrides) as PlayerState;
   }
 
-  static resetGuess(player: PlayerState) {
+  static resetGuess(player: PlayerState, numPlayers: number): Event[] {
+    let events: Event[] = [];
     player.guess = "";
+    if (player.isDrawer) {
+      events.push(EventFactory.createEvent("NEW_DRAWER", player.id, "" + ((parseInt(player.id, 10) + 1) % numPlayers)));
+    }
+    return events;
+  }
+
+  static setDrawer(player: PlayerState, isDrawer: boolean): void {
+    player.isDrawer = isDrawer;
   }
 
 }

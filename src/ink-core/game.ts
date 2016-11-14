@@ -1,6 +1,6 @@
 import { Bullet, BulletState } from './bullet'
 import { Player, PlayerState } from './player'
-import { Event } from '../ink-core/event';
+import { Event, EventFactory } from './event';
 
 export interface InputFrame {
   down: boolean;
@@ -72,9 +72,8 @@ export class Game {
       if (input.score !== 0) {
         let player = players[input.playerId];
         player.score += input.score;
-        this.resetGuesses(state);
+        events = events.concat(this.resetGuesses(state));
       }
-      events = events.concat();
     });
 
     if (willReset) {
@@ -110,13 +109,27 @@ export class Game {
   }
 
   static resolveEvents(game: GameState, events: Event[]): void {
+    let {players} = game.entities;
+    events.forEach(event => {
+      let sender = players[event.initiator] || null;
+      let receiver = players[event.receptor] || null;
+      switch (event.type) {
+        case "NEW_DRAWER":
+          Player.setDrawer(sender, false);
+          Player.setDrawer(receiver, true);
+      }
+    })
   }
 
-  static resetGuesses(game: GameState) {
+  static resetGuesses(game: GameState): Event[] {
     let {players} = game.entities;
+    let events: Event[] = [];
+
     Object.keys(players).forEach(id => {
-      Player.resetGuess(players[id]);
+      events = events.concat(Player.resetGuess(players[id], Object.keys(players).length));
     })
+
+    return events;
   }
 
   static addPlayer(state: GameState) {

@@ -34,7 +34,7 @@ export class ClientController {
     // }
     events = events.concat(Game.update(game, input.duration));
     Game.resolveEvents(game, events);
-    this.onChange(game.entities.players[this.playerId].score, game.entities.players[this.playerId].guess !== "");
+    this.onChange(game.entities.players[this.playerId].score, game.entities.players[this.playerId].isDrawer);
   }
 
   updateGuess(playerId: string, guess: string, points: number) {

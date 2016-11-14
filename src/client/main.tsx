@@ -52,7 +52,6 @@ export class Main extends React.Component<{}, ClientState> {
   getSelectedAnswer(event: any) {
     console.log("selected answer was: " + event.target.value);
     this.controller.updateGuess(event.target.value, "", 100);
-    this.setState({stage: Stages.RUNNING, score: this.state.score, displayOptions: false });
   }
 
 
@@ -66,9 +65,11 @@ export class Main extends React.Component<{}, ClientState> {
         let {bullets, players} = this.gameState.entities;
         let guesses: any[] = [];
         Object.keys(players).forEach(id => {
-          guesses.push(<input type="radio" name="guess" value={id} onClick={this.getSelectedAnswer}/>);
-          guesses.push(players[id].guess);
-          guesses.push(<br/>);
+          if (id !== this.activePlayer) {
+            guesses.push(<input type="radio" name="guess" value={id} onClick={this.getSelectedAnswer}/>);
+            guesses.push(players[id].guess);
+            guesses.push(<br/>);
+          }
         })
         return (
           <div>
@@ -83,7 +84,7 @@ export class Main extends React.Component<{}, ClientState> {
               <input type="text" name="guess" onChange={this.readTextInput}/>
             </div>
             {
-              this.state.displayOptions && players[this.activePlayer].isDrawer &&
+              this.state.displayOptions &&
                 <div id="options">
                   Guesses:
                   <br/>
