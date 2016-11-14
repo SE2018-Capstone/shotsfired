@@ -60,7 +60,7 @@ export class Game {
       if (input.reset) {
         willReset = true;        
       }
-      if (input.down) {
+      if (input.down && players[input.playerId].isDrawer) {
         let bullet = Bullet.init();
         bullet.pos = {x: input.mouseX, y: input.mouseY};
         bullets[bullet.id] = bullet;
@@ -72,7 +72,9 @@ export class Game {
       if (input.score !== 0) {
         let player = players[input.playerId];
         player.score += input.score;
-        events = events.concat(this.resetGuesses(state));
+        player.isDone = (player.score === 500);
+        // console.log(player.isDone);
+        events = events.concat(this.resetGuesses(state, player.isDone));
       }
     });
 
@@ -117,16 +119,21 @@ export class Game {
         case "NEW_DRAWER":
           Player.setDrawer(sender, false);
           Player.setDrawer(receiver, true);
+        case "GAMEOVER":
+          Player.setGameOver(receiver);
       }
     })
   }
 
-  static resetGuesses(game: GameState): Event[] {
+  static resetGuesses(game: GameState, isGameOver: boolean): Event[] {
     let {players} = game.entities;
     let events: Event[] = [];
 
     Object.keys(players).forEach(id => {
       events = events.concat(Player.resetGuess(players[id], Object.keys(players).length));
+      if (isGameOver) {
+        events.push(EventFactory.createEvent("GAMEOVER", null, id))
+      }
     })
 
     return events;

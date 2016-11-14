@@ -7,6 +7,7 @@ export interface PlayerState {
   score: number;
   isDrawer: boolean;
   guess: string;
+  isDone: boolean;
 }
 
 let lastId = 0;
@@ -17,7 +18,8 @@ export class Player {
       id: "" + lastId++,
       score: 0,
       isDrawer: false,
-      guess: ""
+      guess: "",
+      isDone: false
     }, overrides) as PlayerState;
   }
 
@@ -32,6 +34,10 @@ export class Player {
 
   static setDrawer(player: PlayerState, isDrawer: boolean): void {
     player.isDrawer = isDrawer;
+  }
+
+  static setGameOver(player: PlayerState) {
+    player.isDone = true;
   }
 
 }

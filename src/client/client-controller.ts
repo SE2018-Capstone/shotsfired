@@ -10,9 +10,11 @@ export class ClientController {
   socket: SocketIOClient.Socket;
   serverUpdate: GameState | null;
   playerId: string;
-  onChange: (s: any, b: boolean) => void;
+  onChange: (s: any, b: boolean, d: boolean) => void;
 
-  constructor(game: GameState, socket: SocketIOClient.Socket, playerId: string, onChange: (s: any, b: boolean) => void) {
+  constructor(game: GameState, socket: SocketIOClient.Socket, playerId: string, 
+    onChange: (s: any, b: boolean, d: boolean) => void) {
+
     this.game = game;
     this.socket = socket;
     this.socket.on(UPDATE_EVENT, this.receiveState.bind(this));
@@ -34,7 +36,10 @@ export class ClientController {
     // }
     events = events.concat(Game.update(game, input.duration));
     Game.resolveEvents(game, events);
-    this.onChange(game.entities.players[this.playerId].score, game.entities.players[this.playerId].isDrawer);
+    
+    const {players} = game.entities;
+    let id = this.playerId
+    this.onChange(players[id].score, players[id].isDrawer, false);
   }
 
   updateGuess(playerId: string, guess: string, points: number) {

@@ -5,7 +5,7 @@ import { GameState } from '../ink-core/game';
 import { ClientController } from './client-controller';
 import { Splash } from './splash';
 
-enum Stages { SPLASH, LOADING, RUNNING };
+enum Stages { SPLASH, LOADING, RUNNING, WINNER, GAMEOVER };
 export interface ClientState { 
   stage: Stages;
   score: number;
@@ -38,9 +38,15 @@ export class Main extends React.Component<{}, ClientState> {
   startGame(initialState: GameState, playerId: string) {
       this.gameState = initialState;
       this.activePlayer = playerId;
-      this.controller = new ClientController(this.gameState, this.socket, this.activePlayer, (points, display) => 
+      this.controller = new ClientController(this.gameState, this.socket, this.activePlayer, (points, display, isDone) => {
         this.setState({stage: this.state.stage, score: points, displayOptions: display})
-      );
+        if (this.state.score == 500) {
+          this.setState({stage: Stages.WINNER, score: this.state.score, displayOptions: this.state.displayOptions})
+        }
+        else if (isDone) {
+          this.setState({stage: Stages.GAMEOVER, score: this.state.score, displayOptions: this.state.displayOptions})          
+        }
+      });
       this.setState({stage: Stages.RUNNING, score: this.state.score, displayOptions: false });
   }
 
@@ -71,6 +77,27 @@ export class Main extends React.Component<{}, ClientState> {
             guesses.push(<br/>);
           }
         })
+
+        let optionDisplay:any = null;
+        if (this.state.displayOptions) {
+          optionDisplay = (
+            <div id="options">
+              <h2> You're the drawer! </h2>
+              Guesses:
+              <br/>
+              {guesses}
+            </div>
+          );
+        }
+        else {
+          optionDisplay = (
+            <div id="info">
+              <h2> Try to guess! </h2>
+              <input type="text" name="guess" onChange={this.readTextInput}/>
+            </div>
+          );
+        }
+
         return (
           <div>
           <div> Player: {this.activePlayer} </div>
@@ -80,19 +107,13 @@ export class Main extends React.Component<{}, ClientState> {
               onTick={(input) => this.controller.update(input)}
             />
             <div id="score"> Score: {this.state.score} </div>
-            <div id="info">
-              <input type="text" name="guess" onChange={this.readTextInput}/>
-            </div>
-            {
-              this.state.displayOptions &&
-                <div id="options">
-                  Guesses:
-                  <br/>
-                  {guesses}
-                </div>
-            }
+            {optionDisplay}
           </div>
         );
+      case Stages.WINNER:
+        return <h1> Congratulations, you won! </h1>;
+      case Stages.GAMEOVER:
+        return <h1> Better luck next time! </h1>;
     }
   }
 }
