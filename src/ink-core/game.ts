@@ -71,6 +71,7 @@ export class Game {
       }
       if (input.score !== 0) {
         let player = players[input.playerId];
+        willReset = true;
         player.score += input.score;
         player.isDone = (player.score === 500);
         // console.log(player.isDone);
@@ -79,30 +80,6 @@ export class Game {
     });
 
     if (willReset) {
-      //just for verifying object contains guess
-      Object.keys(players).forEach(id => {
-        let player = players[id];
-        console.log("Player " + id + "'s guess is: " + player.guess);
-      })
-
-      Object.keys(bullets).forEach(id => {
-        let bullet = bullets[id];
-        // bullet.image.alive = false;
-        // bullet.image.exists = false;
-        if (bullet.image) {
-          console.log("destroying...");
-          bullet.image.destroy();
-        }
-        else if (bullet.image !== null) {
-          console.log("not null destroying...");
-          bullet.image.destroy();
-        }
-        else if (bullet.hasImage) {
-          console.log("has image destroying...");
-          bullet.image.destroy();
-        }
-                
-      })
       state.entities.bullets = {};
       Bullet.reset();
     }

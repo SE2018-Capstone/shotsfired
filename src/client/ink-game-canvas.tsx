@@ -14,12 +14,13 @@ export interface GameCanvasProps {
   playerId: string;
   onTick: (input: InputFrame) => void;
 }
+
+const MAX_STROKES = 10000;
 export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
   phaserGame: Phaser.Game;
   prevTime: number;
-  enemies: Phaser.Sprite[];
   player: Phaser.Sprite;
-  // bullets: Phaser.Group;
+  strokes: Phaser.Image[];
 
   phaserInit() {
     const {game} = this.props;
@@ -45,6 +46,11 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
     phaserGame.stage.backgroundColor = '#F8F6F6';
     phaserGame.stage.disableVisibilityChange = true; // TODO: Remove for prod
 
+    this.strokes = [];
+    for (let i = 0; i < MAX_STROKES; i++) {
+      this.strokes[i] = phaserGame.add.image(0, 0, 'stroke');
+      this.strokes[i].exists = false;
+    }
     // this.bullets = phaserGame.add.group();
     // this.bullets.createMultiple(1000, 'stroke');
 
@@ -76,7 +82,7 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
     let { bullets, players } = game.entities ;
 
     if (input.down) {
-      console.log("mouse is down at (" + input.mouseX + "," + input.mouseY + ")");
+      // console.log("mouse is down at (" + input.mouseX + "," + input.mouseY + ")");
       // let bullet = Bullet.init();
       // bullet.pos = {x: input.mouseX, y: input.mouseY};
       // bullets[bullet.id] = bullet;
@@ -100,24 +106,24 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
       //   }
 
       // })
-      // game.entities.bullets = {};
     }
 
+    if (Object.keys(bullets).length === 0) {
+      for (let i = 0; i < MAX_STROKES; i++) {
+        this.strokes[i].exists = false;
+      }
+    }
+
+    let i = 0;
     Object.keys(bullets).forEach(id => {
       let bullet = bullets[id];
-      if (!bullet.hasImage) {
-        // let bulletSprite = phaserGame.add.sprite(0, 0, 'stroke');
-        let bulletImage = phaserGame.add.image(0, 0, 'stroke');
-        bulletImage.x = bullet.pos.x;
-        bulletImage.y = bullet.pos.y;
-        bullet.image = bulletImage;
-        // bulletSprite.x = bullet.pos.x;
-        // bulletSprite.y = bullet.pos.y;
-        // bullet.sprite = bulletSprite;
+      let stroke = this.strokes[i++];
+      if (!stroke.exists) {
+        stroke.x = bullet.pos.x;
+        stroke.y = bullet.pos.y;
+        stroke.exists = true;
         bullet.hasImage = true;
       }
-      // let bulletSprite = this.bullets.getFirstDead() as Phaser.Sprite;
-      // bulletSprite.reset(bullet.pos.x, bullet.pos.y);
     })
 
   }
@@ -133,10 +139,6 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
   shouldComponentUpdate(nextProps: GameCanvasProps) {
     return false;
   }
-
-  // readTextInput(event: Event) {
-  //   console.log("input was: " + event.srcElement.nodeValue);
-  // }
 
   render() {
     return <div id="canvasDiv"></div>;
