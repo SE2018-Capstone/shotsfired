@@ -10,22 +10,18 @@ const DEV_DELAY = 0; // Delays the updates sent to clients to simulate slower co
 export class GameServer {
   game: GameState;
   sockets: SocketIO.Socket[];
-  disconnects: string[];
-  lastTick: number;
-  playerSockets: Map<string, SocketIO.Socket>;
+  disconnects: string[] = [];
+  playerSockets: Map<string, SocketIO.Socket> = new Map();
+  lastTick: number = 0;
 
   // Keeps track of the timestamp of the latest input that the server has applied for each player
-  lastUpdateTimestamps: Map<SocketIO.Socket, number>;
+  lastUpdateTimestamps: Map<SocketIO.Socket, number> = new Map();
 
   // The unprocessed inputs for each player
-  frameBuffers: {[id:string]: InputFrame[]};
+  frameBuffers: {[id:string]: InputFrame[]} = {};
 
   constructor(sockets: SocketIO.Socket[]) {
     this.game = Game.init();
-    this.frameBuffers = {};
-    this.disconnects = [];
-    this.lastUpdateTimestamps = new Map();
-    this.playerSockets = new Map();
     this.lastTick = Date.now();
     this.sockets = sockets;
     for (var socket of this.sockets) {
