@@ -3,5 +3,4 @@
 *.aux
 *.log
 node_modules
-dist
 *.swp
