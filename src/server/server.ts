@@ -14,7 +14,7 @@ app.get('/', function (req: express.Request, res: express.Response) {
 });
 
 server.listen(process.env.PORT, function () {
-  console.log('listening on port ', process.env.PORT);
+  console.log('Listening on port ', process.env.PORT);
 });
 
 new LobbyServer(server);
