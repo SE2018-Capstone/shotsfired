@@ -10,12 +10,12 @@ export class Splash extends React.Component<SplashProps, {}> {
         id="splash-screen"
         style={{
           textAlign: 'center',
-          color: '#FFFFFF',
-          backgroundColor: '#000000',
+          color: '#0FA9F9',
+          backgroundColor: '#FFF5F4',
           width: 640,
           height: 480
         }}>
-        <h1> SHOTS FIRED! </h1>
+        <h1> P(ink)tionary! </h1>
         <button
           onClick={this.props.onQuickPlay}
           style={{
