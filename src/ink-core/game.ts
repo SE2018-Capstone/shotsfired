@@ -29,7 +29,7 @@ export interface GameState {
 };
 
 let lastId = 0;
-
+const DEFAULT_GUESS = "default-null";
 export class Game {
   static init(overrides: any = {}) {
     return Object.assign({
@@ -57,15 +57,17 @@ export class Game {
     let willReset = false;
 
     inputs.forEach(input => {
-      if (input.reset) {
-        willReset = true;        
+      if (players[input.playerId].isDrawer) {
+        if (input.reset) {
+          willReset = true;        
+        }
+        if (input.down) {
+          let bullet = Bullet.init();
+          bullet.pos = {x: input.mouseX, y: input.mouseY};
+          bullets[bullet.id] = bullet;
+        }
       }
-      if (input.down && players[input.playerId].isDrawer) {
-        let bullet = Bullet.init();
-        bullet.pos = {x: input.mouseX, y: input.mouseY};
-        bullets[bullet.id] = bullet;
-      }
-      if (input.guess !== "") {
+      if (input.guess !== DEFAULT_GUESS) {
         let player = players[input.playerId];
         player.guess = input.guess;
       }

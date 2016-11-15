@@ -16,6 +16,7 @@ export interface GameCanvasProps {
 }
 
 const MAX_STROKES = 10000;
+const DEFAULT_GUESS = "default-null"
 export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
   phaserGame: Phaser.Game;
   prevTime: number;
@@ -48,13 +49,16 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
 
     this.strokes = [];
     for (let i = 0; i < MAX_STROKES; i++) {
+      // let circle = new Phaser.Circle(0, 0, 0);
+      // phaserGame.debug.geom(circle, "#0FA9F9");
+      // this.strokes[i] = circle;
       this.strokes[i] = phaserGame.add.image(0, 0, 'stroke');
       this.strokes[i].exists = false;
     }
     // this.bullets = phaserGame.add.group();
     // this.bullets.createMultiple(1000, 'stroke');
 
-    phaserGame.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
+    phaserGame.input.keyboard.addKeyCapture(Phaser.Keyboard.ENTER);
 
     this.prevTime = this.phaserGame.time.now;
   }
@@ -72,8 +76,8 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
       mouseY: phaserGame.input.activePointer.y,
       duration: delta,
       playerId: playerId,
-      reset: !!phaserGame.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR),
-      guess: "",
+      reset: !!phaserGame.input.keyboard.isDown(Phaser.Keyboard.ENTER),
+      guess: DEFAULT_GUESS,
       score: 0
     }
 
@@ -111,6 +115,7 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
     if (Object.keys(bullets).length === 0) {
       for (let i = 0; i < MAX_STROKES; i++) {
         this.strokes[i].exists = false;
+        // this.strokes[i].setTo(0,0,0);
       }
     }
 
@@ -119,8 +124,11 @@ export class InkGameCanvas extends React.Component<GameCanvasProps, {}> {
       let bullet = bullets[id];
       let stroke = this.strokes[i++];
       if (!stroke.exists) {
+      // if (stroke.diameter === 0) {
         stroke.x = bullet.pos.x;
         stroke.y = bullet.pos.y;
+        // stroke.diameter = 10;
+        // phaserGame.debug.geom(stroke, "#0FA9F9")
         stroke.exists = true;
         bullet.hasImage = true;
       }

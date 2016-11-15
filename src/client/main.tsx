@@ -79,20 +79,25 @@ export class Main extends React.Component<{}, ClientState> {
         })
 
         let optionDisplay:any = null;
+        let userAction:string = null;
         if (this.state.displayOptions) {
+          userAction = "It's your turn to draw!";
           optionDisplay = (
-            <div id="options">
-              <h2> You're the drawer! </h2>
-              Guesses:
-              <br/>
-              {guesses}
+            <div style={{marginTop: 5}}>
+              <div id="options" style={{float: 'left'}}>
+                Pick the best guess below:
+                <br/>
+                {guesses}
+              </div>
+              <div style={{float: 'right'}}> Press the ENTER button to clear the canvas </div>
             </div>
           );
         }
         else {
+          userAction = "Guess the drawing!";
           optionDisplay = (
-            <div id="info">
-              <h2> Try to guess! </h2>
+            <div id="info" style={{marginTop: 5}}>
+              Type in your guess here: 
               <input type="text" name="guess" onChange={this.readTextInput}/>
             </div>
           );
@@ -100,13 +105,14 @@ export class Main extends React.Component<{}, ClientState> {
 
         return (
           <div>
-          <div> Player: {this.activePlayer} </div>
+          <div style={{float: 'left', marginTop: 5}}> Player: {this.activePlayer} </div>
+          <div id="score" style={{float: 'right', marginTop: 5}}> Score: {this.state.score} </div>
+          <div style={{textAlign: 'center', fontSize: 25}} > {userAction} </div>
             <InkGameCanvas
               game={this.gameState}
               playerId={this.activePlayer}
               onTick={(input) => this.controller.update(input)}
             />
-            <div id="score"> Score: {this.state.score} </div>
             {optionDisplay}
           </div>
         );
