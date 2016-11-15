@@ -69,15 +69,14 @@ export class GameServer {
   }
 
   sendState() {
-      for (var socket of this.sockets) {
-        const payload: StatePayload = { // separate variable to ensure type adherence
-          game: _.cloneDeep(this.game), // Allows DEV_DELAY'd update to use old game TODO: Remove for prod
-          timestamp: this.lastUpdateTimestamps.get(socket) || 0,
-        };
-        setTimeout(() => { // Simulates slow connection, TODO: Remove for prod
-          socket.emit(SEND_STATE_UPDATE, payload);
-        }, DEV_DELAY);
-      }
+    this.sockets.forEach((socket) => {
+      const payload: StatePayload = { // separate variable to ensure type adherence
+        game: _.cloneDeep(this.game), // Allows DEV_DELAY'd update to use old game TODO: Remove for prod
+        timestamp: this.lastUpdateTimestamps.get(socket) || 0,
+      };
+      setTimeout(() => { // Simulates slow connection, TODO: Remove for prod
+        socket.emit(SEND_STATE_UPDATE, payload);
+      }, DEV_DELAY);
+    });
   }
-
 }
