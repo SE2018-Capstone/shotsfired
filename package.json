@@ -9,7 +9,7 @@
   "scripts": {
     "build-client": "webpack --config webpack.config.client.js",
     "build-server": "webpack --config webpack.config.server.js",
-    "build": "npm run build-client; npm run build-server;",
+    "build": "npm run build-client & npm run build-server",
     "start": "node dist/backend.js",
     "watch-client": "webpack --watch --config webpack.config.client.js",
     "watch-server": "webpack --watch --config webpack.config.server.js",
@@ -31,8 +31,7 @@
     "@types/react-dom": "^0.14.17",
     "express": "^4.14.0",
     "json-loader": "^0.5.4",
-    "phaser": "https://github.com/jamesgroat/phaser/tarball/ty
-pings",
+    "phaser": "https://github.com/jamesgroat/phaser/tarball/typings",
     "pixi.js": "^4.0.3",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",

@@ -49,14 +49,15 @@
 	const path = __webpack_require__(2);
 	const http = __webpack_require__(3);
 	const lobby_server_1 = __webpack_require__(4);
+	const process = __webpack_require__(13);
 	var app = express();
 	var server = http.createServer(app);
 	app.use(express.static(path.resolve(__dirname, '../')));
 	app.get('/', function (req, res) {
 	    res.sendFile(path.resolve(__dirname, '../index.html'));
 	});
-	server.listen(3000, function () {
-	    console.log('listening on *:3000');
+	server.listen(process.env.PORT, function () {
+	    console.log('Listening on port ', process.env.PORT);
 	});
 	new lobby_server_1.LobbyServer(server);
 
@@ -281,8 +282,8 @@
 	        delete state.entities.players[playerId];
 	    }
 	}
-	Game.settings = { minPlayers: 2, maxPlayers: 4 };
 	exports.Game = Game;
+	Game.settings = { minPlayers: 2, maxPlayers: 4 };
 
 
 /***/ },
@@ -499,6 +500,12 @@
 /***/ function(module, exports) {
 
 	module.exports = require("socket.io");
+
+/***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+	module.exports = require("process");
 
 /***/ }
 /******/ ]);
