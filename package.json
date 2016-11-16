@@ -2,6 +2,9 @@
   "name": "shotsfired",
   "version": "0.0.1",
   "description": "Game",
+  "engines": {
+    "node": "~6.9"
+  },
   "main": "index.js",
   "scripts": {
     "build-client": "webpack --config webpack.config.client.js",
