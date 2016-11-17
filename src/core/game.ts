@@ -32,7 +32,7 @@ export interface GameState {
 };
 
 export class Game {
-  static settings = { minPlayers: 2, maxPlayers: 2 };
+  static settings = { minPlayers: 2, maxPlayers: 4 };
   static init(overrides: any = {}) {
     return Object.assign({
       settings: { minPlayers: Game.settings.minPlayers,
