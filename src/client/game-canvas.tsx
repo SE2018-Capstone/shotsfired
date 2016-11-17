@@ -8,6 +8,7 @@ import { GameState, InputFrame, Game } from '../core/game';
   This class is the "View" class which uses Phaser for input commands and output visuals.
   The game object parameter should not be modified directly at any point in this class
 */
+
 export interface GameCanvasProps {
   game: GameState;
   playerId: string;
@@ -90,6 +91,7 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
       fired: phaserGame.input.activePointer.isDown,
       duration: delta,
       playerId: playerId,
+      timestamp: Date.now(),
     };
 
     // Tell the controller that a frame has occured

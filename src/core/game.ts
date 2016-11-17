@@ -12,6 +12,7 @@ export interface InputFrame {
   fired: boolean;
   duration: number;
   playerId: string;
+  timestamp: number; // Used for client-server synchronization
 };
 
 
