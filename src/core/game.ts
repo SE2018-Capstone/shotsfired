@@ -108,6 +108,22 @@ export class Game {
     });
   }
 
+  static getWinner(game: GameState) {
+    const players = game.entities.players;
+    let playersAlive = Object.keys(players).length;
+    let winner: string;
+
+    Object.keys(players).forEach(id => {
+      if (!players[id].alive) {
+        playersAlive--;
+      }
+      else {
+        winner = id;
+      }
+    });
+    return (playersAlive === 1) ? winner : "";
+  }
+
   static addPlayer(state: GameState) {
     let player = Player.init();
     player.pos.x = state.world.width / 2;

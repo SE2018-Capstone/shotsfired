@@ -5,7 +5,7 @@ import { GameState } from '../core/game';
 import { ClientController } from './client-controller';
 import { Splash } from './splash';
 
-enum Stages { SPLASH, LOADING, RUNNING };
+enum Stages { SPLASH, LOADING, RUNNING, WINNER, GAMEOVER };
 export interface ClientState { stage: Stages; }
 export class Main extends React.Component<{}, ClientState> {
   gameState: GameState;
@@ -30,7 +30,16 @@ export class Main extends React.Component<{}, ClientState> {
   startGame(initialState: GameState, playerId: string) {
       this.gameState = initialState;
       this.activePlayer = playerId;
-      this.controller = new ClientController(this.gameState, this.socket);
+      this.controller = new ClientController(this.gameState, this.socket, (winner: string, isDone: boolean) => {
+        if (isDone) {
+          if (winner === this.activePlayer) {
+            this.setState({stage: Stages.WINNER});
+          }
+          else {
+            this.setState({stage: Stages.GAMEOVER});
+          }
+        }
+      });
       this.setState({stage: Stages.RUNNING});
   }
 
@@ -49,6 +58,18 @@ export class Main extends React.Component<{}, ClientState> {
               playerId={this.activePlayer}
               onTick={(input) => this.controller.update(input)}
             />
+          </div>
+        );
+      case Stages.WINNER:
+        return (
+          <div>
+            <h2> Congratulations, you won! </h2>
+          </div>
+        );
+      case Stages.GAMEOVER:
+        return (
+          <div>
+            <h2> Game Over! Better luck next time... </h2>
           </div>
         );
     }
