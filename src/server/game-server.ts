@@ -57,7 +57,9 @@ export class GameServer {
     this.sendState();
     this.frameBuffers = {};
     this.disconnects = [];
-    setTimeout(this.tick.bind(this), (1/TICKS_PER_SECOND) * 1000);
+    if (Game.getWinner(game) === "") {
+      setTimeout(this.tick.bind(this), (1/TICKS_PER_SECOND) * 1000);
+    }
   }
 
   onDisconnection(playerId: string) {

@@ -4,17 +4,21 @@ import { GameCanvas } from './game-canvas';
 import { GameState } from '../core/game';
 import { ClientController } from './client-controller';
 import { Splash } from './splash';
+import { GameOver } from './game-over'
 
-enum Stages { SPLASH, LOADING, RUNNING, WINNER, GAMEOVER };
+const REMATCH_COUNTDOWN_TIME = 10;
+enum Stages { SPLASH, LOADING, RUNNING, GAMEOVER };
 export interface ClientState { stage: Stages; }
 export class Main extends React.Component<{}, ClientState> {
   gameState: GameState;
   controller: ClientController;
   socket: SocketIOClient.Socket;
   activePlayer: string;
+  isWinner: boolean
 
   constructor() {
     super();
+    this.isWinner = false;
     this.state = { stage: Stages.SPLASH };
   }
 
@@ -33,14 +37,22 @@ export class Main extends React.Component<{}, ClientState> {
       this.controller = new ClientController(this.gameState, this.socket, (winner: string, isDone: boolean) => {
         if (isDone) {
           if (winner === this.activePlayer) {
-            this.setState({stage: Stages.WINNER});
+            this.isWinner = true;
           }
-          else {
-            this.setState({stage: Stages.GAMEOVER});
-          }
+          this.setState({stage: Stages.GAMEOVER});
         }
       });
       this.setState({stage: Stages.RUNNING});
+  }
+
+  goToMainMenu() {
+    this.gameState = null;
+    this.controller = null;
+    this.socket = null;
+    this.activePlayer = null;
+    this.isWinner = false;
+    this.setState({stage: Stages.SPLASH});
+    console.log("state is splashhh");
   }
 
   render() {
@@ -60,17 +72,14 @@ export class Main extends React.Component<{}, ClientState> {
             />
           </div>
         );
-      case Stages.WINNER:
-        return (
-          <div>
-            <h2> Congratulations, you won! </h2>
-          </div>
-        );
       case Stages.GAMEOVER:
         return (
-          <div>
-            <h2> Game Over! Better luck next time... </h2>
-          </div>
+          <GameOver
+            isWinner={this.isWinner}
+            countdownTime={REMATCH_COUNTDOWN_TIME}
+            onPlayAgain={() => ""}
+            onBackToMainMenu={() => this.goToMainMenu()}
+          />
         );
     }
   }

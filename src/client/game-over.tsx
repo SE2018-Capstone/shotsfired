@@ -25,9 +25,9 @@ export class GameOver extends React.Component<GameOverProps, {}> {
           width: 640,
           height: 480
         }}>
-        <h2> {gameOverText} </h2>
+        <h1> {gameOverText} </h1>
         
-        <div style={{paddingTop: 10, paddingBottom: 5}} >
+        <div style={{paddingTop: 40, paddingBottom: 20}} >
         Waiting for all players to confirm rematch... {this.props.countdownTime}
         </div>
 
@@ -38,11 +38,11 @@ export class GameOver extends React.Component<GameOverProps, {}> {
             color: "#FFFFFF",
             fontSize: 28,
             width: 240,
-            height: 60
+            height: 60,
+            marginRight: 20
           }}>
           Rematch!
         </button>
-        &nbsp;
         <button
           onClick={this.props.onBackToMainMenu}
           style={{
