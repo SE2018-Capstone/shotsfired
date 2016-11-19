@@ -21,7 +21,11 @@ export class Main extends React.Component<{}, ClientState> {
 
   constructor() {
     super();
-    this.state = { stage: Stages.SPLASH, numPlayersInLobby: 0, countdownTime: GAME_START_TIME };
+    this.state = {
+      stage: Stages.SPLASH,
+      numPlayersInLobby: 0,
+      countdownTime: GAME_START_TIME
+    };
   }
 
   socketInit() {
@@ -33,7 +37,11 @@ export class Main extends React.Component<{}, ClientState> {
     this.socket.on('new player', (numPlayers: number) => {
       this.resetTimer();
       this.updateCountdown(GAME_START_TIME);
-      this.setState({ stage: this.state.stage, numPlayersInLobby: numPlayers, countdownTime: GAME_START_TIME })
+      this.setState({
+        stage: this.state.stage,
+        numPlayersInLobby: numPlayers,
+        countdownTime: GAME_START_TIME
+      });
     })
     this.setState({
       stage: Stages.LOADING,
@@ -46,12 +54,12 @@ export class Main extends React.Component<{}, ClientState> {
       this.gameState = initialState;
       this.activePlayer = playerId;
       this.controller = new ClientController(this.gameState, this.socket);
+      this.resetTimer();
       this.setState({
         stage: Stages.RUNNING,
         numPlayersInLobby: this.state.numPlayersInLobby,
         countdownTime: this.state.countdownTime
       });
-      this.resetTimer();
   }
 
   updateCountdown(time: number) {
