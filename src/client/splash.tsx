@@ -27,6 +27,18 @@ export class Splash extends React.Component<SplashProps, {}> {
           }}>
           Quick Play
         </button>
+        <br/><br/>
+        <button
+          onClick={this.props.onQuickPlay}
+          style={{
+            backgroundColor: '#008CBA',
+            color: "#FFFFFF",
+            fontSize: 28,
+            width: 240,
+            height: 60
+          }}>
+          Private Match
+        </button>
       </div>
     );
   }

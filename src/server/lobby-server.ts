@@ -25,6 +25,9 @@ export class LobbyServer {
     console.log("Players in lobby: ", this.players.length);
 
     this.resetTimer();
+    for (var playerSocket of this.players) {
+      playerSocket.emit('new player', this.players.length);
+    }
     if (this.players.length > Game.settings.maxPlayers) {
       // Assuming we won't go from max-1 players to max+1 players
       console.log("CRITICAL ERROR: too many players");
