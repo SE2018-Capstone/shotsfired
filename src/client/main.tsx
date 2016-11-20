@@ -4,8 +4,9 @@ import { GameCanvas } from './game-canvas';
 import { GameState } from '../core/game';
 import { ClientController } from './client-controller';
 import { Splash } from './splash';
+import { Lobby } from './lobby'
+import { GAME_START_TIME, SEND_NEW_PLAYER_JOINED } from '../server/server-interface'
 
-const GAME_START_TIME = 5;
 enum Stages { SPLASH, LOADING, RUNNING };
 export interface ClientState {
   stage: Stages;
@@ -24,7 +25,7 @@ export class Main extends React.Component<{}, ClientState> {
     this.state = {
       stage: Stages.SPLASH,
       numPlayersInLobby: 0,
-      countdownTime: GAME_START_TIME
+      countdownTime: GAME_START_TIME/1000
     };
   }
 
@@ -34,50 +35,24 @@ export class Main extends React.Component<{}, ClientState> {
       console.log('connection!');
       this.startGame(initialData.gameState, initialData.playerId);
     });
-    this.socket.on('new player', (numPlayers: number) => {
-      this.resetTimer();
-      this.updateCountdown(GAME_START_TIME);
+    this.socket.on(SEND_NEW_PLAYER_JOINED, (numPlayers: number) => {
       this.setState({
-        stage: this.state.stage,
         numPlayersInLobby: numPlayers,
-        countdownTime: GAME_START_TIME
-      });
+        countdownTime: GAME_START_TIME/1000
+      } as ClientState);
     })
     this.setState({
       stage: Stages.LOADING,
-      numPlayersInLobby: this.state.numPlayersInLobby,
-      countdownTime: this.state.countdownTime
-    });
+    } as ClientState);
   }
 
   startGame(initialState: GameState, playerId: string) {
       this.gameState = initialState;
       this.activePlayer = playerId;
       this.controller = new ClientController(this.gameState, this.socket);
-      this.resetTimer();
       this.setState({
         stage: Stages.RUNNING,
-        numPlayersInLobby: this.state.numPlayersInLobby,
-        countdownTime: this.state.countdownTime
-      });
-  }
-
-  updateCountdown(time: number) {
-    this.setState({
-      stage: this.state.stage,
-      numPlayersInLobby: this.state.numPlayersInLobby,
-      countdownTime: time
-    });
-    if (time - 1 >= 0) {
-      this.countdownTimer = setTimeout(this.updateCountdown.bind(this), 1000, time - 1);
-    }
-  }
-
-  resetTimer() {
-    if (this.countdownTimer != null) {
-      clearTimeout(this.countdownTimer);
-    }
-    this.countdownTimer = null;
+      } as ClientState);
   }
 
   render() {
@@ -85,16 +60,7 @@ export class Main extends React.Component<{}, ClientState> {
       case Stages.SPLASH:
         return <Splash onQuickPlay={() => this.socketInit()} />;
       case Stages.LOADING:
-        let moreThanOnePlayer = this.state.numPlayersInLobby > 1;
-        return (
-          <div style={{textAlign: 'center'}} >
-            <h2>
-              Waiting for more players to join... {(moreThanOnePlayer) ? this.state.countdownTime : ""}
-            </h2>
-            <br/>
-            Currently {this.state.numPlayersInLobby} player{(moreThanOnePlayer) ? "s" : ""} in the lobby
-          </div>
-        );
+        return <Lobby numPlayersInLobby={this.state.numPlayersInLobby} maxCountdownTime={this.state.countdownTime} />;
       case Stages.RUNNING:
         return (
           <div>

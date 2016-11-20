@@ -3,8 +3,8 @@ import { Server }  from 'http';
 import { GameServer } from './game-server';
 import * as SocketIO from 'socket.io';
 import { Game } from '../core/game';
+import { GAME_START_TIME, SEND_NEW_PLAYER_JOINED } from './server-interface'
 
-const GAME_START_TIME = 5000;
 export class LobbyServer {
   players: SocketIO.Socket[];
   io: SocketIO.Server;
@@ -26,7 +26,7 @@ export class LobbyServer {
 
     this.resetTimer();
     for (var playerSocket of this.players) {
-      playerSocket.emit('new player', this.players.length);
+      playerSocket.emit(SEND_NEW_PLAYER_JOINED, this.players.length);
     }
     if (this.players.length > Game.settings.maxPlayers) {
       // Assuming we won't go from max-1 players to max+1 players
