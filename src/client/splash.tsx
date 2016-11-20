@@ -68,6 +68,7 @@ export class Splash extends React.Component<SplashProps, {}> {
             to join the same party
           </div>
           <br/>
+          <img src='../../res/2-player-icon.png' style={{width: 125, height: 100, marginRight: -18}} />
           <img src='../../res/2-player-icon.png' style={{width: 125, height: 100}} />
           <h3 style={{marginTop: -10}} > WWW. </h3>
         </div>
