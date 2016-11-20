@@ -11,21 +11,18 @@ enum Stages { SPLASH, LOADING, RUNNING };
 export interface ClientState {
   stage: Stages;
   numPlayersInLobby: number;
-  countdownTime: number;
 }
 export class Main extends React.Component<{}, ClientState> {
   gameState: GameState;
   controller: ClientController;
   socket: SocketIOClient.Socket;
   activePlayer: string;
-  countdownTimer: number;
 
   constructor() {
     super();
     this.state = {
       stage: Stages.SPLASH,
       numPlayersInLobby: 0,
-      countdownTime: GAME_START_TIME/1000
     };
   }
 
@@ -38,11 +35,10 @@ export class Main extends React.Component<{}, ClientState> {
     this.socket.on(SEND_NEW_PLAYER_JOINED, (numPlayers: number) => {
       this.setState({
         numPlayersInLobby: numPlayers,
-        countdownTime: GAME_START_TIME/1000
       } as ClientState);
     })
     this.setState({
-      stage: Stages.LOADING,
+      stage: Stages.LOADING
     } as ClientState);
   }
 
@@ -51,7 +47,7 @@ export class Main extends React.Component<{}, ClientState> {
       this.activePlayer = playerId;
       this.controller = new ClientController(this.gameState, this.socket);
       this.setState({
-        stage: Stages.RUNNING,
+        stage: Stages.RUNNING
       } as ClientState);
   }
 
@@ -60,7 +56,7 @@ export class Main extends React.Component<{}, ClientState> {
       case Stages.SPLASH:
         return <Splash onQuickPlay={() => this.socketInit()} />;
       case Stages.LOADING:
-        return <Lobby numPlayersInLobby={this.state.numPlayersInLobby} maxCountdownTime={this.state.countdownTime} />;
+        return <Lobby numPlayersInLobby={this.state.numPlayersInLobby} maxCountdownTime={GAME_START_TIME/1000} />;
       case Stages.RUNNING:
         return (
           <div>
