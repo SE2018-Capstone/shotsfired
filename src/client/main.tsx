@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as socketIo from 'socket.io-client';
+import fetch from 'node-fetch';
 import { GameCanvas } from './game-canvas';
 import { GameState } from '../core/game';
 import { ClientController } from './client-controller';
@@ -11,6 +12,7 @@ export class Main extends React.Component<{}, ClientState> {
   gameState: GameState;
   controller: ClientController;
   socket: SocketIOClient.Socket;
+  gameToJoin: string;
   activePlayer: string;
 
   constructor() {
@@ -18,10 +20,20 @@ export class Main extends React.Component<{}, ClientState> {
     this.state = { stage: Stages.SPLASH };
   }
 
-  socketInit() {
-    this.socket = socketIo();
+  joinRandomGame() {
+    let currentUrl = window.location.origin;
+    fetch(currentUrl+'/join').then((response: any) => {
+      response.json().then((json: any) => {
+        console.log("Connecting to",currentUrl + json['gameUrl']);//DELTE
+        this.socketInit(currentUrl + json['gameUrl']);
+      });
+    });
+  }
+
+  socketInit(url: string) {
+    this.socket = socketIo(url);
     this.socket.on('start game', (initialData: {playerId: string, gameState: GameState}) => {
-      console.log('connection!');
+      console.log('Game started!');
       this.startGame(initialData.gameState, initialData.playerId);
     });
     this.setState({ stage: Stages.LOADING });
@@ -37,7 +49,7 @@ export class Main extends React.Component<{}, ClientState> {
   render() {
     switch(this.state.stage) {
       case Stages.SPLASH:
-        return <Splash onQuickPlay={() => this.socketInit()} />;
+        return <Splash onQuickPlay={() => this.joinRandomGame()} />;
       case Stages.LOADING:
         return <div> Loading... </div>;
       case Stages.RUNNING:
