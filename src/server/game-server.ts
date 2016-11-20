@@ -2,9 +2,8 @@ import { GameState, Game, InputFrame } from '../core/game';
 import { Server }  from 'http';
 import * as SocketIO from 'socket.io';
 import * as _ from 'lodash';
-import { SEND_STATE_UPDATE, StatePayload } from './server-interface';
+import { START_GAME, SEND_STATE_UPDATE, StatePayload, NEW_PLAYER_JOINED } from './server-interface';
 import { SEND_FRAMES } from '../client/client-interface';
-import * as process from 'process';
 
 export interface IPCMessage {
   accept?: number;
@@ -15,37 +14,21 @@ const TICKS_PER_SECOND = 60;
 const DEV_DELAY = 0; // Delays the updates sent to clients to simulate slower connections
 export class GameServer {
   io: SocketIO.Server;
-  server: Server;
-  processId: number = null; // unique number that identifies which gameserver process you are
   sockets: SocketIO.Socket[];
   activeGames: Map<string,GameInstance> = new Map<string,GameInstance>(); // String is unique hash given by lobby-server
 
   constructor(server: Server) {
-    this.server = server;
+    this.io = SocketIO(server);
+    this.io.on('connection', this.onConnection.bind(this));
+  }
 
-    process.on('message', (m: IPCMessage) => {
-      if ('accept' in m) {
-        // ASSUMING THIS IS ONLY CALLED ONCE
-        // This is essentially the constructor of the GameServer, and most initialization is done here.
-        // Must happen before anything else is called on this object
-        if (this.processId !== null) {
-          console.log(this.processId, m.accept);
-          throw new Error('This process has already had its id set');
-        }
-        this.processId = m.accept;
-        // Connect via socket
-        this.io = SocketIO(this.server);
-        this.io.of('/'+this.processId).on('connection', this.onConnection.bind(this));
-      } else if ('startgame' in m) {
-        this.activeGames.get(m.startgame).startGame();
-      }
-    });
+  startGame(gameCode: string) {
+    this.activeGames.get(gameCode).startGame();
   }
 
   onConnection(socket: SocketIO.Socket) {
     const gameCode = socket.handshake.query.gamecode;
-    console.log(gameCode);
-    if (!(gameCode in this.activeGames)) {
+    if (!(this.activeGames.get(gameCode))) {
       this.activeGames.set(gameCode, new GameInstance(()=>this.onGameFinished(gameCode)));
     }
     this.activeGames.get(gameCode).addPlayer(socket);
@@ -58,7 +41,7 @@ export class GameServer {
 
 class GameInstance {
   game: GameState;
-  sockets: SocketIO.Socket[];
+  sockets: SocketIO.Socket[] = [];
   disconnects: string[] = [];
   playerSockets: Map<string, SocketIO.Socket> = new Map();
   gameFinishedCallback: ()=>void;
@@ -84,6 +67,9 @@ class GameInstance {
     if (this.sockets.length == Game.settings.maxPlayers) {
       this.startGame();
     }
+    for (let s of this.sockets) {
+      s.emit(NEW_PLAYER_JOINED, this.sockets.length);
+    }
   }
 
   startGame() {
@@ -92,8 +78,7 @@ class GameInstance {
       socket.on(SEND_FRAMES, (frames: InputFrame[]) => this.acceptFrames(frames, player.id));
       socket.removeAllListeners('disconnect');
       socket.on('disconnect', () => this.onDisconnection(player.id));
-      socket.on('new frames', this.acceptFrames.bind(this));
-      socket.emit('start game', {
+      socket.emit(START_GAME, {
         playerId: player.id,
         gameState: this.game,
       });
@@ -139,10 +124,6 @@ class GameInstance {
       // Don't call tick again if nobody is in the game anymore
       setTimeout(this.tick.bind(this), (1/TICKS_PER_SECOND) * 1000);
     }
-  }
-
-  onDisconnection(playerId: string) {
-    this.disconnects.push(playerId);
   }
 
   acceptFrames(frames: InputFrame[], playerId: string) {

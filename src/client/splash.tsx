@@ -29,7 +29,7 @@ export class Splash extends React.Component<SplashProps, {}> {
         </button>
         <br/><br/>
         <button
-          onClick={this.props.onQuickPlay}
+          onClick={this.props.onPrivateMatch}
           style={{
             backgroundColor: '#008CBA',
             color: "#FFFFFF",

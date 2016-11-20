@@ -6,7 +6,7 @@ import { GameState } from '../core/game';
 import { ClientController } from './client-controller';
 import { Splash } from './splash';
 import { Lobby } from './lobby'
-import { GAME_LOBBY_COUNTDOWN, NEW_PLAYER_JOINED } from '../server/server-interface'
+import { START_GAME, GAME_LOBBY_COUNTDOWN, NEW_PLAYER_JOINED, GAME_CODE_LENGTH } from '../server/server-interface'
 
 enum Stages { SPLASH, LOADING, RUNNING };
 export interface ClientState {
@@ -26,22 +26,38 @@ export class Main extends React.Component<{}, ClientState> {
       stage: Stages.SPLASH,
       numPlayersInLobby: 0,
     };
+    let pathName = window.location.pathname.substring(1); // Cutting off preceding '/'
+    if (pathName.length === GAME_CODE_LENGTH) {
+      // We are reserving all 5 character urls as game urls
+      this.socketInit(pathName);
+      this.state.stage = Stages.LOADING;
+    }
+  }
+
+  createPrivateGame() {
+    this.createLobby('createPrivate');
   }
 
   joinRandomGame() {
-    let currentUrl = window.location.origin;
-    fetch(currentUrl+'/join').then((response: any) => {
-      response.json().then((json: any) => {
-        this.socketInit('/'+json['serverNum'],json['gameCode']);
-      });
-    });
+    this.createLobby('join');
   }
 
-  socketInit(url: string, gameCode: string) {
-    console.log(url, gameCode);
-    this.socket = socketIo(url, {query: 'gamecode='+gameCode});
-    this.socket.on('start game', (initialData: {playerId: string, gameState: GameState}) => {
-      console.log('Game started!');
+  createLobby(endpoint:string) {
+    let currentUrl = window.location.origin;
+    fetch(currentUrl+'/'+endpoint).then((response: any) => {
+      response.json().then((json: any) => {
+        this.socketInit(json['gameCode']);
+      });
+    });
+    this.setState({
+      stage: Stages.LOADING
+    } as ClientState);
+  }
+
+  socketInit(gameCode: string) {
+    console.log("GAMECODE: ", gameCode);
+    this.socket = socketIo({query: 'gamecode='+gameCode});
+    this.socket.on(START_GAME, (initialData: {playerId: string, gameState: GameState}) => {
       this.startGame(initialData.gameState, initialData.playerId);
     });
     this.socket.on(NEW_PLAYER_JOINED, (numPlayers: number) => {
@@ -49,9 +65,6 @@ export class Main extends React.Component<{}, ClientState> {
         numPlayersInLobby: numPlayers,
       } as ClientState);
     })
-    this.setState({
-      stage: Stages.LOADING
-    } as ClientState);
   }
 
   startGame(initialState: GameState, playerId: string) {
@@ -66,7 +79,7 @@ export class Main extends React.Component<{}, ClientState> {
   render() {
     switch(this.state.stage) {
       case Stages.SPLASH:
-        return <Splash onQuickPlay={() => this.joinRandomGame()} />;
+        return <Splash onPrivateMatch={() => this.joinPrivateMatch()} onQuickPlay={() => this.joinRandomGame()} />;
       case Stages.LOADING:
         return (
           <Lobby
