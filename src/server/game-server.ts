@@ -5,16 +5,6 @@ import * as _ from 'lodash';
 import { START_GAME, SEND_STATE_UPDATE, StatePayload, NEW_PLAYER_JOINED } from './server-interface';
 import { SEND_FRAMES } from '../client/client-interface';
 
-export interface IPCMessage {
-  accept?: number;
-  startgame?: string;
-}
-
-export interface IPCMessage {
-  accept?: number;
-  startgame?: string;
-}
-
 const TICKS_PER_SECOND = 60;
 const DEV_DELAY = 0; // Delays the updates sent to clients to simulate slower connections
 export class GameServer {
@@ -50,7 +40,6 @@ class GameInstance {
   disconnects: string[] = [];
   playerSockets: Map<string, SocketIO.Socket> = new Map();
   gameFinishedCallback: ()=>void;
-  connectedPlayers: number = 0; // Number of players currently connected via socket
   lastTick: number = 0;
 
   // Keeps track of the timestamp of the latest input that the server has applied for each player
@@ -67,8 +56,7 @@ class GameInstance {
 
   addPlayer(socket: SocketIO.Socket) {
     this.sockets.push(socket);
-    this.connectedPlayers += 1;
-    socket.on('disconnect', () => this.onPregameDisconnection(socket));
+    socket.on('disconnect', () => this.onDisconnection(socket));
     if (this.sockets.length == Game.settings.maxPlayers) {
       this.startGame();
     }
@@ -81,8 +69,7 @@ class GameInstance {
     for (var socket of this.sockets) {
       let player = Game.addPlayer(this.game);
       socket.on(SEND_FRAMES, (frames: InputFrame[]) => this.acceptFrames(frames, player.id));
-      socket.removeAllListeners('disconnect');
-      socket.on('disconnect', () => this.onDisconnection(player.id));
+      socket.on('disconnect', () => this.onInGameDisconnection(socket, player.id));
       socket.emit(START_GAME, {
         playerId: player.id,
         gameState: this.game,
@@ -92,14 +79,12 @@ class GameInstance {
     this.tick();
   }
 
-  onPregameDisconnection(socket: SocketIO.Socket) {
+  onDisconnection(socket: SocketIO.Socket) {
     this.sockets.splice(this.sockets.indexOf(socket), 1);
-    this.connectedPlayers -= 1;
   }
 
-  onDisconnection(playerId: string) {
-    this.connectedPlayers -= 1;
-    if (this.connectedPlayers <= 1) {
+  onInGameDisconnection(playerId: string) {
+    if (this.sockets.length <= 1) {
       this.gameFinishedCallback();
     }
     this.disconnects.push(playerId);
@@ -125,7 +110,7 @@ class GameInstance {
     this.sendState();
     this.frameBuffers = {};
     this.disconnects = [];
-    if (this.connectedPlayers > 0) {
+    if (this.sockets.length > 0) {
       // Don't call tick again if nobody is in the game anymore
       setTimeout(this.tick.bind(this), (1/TICKS_PER_SECOND) * 1000);
     }

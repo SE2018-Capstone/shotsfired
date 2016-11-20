@@ -2,7 +2,9 @@ import * as React from 'react';
 
 interface SplashProps {
   onQuickPlay: () => void;
+  onPrivateMatch: () => void;
 }
+
 export class Splash extends React.Component<SplashProps, {}> {
   render() {
     return (

@@ -31,9 +31,6 @@ export class LobbyServer {
   }
 
   joinRandom(req: express.Request, res: express.Response) {
-    if (this.playersInRandLobby == 0) {
-      this.currentRandLobby = this.createNewLobby();
-    }
     this.playersInRandLobby += 1;
     console.log("Players waiting for random game to start: ", this.playersInRandLobby);
 
@@ -62,6 +59,7 @@ export class LobbyServer {
 
   refreshRandGame() {
     this.resetTimer();
+    this.currentRandLobby = this.createNewLobby();
     this.playersInRandLobby = 0;
   }
   
