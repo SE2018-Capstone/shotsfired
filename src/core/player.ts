@@ -8,7 +8,7 @@ export interface PlayerState extends EntityState {
   gunCooldown: number;
   lastFire: number;
 }
-
+export const OFFSET = 15; 
 const INPUT_VEL = 200;
 export class Player extends Entity {
   static init(overrides: any = {}) {

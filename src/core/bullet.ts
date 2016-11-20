@@ -1,7 +1,7 @@
 import { EntityState, Entity } from './entity'
 import { Game, GameState, InputFrame }  from './game'
 import { EventFactory, Event } from './event'
-import { Player, PlayerState } from './player';
+import { Player, PlayerState, OFFSET } from './player';
 import { Vec } from './vector';
 
 export interface BulletState extends EntityState {
@@ -36,7 +36,7 @@ export class Bullet extends Entity {
     switch(other.type) {
       case 'player':
         other = other as PlayerState;
-        if (other.id !== bullet.source) {
+        if (other.id !== bullet.source && bullet.alive) {
           Player.takeDamage(other as PlayerState, bullet.damage);
           bullet.alive = false;
         }
@@ -47,8 +47,9 @@ export class Bullet extends Entity {
   static spawnFrom(entity: EntityState) {
     let base = Bullet.init();
     base.source = entity.id;
-    base.pos = {x: entity.pos.x, y: entity.pos.y};
-    base.vel = Vec.mul(Vec.direction(entity.orientation), BULLET_SPEED);
+    let directionVector = Vec.direction(entity.orientation); 
+    base.pos = {x: entity.pos.x + directionVector.x*OFFSET, y: entity.pos.y + directionVector.y*OFFSET};
+    base.vel = Vec.mul(directionVector, BULLET_SPEED);
     return base;
   }
 }
