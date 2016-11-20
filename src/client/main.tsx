@@ -24,14 +24,14 @@ export class Main extends React.Component<{}, ClientState> {
     let currentUrl = window.location.origin;
     fetch(currentUrl+'/join').then((response: any) => {
       response.json().then((json: any) => {
-        console.log("Connecting to",currentUrl + json['gameUrl']);//DELTE
-        this.socketInit(currentUrl + json['gameUrl']);
+        this.socketInit('/'+json['serverNum'],json['gameCode']);
       });
     });
   }
 
-  socketInit(url: string) {
-    this.socket = socketIo(url);
+  socketInit(url: string, gameCode: string) {
+    console.log(url, gameCode);
+    this.socket = socketIo(url, {query: 'gamecode='+gameCode});
     this.socket.on('start game', (initialData: {playerId: string, gameState: GameState}) => {
       console.log('Game started!');
       this.startGame(initialData.gameState, initialData.playerId);
