@@ -3,8 +3,8 @@ import { Server }  from 'http';
 import { GameServer } from './game-server';
 import * as SocketIO from 'socket.io';
 import { Game } from '../core/game';
+import { GAME_LOBBY_COUNTDOWN, NEW_PLAYER_JOINED } from './server-interface'
 
-const GAME_START_TIME = 5000;
 export class LobbyServer {
   players: SocketIO.Socket[];
   io: SocketIO.Server;
@@ -25,13 +25,16 @@ export class LobbyServer {
     console.log("Players in lobby: ", this.players.length);
 
     this.resetTimer();
+    for (var playerSocket of this.players) {
+      playerSocket.emit(NEW_PLAYER_JOINED, this.players.length);
+    }
     if (this.players.length > Game.settings.maxPlayers) {
       // Assuming we won't go from max-1 players to max+1 players
       console.log("CRITICAL ERROR: too many players");
     } else if (this.players.length == Game.settings.maxPlayers) {
       this.startGame();
     } else if (this.players.length >= Game.settings.minPlayers) {
-      this.gameStartTimer = setTimeout(this.startGame.bind(this), GAME_START_TIME);
+      this.gameStartTimer = setTimeout(this.startGame.bind(this), GAME_LOBBY_COUNTDOWN);
     }
   }
 
