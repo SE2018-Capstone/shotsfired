@@ -36,7 +36,7 @@ export class Bullet extends Entity {
     switch(other.type) {
       case 'player':
         other = other as PlayerState;
-        if (other.id !== bullet.source) {
+        if (other.id !== bullet.source && bullet.alive) {
           Player.takeDamage(other as PlayerState, bullet.damage);
           bullet.alive = false;
         }
