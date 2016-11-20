@@ -7,6 +7,7 @@ import { Splash } from './splash';
 import { Lobby } from './lobby'
 import { GAME_START_TIME, SEND_NEW_PLAYER_JOINED } from '../server/server-interface'
 
+const GAME_START_TIME_IN_SECONDS = GAME_START_TIME / 1000;
 enum Stages { SPLASH, LOADING, RUNNING };
 export interface ClientState {
   stage: Stages;
@@ -56,7 +57,7 @@ export class Main extends React.Component<{}, ClientState> {
       case Stages.SPLASH:
         return <Splash onQuickPlay={() => this.socketInit()} />;
       case Stages.LOADING:
-        return <Lobby numPlayersInLobby={this.state.numPlayersInLobby} maxCountdownTime={GAME_START_TIME/1000} />;
+        return <Lobby numPlayersInLobby={this.state.numPlayersInLobby} maxCountdownTime={GAME_START_TIME_IN_SECONDS} />;
       case Stages.RUNNING:
         return (
           <div>
