@@ -29,6 +29,7 @@ export interface GameState {
     minPlayers: number;
     maxPlayers: number;
   };
+  isFinished: boolean;
 };
 
 export class Game {
@@ -38,7 +39,8 @@ export class Game {
       settings: { minPlayers: Game.settings.minPlayers,
                   maxPlayers: Game.settings.maxPlayers },
       world: { width: 640, height: 480 },
-      entities: { players: {}, bullets: {} }
+      entities: { players: {}, bullets: {} },
+      isFinished: false
     }, overrides) as GameState;
   }
 
@@ -108,21 +110,49 @@ export class Game {
     });
   }
 
-  static getWinner(game: GameState) {
+  static isFinished(game: GameState) {
     const players = game.entities.players;
     let playersAlive = Object.keys(players).length;
-    let winner: string;
 
     Object.keys(players).forEach(id => {
       if (!players[id].alive) {
         playersAlive--;
       }
-      else {
-        winner = id;
-      }
     });
-    return (playersAlive === 1) ? winner : "";
+    return (playersAlive === 1);
+
   }
+
+  static getWinner(game: GameState) {
+    const players = game.entities.players;
+    let winner = "";
+
+    if (Game.isFinished(game)) {
+      game.isFinished = true;
+      Object.keys(players).forEach(id => {
+        if (players[id].alive) {
+          winner = id;
+        }
+      });
+    }
+    return winner;
+  }
+
+  // static getWinner(game: GameState) {
+  //   const players = game.entities.players;
+  //   let playersAlive = Object.keys(players).length;
+  //   let winner: string;
+
+  //   Object.keys(players).forEach(id => {
+  //     if (!players[id].alive) {
+  //       playersAlive--;
+  //     }
+  //     else {
+  //       winner = id;
+  //     }
+  //   });
+  //   return (playersAlive === 1) ? winner : "";
+  // }
 
   static addPlayer(state: GameState) {
     let player = Player.init();

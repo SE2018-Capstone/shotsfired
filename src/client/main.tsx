@@ -14,7 +14,8 @@ export class Main extends React.Component<{}, ClientState> {
   controller: ClientController;
   socket: SocketIOClient.Socket;
   activePlayer: string;
-  isWinner: boolean
+  isWinner: boolean;
+  initialData: {playerId: string, gameState: GameState};
 
   constructor() {
     super();
@@ -26,6 +27,7 @@ export class Main extends React.Component<{}, ClientState> {
     this.socket = socketIo();
     this.socket.on('start game', (initialData: {playerId: string, gameState: GameState}) => {
       console.log('connection!');
+      this.initialData = initialData;
       this.startGame(initialData.gameState, initialData.playerId);
     });
     this.setState({ stage: Stages.LOADING });
@@ -40,9 +42,20 @@ export class Main extends React.Component<{}, ClientState> {
             this.isWinner = true;
           }
           this.setState({stage: Stages.GAMEOVER});
+          console.log("game over");
         }
       });
       this.setState({stage: Stages.RUNNING});
+  }
+
+  rematch() {
+    //option 1
+    // this.controller = null;
+    // this.startGame(this.initialData.gameState, this.initialData.playerId);
+
+    //option 2
+    // this.gameState = this.initialData.gameState;
+    // this.setState({stage: Stages.RUNNING});
   }
 
   goToMainMenu() {
@@ -77,7 +90,7 @@ export class Main extends React.Component<{}, ClientState> {
           <GameOver
             isWinner={this.isWinner}
             countdownTime={REMATCH_COUNTDOWN_TIME}
-            onPlayAgain={() => ""}
+            onPlayAgain={() => this.rematch()}
             onBackToMainMenu={() => this.goToMainMenu()}
           />
         );
