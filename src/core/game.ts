@@ -1,6 +1,7 @@
 import { Player, PlayerState } from './player';
 import { Bullet, BulletState } from './bullet';
 import { EntityState, Entity } from './entity';
+import { WallState, MapCatalog } from './maps';
 import { Event } from './event';
 
 export interface InputFrame {
@@ -16,6 +17,7 @@ export interface InputFrame {
 };
 
 
+
 export interface GameState {
   world: {
     width: number;
@@ -24,6 +26,7 @@ export interface GameState {
   entities: {
     players: {[id:string]:PlayerState};
     bullets: {[id:string]:BulletState};
+    walls: {[id:string]: WallState};
   };
   settings: {
     minPlayers: number;
@@ -34,12 +37,13 @@ export interface GameState {
 export class Game {
   static settings = { minPlayers: 2, maxPlayers: 4 };
   static init(overrides: any = {}) {
-    return Object.assign({
+    const defaults: GameState = {
       settings: { minPlayers: Game.settings.minPlayers,
                   maxPlayers: Game.settings.maxPlayers },
-      world: { width: 640, height: 480 },
-      entities: { players: {}, bullets: {} }
-    }, overrides) as GameState;
+      world: { width: 960, height: 720 },
+      entities: { players: {}, bullets: {}, walls: MapCatalog[0] },
+    };
+    return Object.assign(defaults, overrides) as GameState;
   }
 
   // Current issue is that the state that the parts base their
