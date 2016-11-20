@@ -7,13 +7,10 @@ var config = require('./webpack.config.client.js');
 config = Object.assign({}, config, {
   target: 'node',
   node: { __dirname: false, __filename: false },
-  entry:  {
-    lobby: './src/server/server.ts',
-    game: './src/server/game.ts',
-  },
+  entry: './src/server/server.ts',
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: 'backend[name].js'
+    filename: 'backend.js'
   },
   externals: [nodeExternals()],
 });
