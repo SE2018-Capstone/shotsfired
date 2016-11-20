@@ -2,12 +2,12 @@ import * as React from 'react';
 import { Game } from '../core/game';
 
 
-export interface LobbyProps {
+interface LobbyProps {
   numPlayersInLobby: number;
   maxCountdownTime: number;
 }
 
-export interface LobbyState {
+interface LobbyState {
   countdownTime: number;
 }
 
@@ -35,17 +35,20 @@ export class Lobby extends React.Component<LobbyProps, LobbyState> {
     this.countdownTimer = null;
   }
 
+  //TODO have the server send time remaining updates to the client
   componentWillReceiveProps(nextProps: LobbyProps) {
     if (nextProps.numPlayersInLobby !== this.props.numPlayersInLobby) {
       this.resetTimer();
-      if (nextProps.numPlayersInLobby !== Game.settings.maxPlayers) {
+      if (nextProps.numPlayersInLobby >= Game.settings.minPlayers &&
+        nextProps.numPlayersInLobby < Game.settings.maxPlayers) {
+
         this.updateCountdown(this.props.maxCountdownTime);
       }
     }
   }
 
   render() {
-    let moreThanOnePlayer = (this.props.numPlayersInLobby > 1);
+    const moreThanOnePlayer = (this.props.numPlayersInLobby > 1);
     return (
       <div style={{textAlign: 'center'}} >
         <h2>

@@ -3,7 +3,7 @@ import { Server }  from 'http';
 import { GameServer } from './game-server';
 import * as SocketIO from 'socket.io';
 import { Game } from '../core/game';
-import { GAME_START_TIME, SEND_NEW_PLAYER_JOINED } from './server-interface'
+import { GAME_LOBBY_COUNTDOWN, NEW_PLAYER_JOINED } from './server-interface'
 
 export class LobbyServer {
   players: SocketIO.Socket[];
@@ -26,7 +26,7 @@ export class LobbyServer {
 
     this.resetTimer();
     for (var playerSocket of this.players) {
-      playerSocket.emit(SEND_NEW_PLAYER_JOINED, this.players.length);
+      playerSocket.emit(NEW_PLAYER_JOINED, this.players.length);
     }
     if (this.players.length > Game.settings.maxPlayers) {
       // Assuming we won't go from max-1 players to max+1 players
@@ -34,7 +34,7 @@ export class LobbyServer {
     } else if (this.players.length == Game.settings.maxPlayers) {
       this.startGame();
     } else if (this.players.length >= Game.settings.minPlayers) {
-      this.gameStartTimer = setTimeout(this.startGame.bind(this), GAME_START_TIME);
+      this.gameStartTimer = setTimeout(this.startGame.bind(this), GAME_LOBBY_COUNTDOWN);
     }
   }
 
