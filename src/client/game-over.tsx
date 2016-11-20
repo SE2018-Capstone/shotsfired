@@ -2,11 +2,45 @@ import * as React from 'react';
 
 interface GameOverProps {
   isWinner: boolean;
-  countdownTime: number;
+  maxCountdownTime: number;
   onPlayAgain: () => void;
   onBackToMainMenu: () => void;
 }
-export class GameOver extends React.Component<GameOverProps, {}> {
+interface GameOverState {
+  countdownTime: number;
+}
+
+export class GameOver extends React.Component<GameOverProps, GameOverState> {
+  countdownTimer: number;
+
+  constructor(props: GameOverProps) {
+    super(props);
+    this.state = {countdownTime: this.props.maxCountdownTime};
+    this.countdownTimer = setTimeout(this.updateCountdown.bind(this), 1000, this.state.countdownTime - 1);
+  }
+
+  updateCountdown(time: number) {
+    this.setState({countdownTime: time});
+    if (time - 1 >= 0) {
+      this.countdownTimer = setTimeout(this.updateCountdown.bind(this), 1000, time - 1);
+    }
+    else {
+      this.goToMainMenu();
+    }
+  }
+
+  resetTimer() {
+    if (this.countdownTimer != null) {
+      clearTimeout(this.countdownTimer);
+    }
+    this.countdownTimer = null;
+  }
+
+  goToMainMenu() {
+    this.resetTimer();
+    this.props.onBackToMainMenu();
+  }
+
   render() {
     let gameOverText = "";
     if (this.props.isWinner) {
@@ -28,7 +62,7 @@ export class GameOver extends React.Component<GameOverProps, {}> {
         <h1> {gameOverText} </h1>
         
         <div style={{paddingTop: 40, paddingBottom: 20}} >
-        Waiting for all players to confirm rematch... {this.props.countdownTime}
+        Waiting for all players to confirm rematch... {this.state.countdownTime}
         </div>
 
         <button
@@ -44,7 +78,7 @@ export class GameOver extends React.Component<GameOverProps, {}> {
           Rematch!
         </button>
         <button
-          onClick={this.props.onBackToMainMenu}
+          onClick={() => this.goToMainMenu()}
           style={{
             backgroundColor: '#008CBA',
             color: "#FFFFFF",

@@ -5,8 +5,8 @@ import { GameState } from '../core/game';
 import { ClientController } from './client-controller';
 import { Splash } from './splash';
 import { GameOver } from './game-over'
+import { REMATCH_COUNTDOWN_TIME } from './client-interface'
 
-const REMATCH_COUNTDOWN_TIME = 10;
 enum Stages { SPLASH, LOADING, RUNNING, GAMEOVER };
 export interface ClientState { stage: Stages; }
 export class Main extends React.Component<{}, ClientState> {
@@ -89,7 +89,7 @@ export class Main extends React.Component<{}, ClientState> {
         return (
           <GameOver
             isWinner={this.isWinner}
-            countdownTime={REMATCH_COUNTDOWN_TIME}
+            maxCountdownTime={REMATCH_COUNTDOWN_TIME}
             onPlayAgain={() => this.rematch()}
             onBackToMainMenu={() => this.goToMainMenu()}
           />
