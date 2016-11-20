@@ -18,25 +18,39 @@ export class Main extends React.Component<{}, ClientState> {
   constructor() {
     super();
     this.state = { stage: Stages.SPLASH };
+    let pathName = window.location.pathname.substring(1); // Cutting off preceding '/'
+    console.log(pathName);
+    if (pathName.length === 5) {
+      // We are reserving all 5 character urls as game urls
+      this.socketInit(pathName);
+      this.state = { stage: Stages.LOADING };
+    }
+  }
+
+  createPrivateGame() {
+    this.createLobby('createPrivate');
   }
 
   joinRandomGame() {
-    let currentUrl = window.location.origin;
-    fetch(currentUrl+'/join').then((response: any) => {
-      response.json().then((json: any) => {
-        this.socketInit('/'+json['serverNum'],json['gameCode']);
-      });
-    });
+    this.createLobby('join');
   }
 
-  socketInit(url: string, gameCode: string) {
-    console.log(url, gameCode);
-    this.socket = socketIo(url, {query: 'gamecode='+gameCode});
+  createLobby(endpoint:string) {
+    let currentUrl = window.location.origin;
+    fetch(currentUrl+'/'+endpoint).then((response: any) => {
+      response.json().then((json: any) => {
+        this.socketInit(json['gameCode']);
+      });
+    });
+    this.setState({ stage: Stages.LOADING });
+  }
+
+  socketInit(gameCode: string) {
+    this.socket = socketIo({query: 'gamecode='+gameCode});
     this.socket.on('start game', (initialData: {playerId: string, gameState: GameState}) => {
       console.log('Game started!');
       this.startGame(initialData.gameState, initialData.playerId);
     });
-    this.setState({ stage: Stages.LOADING });
   }
 
   startGame(initialState: GameState, playerId: string) {

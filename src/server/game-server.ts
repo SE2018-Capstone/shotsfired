@@ -1,7 +1,6 @@
 import { GameState, Game, InputFrame } from '../core/game';
 import { Server }  from 'http';
 import * as SocketIO from 'socket.io';
-import * as process from 'process';
 
 export interface IPCMessage {
   accept?: number;
@@ -11,37 +10,21 @@ export interface IPCMessage {
 const TICKS_PER_SECOND = 60;
 export class GameServer {
   io: SocketIO.Server;
-  server: Server;
-  processId: number = null; // unique number that identifies which gameserver process you are
   sockets: SocketIO.Socket[];
   activeGames: Map<string,GameInstance> = new Map<string,GameInstance>(); // String is unique hash given by lobby-server
 
   constructor(server: Server) {
-    this.server = server;
+    this.io = SocketIO(server);
+    this.io.on('connection', this.onConnection.bind(this));
+  }
 
-    process.on('message', (m: IPCMessage) => {
-      if ('accept' in m) {
-        // ASSUMING THIS IS ONLY CALLED ONCE
-        // This is essentially the constructor of the GameServer, and most initialization is done here.
-        // Must happen before anything else is called on this object
-        if (this.processId !== null) {
-          console.log(this.processId, m.accept);
-          throw new Error('This process has already had its id set');
-        }
-        this.processId = m.accept;
-        // Connect via socket
-        this.io = SocketIO(this.server);
-        this.io.of('/'+this.processId).on('connection', this.onConnection.bind(this));
-      } else if ('startgame' in m) {
-        this.activeGames.get(m.startgame).startGame();
-      }
-    });
+  startGame(gameCode: string) {
+    this.activeGames.get(gameCode).startGame();
   }
 
   onConnection(socket: SocketIO.Socket) {
     const gameCode = socket.handshake.query.gamecode;
-    console.log(gameCode);
-    if (!(gameCode in this.activeGames)) {
+    if (!(this.activeGames.get(gameCode))) {
       this.activeGames.set(gameCode, new GameInstance(()=>this.onGameFinished(gameCode)));
     }
     this.activeGames.get(gameCode).addPlayer(socket);
