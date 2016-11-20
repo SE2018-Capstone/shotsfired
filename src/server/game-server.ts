@@ -29,13 +29,12 @@ export class GameServer {
         // This is essentially the constructor of the GameServer, and most initialization is done here.
         // Must happen before anything else is called on this object
         if (this.processId !== null) {
-          console.log(this.processId, m['accept']);
+          console.log(this.processId, m.accept);
           throw new Error('This process has already had its id set');
         }
         this.processId = m.accept;
         // Connect via socket
         this.io = SocketIO(this.server);
-        console.log('/'+this.processId); // TODO DELTE THIS
         this.io.of('/'+this.processId).on('connection', this.onConnection.bind(this));
       } else if ('startgame' in m) {
         this.activeGames.get(m.startgame).startGame();

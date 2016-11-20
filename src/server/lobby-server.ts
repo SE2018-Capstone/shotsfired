@@ -13,8 +13,7 @@ export class LobbyServer {
   gameStartTimer: number; // Timeout id
   currentProcess: number = 0; // Index in gameProcesses to send next game to
   playersInRandLobby: number = 0; // Number of players sitting in random lobby
-  processHandlingRandLobby: number = 0;
-  currentRandLobby: string; // Unique hash for lobby, url to send to
+  currentRandLobby: lobbyInfo;
 
   constructor(server: Server, app: express.Express, gameProcesses: Worker[]) {
     this.app = app;
@@ -25,14 +24,11 @@ export class LobbyServer {
   }
 
   // Returns new lobby url of form "<process_number>/<hashcode>"
-  // For example, "1/a3b1z"
-  createNewLobby() : string {
-    let lobbyUrl = this.currentProcess + '/'
-    // Create new lobby, get back hash code of lobby
-    lobbyUrl += this.generateRandomCode(6);
+  // For example, "1?gamecode=a3b1zm"
+  createNewLobby() : lobbyInfo {
     // Round robin scheduling for the game processes
     this.currentProcess = (this.currentProcess + 1) % this.gameProcesses.length;
-    return lobbyUrl;
+    return {serverNum: this.currentProcess, gameCode: this.generateRandomCode(6)};
   }
 
   generateRandomCode(length: number) : string {
@@ -48,7 +44,6 @@ export class LobbyServer {
   createInitialEndpoints() {
     this.app.get('/join', (req: express.Request, res: express.Response) => {
       if (this.playersInRandLobby == 0) {
-        this.processHandlingRandLobby = this.currentProcess;
         this.currentRandLobby = this.createNewLobby();
       }
       this.playersInRandLobby += 1;
@@ -62,7 +57,7 @@ export class LobbyServer {
       }
 
       res.setHeader('Content-Type', 'application/json');
-      res.send({'gameUrl': '/' + this.currentRandLobby});
+      res.send(this.currentRandLobby);
     });
 
     this.resetTimer();
@@ -80,7 +75,7 @@ export class LobbyServer {
   }
     this.app.get('/createprivate', (req: express.Request, res: express.Response) => {
       res.setHeader('Content-Type', 'application/json');
-      res.send({'gameUrl': '/' + this.createNewLobby()});
+      res.send(this.createNewLobby());
     });
 
     for (let i = 0; i < this.gameProcesses.length; i++) {
@@ -102,7 +97,7 @@ export class LobbyServer {
   
   startRandGamePrematurely() {
     // Game will automatically start with MAX_PLAYERS, expect this to only be called with < MAX_PLAYERS
-    this.gameProcesses[this.processHandlingRandLobby].send({'startgame': this.currentRandLobby});
+    this.gameProcesses[this.currentRandLobby.serverNum].send({'startgame': this.currentRandLobby});
     this.refreshRandGame();
   }
 }
