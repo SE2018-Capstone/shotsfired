@@ -5,7 +5,7 @@ import { GameState } from '../core/game';
 import { ClientController } from './client-controller';
 import { Splash } from './splash';
 import { Lobby } from './lobby'
-import { START_GAME, GAME_LOBBY_COUNTDOWN, NEW_PLAYER_JOINED, GAME_CODE_LENGTH } from '../server/server-interface'
+import { START_GAME, GAME_LOBBY_COUNTDOWN, NEW_PLAYER_JOINED } from '../server/server-interface'
 
 enum Stages { SPLASH, LOADING, RUNNING };
 export interface ClientState {
@@ -25,10 +25,9 @@ export class Main extends React.Component<{}, ClientState> {
       stage: Stages.SPLASH,
       numPlayersInLobby: 0,
     };
-    let pathName = window.location.pathname.substring(1); // Cutting off preceding '/'
-    if (pathName.length === GAME_CODE_LENGTH) {
-      // We are reserving all 5 character urls as game urls
-      this.socketInit(pathName);
+    let pathName = window.location.pathname;
+    if (pathName.startsWith('/game/')) {
+      this.socketInit(pathName.substring(6));
       this.state.stage = Stages.LOADING;
     }
   }
