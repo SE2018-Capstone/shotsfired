@@ -35,6 +35,7 @@
 %  \end{center}
 \begin{enumerate}
   \item Top-down arena style 2D multiplayer shooting game
+  \item Can easily join a game with friends (low barrier to entry)
   \item 2-4 player game played on separate machines connected online
   \item Characters are controlled with Keyboard and Mouse
   \item When a player loses all their health they are out
@@ -57,7 +58,9 @@
 \frametitle{Game Mode 2: Private Match}
 \begin{enumerate}
   \item Player clicks the 'Private Match' option in the main menu
-  \item Display custom url to join the game.
+  \item Display custom URL to join the game.
+  \item Other players enter the URL to join the private lobby
+  \item Once the lobby has 4 people, the game will start
 \end{enumerate}
 \end{frame}
 
@@ -66,8 +69,8 @@
 \begin{enumerate}
   \item Each player has x amount of health
   \item Move with WASD
-  \item Click to fire.
   \item Move mouse to aim.
+  \item Click to fire.
 \end{enumerate}
 \end{frame}
 
@@ -89,15 +92,15 @@
 \end{enumerate}
 \end{frame}
 
-\begin{frame}
-\frametitle{Requirements}
-\begin{enumerate}
-  \item Top-down arena style 2D shooting game
-  \item 2-4 player game played on separate machines connected online
-  \item Characters are controlled with Keyboard and Mouse
-  \item Can easily join a game with friends (low barrier to entry)
-\end{enumerate}
-\end{frame}
+%\begin{frame}
+%\frametitle{Requirements}
+%\begin{enumerate}
+%  \item Top-down arena style 2D shooting game
+%  \item 2-4 player game played on separate machines connected online
+%  \item Characters are controlled with Keyboard and Mouse
+ % \item Can easily join a game with friends (low barrier to entry)
+%\end{enumerate}
+%\end{frame}
 
 \begin{frame}
 \frametitle{Major Challenges}
@@ -123,6 +126,11 @@
 \begin{frame}
 \frametitle{Client Architecture}
 \includegraphics[scale=0.4]{images/ClientArchitecture.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Game Screen Capture}
+\includegraphics[scale=0.3]{images/gamescreenshot.png}
 \end{frame}
 
 
