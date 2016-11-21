@@ -55,7 +55,7 @@ export class Entity {
 
   static colliding(a: EntityState, b: EntityState) {
     let extraResult = false; 
-      if (b.type === 'wall') {
+      if (b.type === 'wall') { // This code is only here due to a weird typescript dependency error.
         let other = a;
         let wall = b as WallState;
         if (other.pos.x > wall.pos.x && other.pos.x < wall.pos.x + wall.width && 

@@ -31,24 +31,6 @@ export class Wall extends Entity {
     return events;
   }
   
-  static collision(other: EntityState, wall: WallState) {
-    if (other.pos.x > wall.pos.x && other.pos.x < wall.pos.x + wall.width && 
-        other.pos.y > wall.pos.y && other.pos.y < wall.pos.y + wall.height ) {
-         return true; 
-    }
-    if (other.pos.x > wall.pos.x && other.pos.x < wall.pos.x && 
-      (other.pos.y + other.radius > wall.pos.y && other.pos.y + other.radius < wall.pos.y + wall.height ||
-      other.pos.y - other.radius > wall.pos.y && other.pos.y - other.radius < wall.pos.y + wall.height)) {
-        return true; 
-    }
-    if (other.pos.y > wall.pos.y && other.pos.y < wall.pos.y && 
-      (other.pos.x + other.radius > wall.pos.x && other.pos.x + other.radius < wall.pos.x + wall.width ||
-      other.pos.x - other.radius > wall.pos.x && other.pos.x - other.radius < wall.pos.x + wall.width)) {
-        return true; 
-    }
-    return false;
-  }
-  
   static collideWith(wall: WallState, other: EntityState, game: GameState) {
     return;
   }
@@ -95,11 +77,9 @@ export const MapCatalog: StoredWallState[][] = [[
   {pos: {x: 0, y: 280}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
   {pos: {x: 0, y: 420}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
   {pos: {x: 0, y: 560}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
-  {pos: {x: 0, y: 700}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
   {pos: {x: 910, y: 0}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
   {pos: {x: 910, y: 140}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
   {pos: {x: 910, y: 280}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
   {pos: {x: 910, y: 420}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
   {pos: {x: 910, y: 560}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
-  {pos: {x: 910, y: 700}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
 ]];

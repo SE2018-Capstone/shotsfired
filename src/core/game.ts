@@ -96,19 +96,19 @@ export class Game {
       Object.assign(list, (game.entities as any)[key]);
       return list;
     }, {});
-    let { walls }  = game.entities;
+    let { walls, players }  = game.entities;
 
     events.forEach(event => {
       let sender = allEntities[event.initiator];
       let receiver = allEntities[event.receptor];
       switch(event.type) {
-        case 'COLLISION':
+        case 'COLLISION': // handles static motion
           switch(sender.type) {
             case 'player': Player.collideWith(sender as PlayerState, receiver, game); break;
             case 'bullet': Bullet.collideWith(sender as BulletState, receiver, game); break;
           }
           break;
-        case 'SPAWN_BULLET':
+        case 'SPAWN_BULLET': // spawns the missiles
           switch(sender.type) {
             case 'player':
               let bullet = Bullet.spawnFrom(sender as PlayerState);
@@ -116,12 +116,18 @@ export class Game {
               break;
           }
           break;
-        case 'MOVEMENT': 
+        case 'MOVEMENT': // HANDLES dynamic motion. 
           if (sender) {
             let movementData = event.data as PlayerMovement; 
             Player.move(sender as PlayerState, movementData.angle, movementData.xVel, movementData.yVel);
             for (let i = 0; i < Object.keys(walls).length; i++) {
-              if (Wall.collision(sender, walls[Object.keys(walls)[i]])) {
+              if (Entity.colliding(sender, walls[Object.keys(walls)[i]])) {
+                Player.move(sender as PlayerState, movementData.angle, movementData.xVel*-1, movementData.yVel*-1);
+                return;
+              }
+            }
+            for (let i = 0; i < Object.keys(players).length; i++) {
+              if (sender.id != Object.keys(players)[i] && Entity.colliding(sender, players[Object.keys(players)[i]])) {
                 Player.move(sender as PlayerState, movementData.angle, movementData.xVel*-1, movementData.yVel*-1);
                 break;
               }
