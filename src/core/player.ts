@@ -37,8 +37,12 @@ export class Player extends Entity {
     if (input.right) { inputVel.x += step; }
 
     player.orientation = input.angle;
-    player.pos.x += inputVel.x;
-    player.pos.y += inputVel.y;
+    if (player.pos.x + inputVel.x > OFFSET && player.pos.x + inputVel.x < (game.world.width-OFFSET)){
+      player.pos.x += inputVel.x;
+    }
+    if (player.pos.y + inputVel.y > OFFSET && player.pos.y + inputVel.y < (game.world.height-OFFSET)){
+      player.pos.y += inputVel.y;
+    }
 
     let events: any = [];
      // TODO: Investigate whether this Date.now business messes up with server
