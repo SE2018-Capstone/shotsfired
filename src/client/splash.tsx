@@ -1,9 +1,31 @@
 import * as React from 'react';
+import fetch from 'node-fetch';
 
 interface SplashProps {
-  onQuickPlay: () => void;
+  onEnterLobby: () => void;
+  onConnectToLobby: (s: string) => void;
 }
+
 export class Splash extends React.Component<SplashProps, {}> {
+
+  createPrivateGame() {
+    this.createLobby('createPrivate');
+  }
+
+  joinRandomGame() {
+    this.createLobby('join');
+  }
+
+  createLobby(endpoint:string) {
+    let currentUrl = window.location.origin;
+    fetch(currentUrl+'/'+endpoint).then((response: any) => {
+      response.json().then((json: any) => {
+        this.props.onConnectToLobby(json['gameCode']);
+      });
+    });
+    this.props.onEnterLobby();
+  }
+
   render() {
     const textColour = '#FFFFFF';
     const buttonColour = '#008CBA';
@@ -76,7 +98,7 @@ export class Splash extends React.Component<SplashProps, {}> {
         <div id="button-container" style={{textAlign: 'center', marginTop: 10}}>
           <div id="left-button" style={{float: 'left', width: '50%'}}>
             <button
-              onClick={this.props.onQuickPlay}
+              onClick={()=>this.joinRandomGame()}
               style={{
                 backgroundColor: buttonColour,
                 color: textColour,
@@ -89,7 +111,7 @@ export class Splash extends React.Component<SplashProps, {}> {
           </div>
           <div id="right-button" style={{float: 'right', width: '50%'}}>
             <button
-              onClick={this.props.onQuickPlay}
+              onClick={()=>this.createPrivateGame()}
               style={{
                 backgroundColor: buttonColour,
                 color: textColour,

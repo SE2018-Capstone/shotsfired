@@ -1,50 +1,55 @@
-import * as cluster from 'cluster';
+import * as express from 'express';
 import { Server }  from 'http';
+import { Worker } from 'cluster';
 import { GameServer } from './game-server';
-import * as SocketIO from 'socket.io';
 import { Game } from '../core/game';
-import { GAME_LOBBY_COUNTDOWN, NEW_PLAYER_JOINED } from './server-interface'
+import { GAME_LOBBY_COUNTDOWN, GAME_CODE_LENGTH } from './server-interface'
 
 export class LobbyServer {
-  players: SocketIO.Socket[];
-  io: SocketIO.Server;
   server: Server;
-  gameStartTimer: number; // Timeout id
+  app: express.Express;
+  gameStartTimer: number = null; // Timeout id
+  playersInRandLobby: number = 0; // Number of players sitting in random lobby
+  currentRandLobby: string; // Unique hash for lobby
+  gameServer: GameServer;
 
-
-  constructor(server: Server) {
+  constructor(server: Server, app: express.Express, gameServer: GameServer) {
+    this.app = app;
     this.server = server;
-    this.io = SocketIO(this.server);
-    this.refreshLobby();
-    this.io.on('connection', this.onConnection.bind(this));
+    this.gameServer = gameServer;
+    this.refreshRandGame();
   }
-  
-  onConnection(socket: SocketIO.Socket) {
-    this.players.push(socket);
-    socket.on('disconnect', () => this.onDisconnection(this.players.length-1));
-    console.log("Players in lobby: ", this.players.length);
+
+  // Returns new lobby's hashcode
+  createNewLobby() : string {
+    const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+    let code = "";
+    for (let i = 0; i < GAME_CODE_LENGTH; i++) {
+      code += alphabet[Math.floor(Math.random()*alphabet.length)]
+    }
+    return code;
+  }
+
+  joinRandom(req: express.Request, res: express.Response) {
+    this.playersInRandLobby += 1;
+    console.log("Players waiting for random game to start: ", this.playersInRandLobby);
 
     this.resetTimer();
-    for (var playerSocket of this.players) {
-      playerSocket.emit(NEW_PLAYER_JOINED, this.players.length);
+    if (this.playersInRandLobby == Game.settings.maxPlayers) {
+      this.refreshRandGame();
+    } else if (this.playersInRandLobby >= Game.settings.minPlayers) {
+      this.gameStartTimer = setTimeout(this.startRandGamePrematurely.bind(this), GAME_LOBBY_COUNTDOWN);
     }
-    if (this.players.length > Game.settings.maxPlayers) {
-      // Assuming we won't go from max-1 players to max+1 players
-      console.log("CRITICAL ERROR: too many players");
-    } else if (this.players.length == Game.settings.maxPlayers) {
-      this.startGame();
-    } else if (this.players.length >= Game.settings.minPlayers) {
-      this.gameStartTimer = setTimeout(this.startGame.bind(this), GAME_LOBBY_COUNTDOWN);
-    }
+
+    res.setHeader('Content-Type', 'application/json');
+    res.send({gameCode: this.currentRandLobby});
   }
 
-  onDisconnection(playerNum: number) {
-    this.players.splice(playerNum, 1);
-    if (this.players.length < Game.settings.minPlayers) {
-      this.resetTimer();
-    }
+  createPrivate(req: express.Request, res: express.Response) {
+    res.setHeader('Content-Type', 'application/json');
+    res.send({gameCode: this.createNewLobby()});
   }
-
+  
   resetTimer() {
       if (this.gameStartTimer != null) {
         clearTimeout(this.gameStartTimer);
@@ -52,14 +57,14 @@ export class LobbyServer {
       this.gameStartTimer = null;
   }
 
-  refreshLobby() {
+  refreshRandGame() {
     this.resetTimer();
-    this.players = [];
+    this.currentRandLobby = this.createNewLobby();
+    this.playersInRandLobby = 0;
   }
-
-  startGame() {
-      // Start new game
-      new GameServer(this.players);
-      this.refreshLobby();
+  
+  startRandGamePrematurely() {
+    this.gameServer.startGame(this.currentRandLobby);
+    this.refreshRandGame();
   }
 }
