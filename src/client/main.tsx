@@ -6,12 +6,14 @@ import { ClientController } from './client-controller';
 import { Splash } from './splash';
 import { Lobby } from './lobby'
 import { START_GAME, GAME_LOBBY_COUNTDOWN, NEW_PLAYER_JOINED } from '../server/server-interface'
+import { Mapper } from './mapper';
 
-enum Stages { SPLASH, LOADING, RUNNING };
+enum Stages { MAPPER, SPLASH, LOADING, RUNNING };
 export interface ClientState {
   stage: Stages;
   numPlayersInLobby: number;
 }
+
 export class Main extends React.Component<{}, ClientState> {
   gameState: GameState;
   controller: ClientController;
@@ -48,7 +50,10 @@ export class Main extends React.Component<{}, ClientState> {
       this.setState({
         numPlayersInLobby: numPlayers,
       } as ClientState);
-    })
+    });
+    this.setState({
+      stage: Stages.LOADING
+    } as ClientState);
   }
 
   startGame(initialState: GameState, playerId: string) {
@@ -62,6 +67,8 @@ export class Main extends React.Component<{}, ClientState> {
 
   render() {
     switch(this.state.stage) {
+      case Stages.MAPPER: // Allows construction of maps
+        return <Mapper game={this.gameState}/>;
       case Stages.SPLASH:
         return <Splash onConnectToLobby={(s:string) => this.socketInit(s)} onEnterLobby={() => this.enterLobby()} />;
       case Stages.LOADING:
