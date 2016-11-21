@@ -69,7 +69,7 @@ class GameInstance {
     for (var socket of this.sockets) {
       let player = Game.addPlayer(this.game);
       socket.on(SEND_FRAMES, (frames: InputFrame[]) => this.acceptFrames(frames, player.id));
-      socket.on('disconnect', () => this.onInGameDisconnection(socket, player.id));
+      socket.on('disconnect', () => this.onInGameDisconnection(player.id));
       socket.emit(START_GAME, {
         playerId: player.id,
         gameState: this.game,

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as socketIo from 'socket.io-client';
-import fetch from 'node-fetch';
 import { GameCanvas } from './game-canvas';
 import { GameState } from '../core/game';
 import { ClientController } from './client-controller';
@@ -34,21 +33,7 @@ export class Main extends React.Component<{}, ClientState> {
     }
   }
 
-  createPrivateGame() {
-    this.createLobby('createPrivate');
-  }
-
-  joinRandomGame() {
-    this.createLobby('join');
-  }
-
-  createLobby(endpoint:string) {
-    let currentUrl = window.location.origin;
-    fetch(currentUrl+'/'+endpoint).then((response: any) => {
-      response.json().then((json: any) => {
-        this.socketInit(json['gameCode']);
-      });
-    });
+  enterLobby() {
     this.setState({
       stage: Stages.LOADING
     } as ClientState);
@@ -79,7 +64,7 @@ export class Main extends React.Component<{}, ClientState> {
   render() {
     switch(this.state.stage) {
       case Stages.SPLASH:
-        return <Splash onPrivateMatch={() => this.joinPrivateMatch()} onQuickPlay={() => this.joinRandomGame()} />;
+        return <Splash onConnectToLobby={(s:string) => this.socketInit(s)} onEnterLobby={() => this.enterLobby()} />;
       case Stages.LOADING:
         return (
           <Lobby
