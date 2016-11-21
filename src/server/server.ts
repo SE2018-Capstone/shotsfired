@@ -22,6 +22,6 @@ server.listen(process.env.PORT || 3000, function () {
 let lobby = new LobbyServer(server, app, new GameServer(server));
 app.get('/join', (req: express.Request, res: express.Response) => lobby.joinRandom(req,res));
 app.get('/createprivate', (req: express.Request, res: express.Response) => lobby.createPrivate(req,res));
-app.get(/\/game\/.+/, function (req: express.Request, res: express.Response) {
+app.get(/game\/.+/, function (req: express.Request, res: express.Response) {
   res.sendFile(path.resolve(__dirname, '../index.html'));
 });
