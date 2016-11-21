@@ -5,6 +5,8 @@ import { Game } from '../core/game';
 interface LobbyProps {
   numPlayersInLobby: number;
   maxCountdownTime: number;
+  gameCode: string;
+  isPrivateLobby: boolean
 }
 
 interface LobbyState {
@@ -40,7 +42,7 @@ export class Lobby extends React.Component<LobbyProps, LobbyState> {
     if (nextProps.numPlayersInLobby !== this.props.numPlayersInLobby) {
       this.resetTimer();
       if (nextProps.numPlayersInLobby >= Game.settings.minPlayers &&
-        nextProps.numPlayersInLobby < Game.settings.maxPlayers) {
+        nextProps.numPlayersInLobby < Game.settings.maxPlayers && !nextProps.isPrivateLobby) {
 
         this.updateCountdown(this.props.maxCountdownTime);
       }
@@ -49,13 +51,18 @@ export class Lobby extends React.Component<LobbyProps, LobbyState> {
 
   render() {
     const moreThanOnePlayer = (this.props.numPlayersInLobby > 1);
+    const timeDisplay = (moreThanOnePlayer && !this.props.isPrivateLobby) ? this.state.countdownTime : "";
+    let urlText:any = "";
+    if (this.props.isPrivateLobby) {
+      urlText = (<h3> Shareable URL: {window.location.origin}/game/{this.props.gameCode} </h3>);
+    }
     return (
       <div style={{textAlign: 'center'}} >
-        <h2>
-          Waiting for more players to join... {(moreThanOnePlayer) ? this.state.countdownTime : ""}
-        </h2>
+        <h2> Waiting for more players to join... {timeDisplay} </h2>
         <br/>
         Currently {this.props.numPlayersInLobby} player{(moreThanOnePlayer) ? "s" : ""} in the lobby
+        <br/>
+        {urlText}
       </div>
     );
   }
