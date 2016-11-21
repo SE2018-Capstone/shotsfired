@@ -56,7 +56,6 @@ The user who won will see a slightly modified screen, congratulating them for be
 the winner, whereas everyone else will see a game over screen. In both screens,
 the user is presented with an option to go to the main menu.
 
-\clearpage
 
 \section{Status Report}
 \hspace*{5mm}
@@ -82,8 +81,6 @@ has a weapon with infinite ammo, meaning that the user can just keep shooting wi
 having to worry about anything happening to the gun or bullets. Each of these restrictions
 were specified in the style of game that we had in the proposal.\\
 
-At the end of the game, the user is then presented with an option to go back to the main menu.\\
-
 Our app is also able to support running multiple instances of the game at once. This satsifies
 the functional requirement of the application being able to run multiple simultaneous games.\\
 
@@ -95,7 +92,14 @@ simple to use by just having the 4 keyboard keys plus the mouse. This satsifies 
 simplicity respectively. In terms of performance, the app runs relatively well. Having more
 games run simultaneously does hurt this performance however as it puts a strain on the server.\\
 
-In general, we were able to meet the requirements that we set for ourselves in the proposal
-stage of the project.
+We did experience some difficulties while working on this app. One issue was with respect to
+client/server synchronization and making sure that client inputs reach the server and the server
+is able to update all the other clients in a timely manner without major lag. Another issue
+was with respect to the use of socket connections with SocketIO and the difficulty of obtaining
+information through their documentation. A last issue was with regards to deployment. It was
+hard to deploy this app as deployment servers want to run their own commands on the repo instead
+of the commands that we wish for the server to run. These were some of the difficulties that
+we encountered while working on our application.
+
 
 \end{document}
