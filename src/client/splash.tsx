@@ -1,9 +1,31 @@
 import * as React from 'react';
+import fetch from 'node-fetch';
 
 interface SplashProps {
-  onQuickPlay: () => void;
+  onEnterLobby: () => void;
+  onConnectToLobby: (s: string) => void;
 }
+
 export class Splash extends React.Component<SplashProps, {}> {
+
+  createPrivateGame() {
+    this.createLobby('createPrivate');
+  }
+
+  joinRandomGame() {
+    this.createLobby('join');
+  }
+
+  createLobby(endpoint:string) {
+    let currentUrl = window.location.origin;
+    fetch(currentUrl+'/'+endpoint).then((response: any) => {
+      response.json().then((json: any) => {
+        this.props.onConnectToLobby(json['gameCode']);
+      });
+    });
+    this.props.onEnterLobby();
+  }
+
   render() {
     return (
       <div
@@ -17,7 +39,7 @@ export class Splash extends React.Component<SplashProps, {}> {
         }}>
         <h1> SHOTS FIRED! </h1>
         <button
-          onClick={this.props.onQuickPlay}
+          onClick={()=>this.joinRandomGame()}
           style={{
             backgroundColor: '#008CBA',
             color: "#FFFFFF",
@@ -29,7 +51,7 @@ export class Splash extends React.Component<SplashProps, {}> {
         </button>
         <br/><br/>
         <button
-          onClick={this.props.onQuickPlay}
+          onClick={()=>this.createPrivateGame()}
           style={{
             backgroundColor: '#008CBA',
             color: "#FFFFFF",
