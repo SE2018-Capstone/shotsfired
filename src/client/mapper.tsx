@@ -4,7 +4,7 @@ import 'pixi';
 import * as Phaser from 'phaser';
 import * as _ from 'lodash';
 import { GameState, Game } from '../core/game';
-import { WallState } from '../core/maps';
+import { WallSprite, WallState, WallFactory } from '../core/wall';
 
 // The time allowed between each action (like adding an element and removing one)
 // This stops issues like one click doesn't create multiple entities
@@ -16,9 +16,8 @@ export interface MapperProps {
 export class Mapper extends React.Component<MapperProps, {}> {
   phaserGame: Phaser.Game;
   prevTime: number;
-  bunkers: {[id:number]: Phaser.Sprite} = {};
-  activeBunkerType: string = '1';
-  lastId = -1;
+  bunkers: {[id:string]: Phaser.Sprite} = {};
+  activeBunkerType: WallSprite = WallSprite.BUNKER_1x2_1;
   actionTime: number = Date.now();
 
   phaserInit() {
@@ -39,10 +38,10 @@ export class Mapper extends React.Component<MapperProps, {}> {
     phaserGame.load.baseURL = '../../res/';
     phaserGame.load.image('bullet', 'purple_ball.png');
     phaserGame.load.image('sand', 'sand.png');
-    phaserGame.load.image('bunker_1', 'bunker_1x2.png');
-    phaserGame.load.image('bunker_2', 'bunker_2x1_destroyed_1.png');
-    phaserGame.load.image('bunker_3', 'bunker_2x1_destroyed_2.png');
-    phaserGame.load.image('bunker_4', 'bunker_2x2.png');
+    phaserGame.load.image(WallSprite[WallSprite.BUNKER_1x2_1], 'bunker_1x2.png');
+    phaserGame.load.image(WallSprite[WallSprite.BUNKER_2x1_1], 'bunker_2x1_destroyed_1.png');
+    phaserGame.load.image(WallSprite[WallSprite.BUNKER_2x1_2], 'bunker_2x1_destroyed_2.png');
+    phaserGame.load.image(WallSprite[WallSprite.BUNKER_2x2_1], 'bunker_2x2.png');
   }
 
   phaserCreate() {
@@ -52,7 +51,7 @@ export class Mapper extends React.Component<MapperProps, {}> {
     phaserGame.add.tileSprite(0,0, width, height, 'sand');
 
     _.forEach(this.props.game.entities.walls, (wall) => {
-      const wallSprite = phaserGame.add.sprite(wall.x, wall.y, `bunker_${wall.type}`);
+      const wallSprite = phaserGame.add.sprite(wall.pos.x, wall.pos.y, WallSprite[wall.sprite]);
       wallSprite.height = wall.height;
       wallSprite.width = wall.width;
     });
@@ -60,20 +59,18 @@ export class Mapper extends React.Component<MapperProps, {}> {
     this.prevTime = this.phaserGame.time.now;
   }
 
-  bunkerSizes: {[id:string]: {width:number, height:number}} = {
-    1: {width: 70, height: 140},
-    2: {width: 140, height: 70},
-    3: {width: 140, height: 70},
-    4: {width: 200, height: 200},
+  bunkerSizes: {[id:number]: {width:number, height:number}} = {
+    [WallSprite.BUNKER_1x2_1]: {width: 70, height: 140},
+    [WallSprite.BUNKER_2x1_1]: {width: 140, height: 70},
+    [WallSprite.BUNKER_2x1_2]: {width: 140, height: 70},
+    [WallSprite.BUNKER_2x2_1]: {width: 200, height: 200},
   };
   addBunker(x: number,y: number) {
     if (Date.now() - this.actionTime < ACTION_TIMEOUT) { return; }
     const {width, height} = this.bunkerSizes[this.activeBunkerType];
-    const bunker: WallState = {x,y, width, height, type: this.activeBunkerType};
-    this.lastId++;
-    const id = this.lastId;
-    this.props.game.entities.walls[id] = bunker;
-    this.bunkers[id] = this.phaserGame.add.sprite(bunker.x, bunker.y, `bunker_${bunker.type}`);
+    const bunker: WallState = WallFactory.create(x,y,width,height,this.activeBunkerType);
+    this.props.game.entities.walls[bunker.id] = bunker;
+    this.bunkers[bunker.id] = this.phaserGame.add.sprite(bunker.pos.x, bunker.pos.y, WallSprite[bunker.sprite]);
 
     console.log('---');
     console.log(JSON.stringify(this.props.game.entities.walls));
@@ -81,10 +78,10 @@ export class Mapper extends React.Component<MapperProps, {}> {
   }
 
   removeLastBunker() {
-    if (Date.now() - this.actionTime < ACTION_TIMEOUT || this.lastId < 0) { return; }
-    this.bunkers[this.lastId].destroy();
-    delete this.props.game.entities.walls[this.lastId];
-    this.lastId--;
+    if (Date.now() - this.actionTime < ACTION_TIMEOUT) { return; }
+    const lastId = _.max(Object.keys(this.bunkers));
+    this.bunkers[lastId].destroy();
+    delete this.props.game.entities.walls[lastId];
     this.actionTime = Date.now();
   }
 
@@ -92,11 +89,11 @@ export class Mapper extends React.Component<MapperProps, {}> {
     const {phaserGame, prevTime} = this;
     const isDown = (key: number) => !!phaserGame.input.keyboard.isDown(key);
 
-    new Map<number, string>([
-      [Phaser.Keyboard.ONE, '1'],
-      [Phaser.Keyboard.TWO, '2'],
-      [Phaser.Keyboard.THREE, '3'],
-      [Phaser.Keyboard.FOUR, '4'],
+    new Map<number, WallSprite>([
+      [Phaser.Keyboard.ONE, WallSprite.BUNKER_1x2_1],
+      [Phaser.Keyboard.TWO, WallSprite.BUNKER_2x1_1],
+      [Phaser.Keyboard.THREE, WallSprite.BUNKER_2x1_2],
+      [Phaser.Keyboard.FOUR, WallSprite.BUNKER_2x2_1],
     ]).forEach((type, key) => {
       if (isDown(key)) { this.activeBunkerType = type; }
     });

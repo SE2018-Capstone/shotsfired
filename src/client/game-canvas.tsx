@@ -4,6 +4,7 @@ import 'pixi';
 import * as Phaser from 'phaser';
 import * as _ from 'lodash';
 import { GameState, InputFrame, Game } from '../core/game';
+import { WallSprite } from '../core/wall';
 
 /*
   This class is the "View" class which uses Phaser for input commands and output visuals.
@@ -44,11 +45,10 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     phaserGame.load.image('shooter', 'shooter.png');
     phaserGame.load.image('bullet', 'purple_ball.png');
     phaserGame.load.image('sand', 'sand.png');
-    phaserGame.load.image('bunker_1', 'bunker_1x2.png');
-    phaserGame.load.image('bunker_2', 'bunker_2x1_destroyed_1.png');
-    phaserGame.load.image('bunker_3', 'bunker_2x1_destroyed_2.png');
-    phaserGame.load.image('bunker_4', 'bunker_2x2.png');
-    // phaserGame.load.atlasJSONHash('ground', 'ground.png', 'ground.json');
+    phaserGame.load.image(WallSprite[WallSprite.BUNKER_1x2_1], 'bunker_1x2.png');
+    phaserGame.load.image(WallSprite[WallSprite.BUNKER_2x1_1], 'bunker_2x1_destroyed_1.png');
+    phaserGame.load.image(WallSprite[WallSprite.BUNKER_2x1_2], 'bunker_2x1_destroyed_2.png');
+    phaserGame.load.image(WallSprite[WallSprite.BUNKER_2x2_1], 'bunker_2x2.png');
   }
 
   phaserCreate() {
@@ -56,12 +56,10 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     let {phaserGame} = this;
     let {width, height} = this.props.game.world;
 
-    // phaserGame.camera.width = CAMERA_WIDTH || width;
-    // phaserGame.camera.height = CAMERA_HEIGHT || height;
     phaserGame.add.tileSprite(0,0, width, height, 'sand');
 
     _.forEach(this.props.game.entities.walls, (wall) => {
-      const wallSprite = phaserGame.add.sprite(wall.x, wall.y, `bunker_${wall.type}`);
+      const wallSprite = phaserGame.add.sprite(wall.pos.x, wall.pos.y, WallSprite[wall.sprite]);
       wallSprite.height = wall.height;
       wallSprite.width = wall.width;
     });

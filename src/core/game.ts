@@ -1,7 +1,7 @@
 import { Player, PlayerState } from './player';
 import { Bullet, BulletState } from './bullet';
 import { EntityState, Entity } from './entity';
-import { WallState, MapCatalog } from './maps';
+import { WallState, MapCatalog, WallFactory } from './wall';
 import { Event } from './event';
 
 export interface InputFrame {
@@ -32,14 +32,21 @@ export interface GameState {
   };
 };
 
+const defaultMap = MapCatalog[0].reduce((prev, wall) => {
+  const wallEntity: WallState = WallFactory.create.apply(this, wall);
+  (prev as any)[wallEntity.id] = wallEntity;
+  return prev;
+}, {});
+
 export class Game {
   static settings = { minPlayers: 2, maxPlayers: 4 };
   static init(overrides: any = {}) {
+    console.log(defaultMap);
     const defaults: GameState = {
       settings: { minPlayers: Game.settings.minPlayers,
                   maxPlayers: Game.settings.maxPlayers },
       world: { width: 960, height: 720 },
-      entities: { players: {}, bullets: {}, walls: MapCatalog[0] },
+      entities: { players: {}, bullets: {}, walls: defaultMap },
     };
     return Object.assign(defaults, overrides) as GameState;
   }
@@ -86,23 +93,26 @@ export class Game {
   }
 
   static resolveEvents(game: GameState, events: Event[]) {
-    let { players, bullets }  = game.entities;
+    let allEntities: {[id:string]: EntityState} = Object.keys(game.entities).reduce((list, key) => {
+      Object.assign(list, (game.entities as any)[key]);
+      return list;
+    }, {});
 
     events.forEach(event => {
-      let sender = players[event.initiator] || bullets[event.initiator] || null;
-      let receiver = players[event.receptor] || bullets[event.receptor] || null;
+      let sender = allEntities[event.initiator];
+      let receiver = allEntities[event.receptor];
       switch(event.type) {
         case 'COLLISION':
           switch(sender.type) {
-            case 'player': Player.collideWith(sender, receiver, game); break;
-            case 'bullet': Bullet.collideWith(sender, receiver, game); break;
+            case 'player': Player.collideWith(sender as PlayerState, receiver, game); break;
+            case 'bullet': Bullet.collideWith(sender as BulletState, receiver, game); break;
           }
           break;
         case 'SPAWN_BULLET':
           switch(sender.type) {
             case 'player':
-              let bullet = Bullet.spawnFrom(sender);
-              bullets[bullet.id] = bullet;
+              let bullet = Bullet.spawnFrom(sender as PlayerState);
+              game.entities.bullets[bullet.id] = bullet;
               break;
           }
           break;
@@ -112,7 +122,7 @@ export class Game {
 
   static addPlayer(state: GameState) {
     let player = Player.init();
-    let count = 0; 
+    let count = 0;
     if (state.entities.players) {
       count = Object.keys(state.entities.players).length;
     }
@@ -122,7 +132,7 @@ export class Game {
     }
     player.pos.y = state.world.height / 4;
     if (count > 1) {
-      player.pos.y = player.pos.y + state.world.height/2; 
+      player.pos.y = player.pos.y + state.world.height/2;
     }
     state.entities.players[player.id] = player;
     return player;

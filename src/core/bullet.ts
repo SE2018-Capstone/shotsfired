@@ -47,7 +47,7 @@ export class Bullet extends Entity {
   static spawnFrom(entity: EntityState) {
     let base = Bullet.init();
     base.source = entity.id;
-    let directionVector = Vec.direction(entity.orientation); 
+    let directionVector = Vec.direction(entity.orientation);
     base.pos = {x: entity.pos.x + directionVector.x*OFFSET, y: entity.pos.y + directionVector.y*OFFSET};
     base.vel = Vec.mul(directionVector, BULLET_SPEED);
     return base;
