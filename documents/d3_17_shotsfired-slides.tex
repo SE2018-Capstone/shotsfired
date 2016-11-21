@@ -57,6 +57,7 @@
 \frametitle{Game Mode 2: Private Match}
 \begin{enumerate}
   \item Player clicks the 'Private Match' option in the main menu
+  \item Display custom url to join the game.
 \end{enumerate}
 \end{frame}
 
@@ -64,37 +65,66 @@
 \frametitle{Gameplay}
 \begin{enumerate}
   \item Each player has x amount of health
+  \item Move with WASD
+  \item Click to fire.
+  \item Move mouse to aim.
 \end{enumerate}
 \end{frame}
 
-\begin{frame}
-\frametitle{End of Game}
-\begin{enumerate}
-  \item If the user won, they are presented with a winners screen
-  \item If the user lost, they are presented with a game over screen
-\end{enumerate}
-\end{frame}
+%\begin{frame}
+%\frametitle{End of Game}
+%\begin{enumerate}
+%  \item If the user won, they are presented with a winners screen
+ % \item If the user lost, they are presented with a game over screen
+%\end{enumerate}
+%\end{frame}
 
 \begin{frame}
 \frametitle{Design Challenges}
 \begin{enumerate}
-  \item TO CHANGE
   \item Creating a game with character interactions, animations, controls, physics, online connections
   \item Synchronizing differences between client and server game states
   \item Running and managing multiple game servers simultaneously
+  \item Ensuring easily extendable game object interaction. 
 \end{enumerate}
 \end{frame}
 
 \begin{frame}
 \frametitle{Requirements}
 \begin{enumerate}
-  \item TO REMOVE POSSIBLY
   \item Top-down arena style 2D shooting game
   \item 2-4 player game played on separate machines connected online
   \item Characters are controlled with Keyboard and Mouse
   \item Can easily join a game with friends (low barrier to entry)
 \end{enumerate}
 \end{frame}
+
+\begin{frame}
+\frametitle{Major Challenges}
+\begin{enumerate}
+  \item Client/Server Synchronization
+\item Lag on client side
+\item Socket connections
+\item Allowing server to run multiple processes
+\item Deployment of a Node application
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Overall Architecture}
+\includegraphics[scale=0.4]{images/overall_architecture.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Server Architecture}
+\includegraphics[scale=0.7]{images/ServerArchitecture.png}
+\end{frame}
+
+\begin{frame}
+\frametitle{Client Architecture}
+\includegraphics[scale=0.4]{images/ClientArchitecture.png}
+\end{frame}
+
 
 \end{document}
 
