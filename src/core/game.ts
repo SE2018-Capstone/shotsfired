@@ -1,7 +1,7 @@
 import { Player, PlayerState } from './player';
 import { Bullet, BulletState } from './bullet';
 import { EntityState, Entity } from './entity';
-import { WallState, MapCatalog, WallFactory } from './wall';
+import { WallState, MapCatalog, Wall } from './wall';
 import { Event } from './event';
 
 export interface InputFrame {
@@ -32,8 +32,8 @@ export interface GameState {
   };
 };
 
-const defaultMap = MapCatalog[0].reduce((prev, wall) => {
-  const wallEntity: WallState = WallFactory.create.apply(this, wall);
+const defaultMap = MapCatalog[0].reduce((prev, wallData) => {
+  const wallEntity: WallState = Wall.init(wallData);
   (prev as any)[wallEntity.id] = wallEntity;
   return prev;
 }, {});
@@ -41,7 +41,6 @@ const defaultMap = MapCatalog[0].reduce((prev, wall) => {
 export class Game {
   static settings = { minPlayers: 2, maxPlayers: 4 };
   static init(overrides: any = {}) {
-    console.log(defaultMap);
     const defaults: GameState = {
       settings: { minPlayers: Game.settings.minPlayers,
                   maxPlayers: Game.settings.maxPlayers },

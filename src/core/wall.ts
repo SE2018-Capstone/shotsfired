@@ -24,17 +24,23 @@ export class Wall extends Entity {
   }
 }
 
-export class WallFactory {
-  static create(x:number,y:number,width:number,height:number,sprite:WallSprite) {
-    return Wall.init({pos: {x,y},width,height,sprite});
-  }
+// State for the backup data for a wall
+export interface StoredWallState  {
+  pos: {
+    x: number;
+    y: number;
+  };
+  width: number;
+  height: number;
+  sprite: WallSprite;
 }
 
-// List of maps, where a map is a list of parameters to WallFactory.create
-export const MapCatalog: [number, number, number, number, WallSprite][][] = [[
-  [380,260,200,200, WallSprite.BUNKER_2x2_1],
-  [170,145,140,70, WallSprite.BUNKER_2x1_1],
-  [205,470,70,140, WallSprite.BUNKER_1x2_1],
-  [650,505,140,70, WallSprite.BUNKER_2x1_2],
-  [685,110,70,140, WallSprite.BUNKER_1x2_1],
+// List of maps, stores the minimal amount of data needed so that
+// this could be moved into a JSON file to backup maps
+export const MapCatalog: StoredWallState[][] = [[
+  {pos: {x: 380, y: 260}, width: 200, height: 200, sprite: WallSprite.BUNKER_2x2_1},
+  {pos: {x: 170, y: 145}, width: 140, height: 70, sprite: WallSprite.BUNKER_2x1_1},
+  {pos: {x: 205, y: 470}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
+  {pos: {x: 650, y: 505}, width: 140, height: 70, sprite: WallSprite.BUNKER_2x1_2},
+  {pos: {x: 685, y: 110}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
 ]];

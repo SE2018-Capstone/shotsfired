@@ -4,7 +4,7 @@ import 'pixi';
 import * as Phaser from 'phaser';
 import * as _ from 'lodash';
 import { GameState, Game } from '../core/game';
-import { WallSprite, WallState, WallFactory } from '../core/wall';
+import { WallSprite, WallState, Wall } from '../core/wall';
 
 // The time allowed between each action (like adding an element and removing one)
 // This stops issues like one click doesn't create multiple entities
@@ -68,7 +68,7 @@ export class Mapper extends React.Component<MapperProps, {}> {
   addBunker(x: number,y: number) {
     if (Date.now() - this.actionTime < ACTION_TIMEOUT) { return; }
     const {width, height} = this.bunkerSizes[this.activeBunkerType];
-    const bunker: WallState = WallFactory.create(x,y,width,height,this.activeBunkerType);
+    const bunker: WallState = Wall.init({x,y,width,height,sprite: this.activeBunkerType});
     this.props.game.entities.walls[bunker.id] = bunker;
     this.bunkers[bunker.id] = this.phaserGame.add.sprite(bunker.pos.x, bunker.pos.y, WallSprite[bunker.sprite]);
 
