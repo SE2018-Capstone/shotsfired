@@ -7,6 +7,7 @@ import { Splash } from './splash';
 import { Lobby } from './lobby'
 import { START_GAME, GAME_LOBBY_COUNTDOWN, NEW_PLAYER_JOINED } from '../server/server-interface'
 import { Mapper } from './mapper';
+import { Game } from '../core/game';
 
 enum Stages { MAPPER, SPLASH, LOADING, RUNNING };
 export interface ClientState {
@@ -23,6 +24,7 @@ export class Main extends React.Component<{}, ClientState> {
 
   constructor() {
     super();
+    this.gameState = Game.init();
     this.state = {
       stage: Stages.SPLASH,
       numPlayersInLobby: 0,
