@@ -16,8 +16,6 @@ export interface InputFrame {
   timestamp: number; // Used for client-server synchronization
 };
 
-
-
 export interface GameState {
   world: {
     width: number;
