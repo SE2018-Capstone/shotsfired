@@ -2,12 +2,17 @@ import * as React from 'react';
 import 'p2';
 import 'pixi';
 import * as Phaser from 'phaser';
+import * as _ from 'lodash';
 import { GameState, InputFrame, Game } from '../core/game';
+import { WallSprite } from '../core/wall';
 
 /*
   This class is the "View" class which uses Phaser for input commands and output visuals.
   The game object parameter should not be modified directly at any point in this class
 */
+
+const CAMERA_WIDTH: number = null;
+const CAMERA_HEIGHT: number = null;
 
 export interface GameCanvasProps {
   game: GameState;
@@ -24,7 +29,7 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
   phaserInit() {
     const {game} = this.props;
     const {width, height} = game.world;
-    this.phaserGame = new Phaser.Game(width, height, Phaser.AUTO, 'canvasDiv', {
+    this.phaserGame = new Phaser.Game(CAMERA_WIDTH || width, CAMERA_HEIGHT || height, Phaser.AUTO, 'canvasDiv', {
       preload: this.phaserPreload.bind(this),
       create: this.phaserCreate.bind(this),
       update: this.phaserUpdate.bind(this),
@@ -36,15 +41,28 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     const {phaserGame} = this;
     const {width, height} = this.props.game.world;
     phaserGame.world.setBounds(0, 0, width, height);
-    phaserGame.load.image('shooter', '../../res/shooter.png');
-    phaserGame.load.image('bullet', '../../res/purple_ball.png');
+    phaserGame.load.baseURL = '../../res/';
+    phaserGame.load.image('shooter', 'shooter.png');
+    phaserGame.load.image('bullet', 'purple_ball.png');
+    phaserGame.load.image('sand', 'sand.png');
+    phaserGame.load.image(WallSprite[WallSprite.BUNKER_1x2_1], 'bunker_1x2.png');
+    phaserGame.load.image(WallSprite[WallSprite.BUNKER_2x1_1], 'bunker_2x1_destroyed_1.png');
+    phaserGame.load.image(WallSprite[WallSprite.BUNKER_2x1_2], 'bunker_2x1_destroyed_2.png');
+    phaserGame.load.image(WallSprite[WallSprite.BUNKER_2x2_1], 'bunker_2x2.png');
   }
 
   phaserCreate() {
 
     let {phaserGame} = this;
-    phaserGame.stage.backgroundColor = '#124184';
-    phaserGame.stage.disableVisibilityChange = true; // TODO: Remove for prod
+    let {width, height} = this.props.game.world;
+
+    phaserGame.add.tileSprite(0,0, width, height, 'sand');
+
+    _.forEach(this.props.game.entities.walls, (wall) => {
+      const wallSprite = phaserGame.add.sprite(wall.pos.x, wall.pos.y, WallSprite[wall.sprite]);
+      wallSprite.height = wall.height;
+      wallSprite.width = wall.width;
+    });
 
     this.enemies = [];
     for (let i = 0; i < Game.settings.maxPlayers; i++) { // move 4 to a constant
@@ -64,13 +82,6 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     this.bullets = phaserGame.add.group();
     this.bullets.createMultiple(50, 'bullet');
 
-    // Make sure that keys don't scroll the page
-    const {LEFT, RIGHT, UP, DOWN} = Phaser.Keyboard;
-    phaserGame.input.keyboard.addKeyCapture(LEFT);
-    phaserGame.input.keyboard.addKeyCapture(RIGHT);
-    phaserGame.input.keyboard.addKeyCapture(UP);
-    phaserGame.input.keyboard.addKeyCapture(DOWN);
-
     this.prevTime = this.phaserGame.time.now;
   }
 
@@ -83,10 +94,10 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
 
     const isDown = (key: number) => !!phaserGame.input.keyboard.isDown(key);
     const input: InputFrame = {
-      left: isDown(Phaser.Keyboard.LEFT),
-      right: isDown(Phaser.Keyboard.RIGHT),
-      up: isDown(Phaser.Keyboard.UP),
-      down: isDown(Phaser.Keyboard.DOWN),
+      left: isDown(Phaser.Keyboard.A),
+      right: isDown(Phaser.Keyboard.D),
+      up: isDown(Phaser.Keyboard.W),
+      down: isDown(Phaser.Keyboard.S),
       angle: phaserGame.physics.arcade.angleToPointer(player),
       fired: phaserGame.input.activePointer.isDown,
       duration: delta,

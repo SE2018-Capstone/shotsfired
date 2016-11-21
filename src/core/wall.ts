@@ -1,0 +1,46 @@
+import { Entity, EntityState } from './entity';
+
+export enum WallSprite {
+  BUNKER_1x2_1,
+  BUNKER_2x1_1,
+  BUNKER_2x1_2,
+  BUNKER_2x2_1,
+};
+
+export interface WallState extends EntityState {
+  width: number;
+  height: number;
+  sprite: WallSprite;
+}
+
+export class Wall extends Entity {
+  static init(overrides: any = {}) {
+    return Object.assign(super.init(), {
+      width: 200,
+      height: 200,
+      sprite: 'bunker_2x2_1',
+      type: 'wall',
+    }, overrides) as WallState;
+  }
+}
+
+// State for the backup data for a wall
+export interface StoredWallState  {
+  pos: {
+    x: number;
+    y: number;
+  };
+  width: number;
+  height: number;
+  sprite: WallSprite;
+}
+
+// List of maps, stores the minimal amount of data needed so that
+// this could be moved into a JSON file to backup maps
+export const MapCatalog: StoredWallState[][] = [[
+  {pos: {x: 380, y: 260}, width: 200, height: 200, sprite: WallSprite.BUNKER_2x2_1},
+  {pos: {x: 170, y: 145}, width: 140, height: 70, sprite: WallSprite.BUNKER_2x1_1},
+  {pos: {x: 205, y: 470}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
+  {pos: {x: 650, y: 505}, width: 140, height: 70, sprite: WallSprite.BUNKER_2x1_2},
+  {pos: {x: 685, y: 110}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
+]];
