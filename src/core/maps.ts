@@ -1,14 +1,39 @@
-export interface WallState {
-  x: number;
-  y: number;
+ import { EntityState, Entity } from './entity';
+ import { GameState } from './game';
+ 
+ export interface WallState extends EntityState{
   width: number;
   height: number;
-  type: string;
+  variant: string;
 }
 export interface Map {[id:string]: WallState};
 
-function wall(x:number,y:number,width:number,height:number,type:string): WallState {
-  return {x,y,width,height,type};
+export class Wall extends Entity {
+  static init(overrides: any = {}) {
+    return Object.assign(super.init(), {
+      damage: 0,
+      source: null,
+      alive: true,
+      radius: 0,
+      height: 140,
+      width: 70,
+      variant: '1',
+      type: 'wall',
+    }, overrides) as WallState;
+  }
+
+  static update(wall: WallState, delta: number, game: GameState){
+    return super.update(wall, delta, game); 
+  }
+}
+
+// function wall(x:number,y:number,width:number,height:number,type:string): WallState {
+//   return {x,y,width,height,type};
+// }
+
+export class MapFactory {
+  static getMap() {
+  }
 }
 
 export const MapCatalog: Map[] = [{
