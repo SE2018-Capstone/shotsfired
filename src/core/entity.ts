@@ -1,6 +1,7 @@
 import { Game, GameState, InputFrame } from './game';
 import { Event, EventFactory } from './event';
 import { Vec, Vector } from './vector';
+import { WallState } from './wall';
 
 export interface EntityState {
   pos: Vector;
@@ -46,14 +47,34 @@ export class Entity {
     let events: Event[] = [];
     Entity.getEntities(game).forEach((other: EntityState) => {
       if (other.id !== entity.id && Entity.colliding(entity, other)) {
-        events.push(EventFactory.createEvent('COLLISION', entity.id, other.id));
+        events.push(EventFactory.createEvent('COLLISION', entity.id, other.id, {}));
       }
     });
     return events;
   }
 
   static colliding(a: EntityState, b: EntityState) {
-    return Vec.mag(Vec.subtract(a.pos, b.pos)) < a.radius + b.radius;
+    let extraResult = false; 
+      if (b.type === 'wall') {
+        let other = a;
+        let wall = b as WallState;
+        if (other.pos.x > wall.pos.x && other.pos.x < wall.pos.x + wall.width && 
+        other.pos.y > wall.pos.y && other.pos.y < wall.pos.y + wall.height ) {
+          extraResult = true; 
+        }
+        if (other.pos.x > wall.pos.x && other.pos.x < wall.pos.x && 
+          (other.pos.y + other.radius > wall.pos.y && other.pos.y + other.radius < wall.pos.y + wall.height ||
+          other.pos.y - other.radius > wall.pos.y && other.pos.y - other.radius < wall.pos.y + wall.height)) {
+            extraResult = true; 
+        }
+        if (other.pos.y > wall.pos.y && other.pos.y < wall.pos.y && 
+          (other.pos.x + other.radius > wall.pos.x && other.pos.x + other.radius < wall.pos.x + wall.width ||
+          other.pos.x - other.radius > wall.pos.x && other.pos.x - other.radius < wall.pos.x + wall.width)) {
+            extraResult = true; 
+        }
+      // return;
+    }
+    return Vec.mag(Vec.subtract(a.pos, b.pos)) < a.radius + b.radius || extraResult;
   }
 
   static interact(entity: EntityState, other: EntityState, state: GameState) {

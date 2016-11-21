@@ -1,7 +1,7 @@
-import { Player, PlayerState } from './player';
+import { Player, PlayerState, PlayerMovement } from './player';
 import { Bullet, BulletState } from './bullet';
 import { EntityState, Entity } from './entity';
-import { WallState, MapCatalog, Wall } from './wall';
+import { WallState, MapCatalog, Wall, WallSprite } from './wall';
 import { Event } from './event';
 
 export interface InputFrame {
@@ -41,7 +41,7 @@ const defaultMap = MapCatalog[0].reduce((prev, wallData) => {
 export class Game {
   static settings = { minPlayers: 2, maxPlayers: 4 };
   static init(overrides: any = {}) {
-    const defaults: GameState = {
+    let defaults: GameState = {
       settings: { minPlayers: Game.settings.minPlayers,
                   maxPlayers: Game.settings.maxPlayers },
       world: { width: 960, height: 720 },
@@ -96,6 +96,7 @@ export class Game {
       Object.assign(list, (game.entities as any)[key]);
       return list;
     }, {});
+    let { walls }  = game.entities;
 
     events.forEach(event => {
       let sender = allEntities[event.initiator];
@@ -115,6 +116,18 @@ export class Game {
               break;
           }
           break;
+        case 'MOVEMENT': 
+          if (sender) {
+            let movementData = event.data as PlayerMovement; 
+            Player.move(sender as PlayerState, movementData.angle, movementData.xVel, movementData.yVel);
+            for (let i = 0; i < Object.keys(walls).length; i++) {
+              if (Wall.collision(sender, walls[Object.keys(walls)[i]])) {
+                Player.move(sender as PlayerState, movementData.angle, movementData.xVel*-1, movementData.yVel*-1);
+                break;
+              }
+            }
+          }
+          break;
       }
     });
   }
@@ -125,13 +138,17 @@ export class Game {
     if (state.entities.players) {
       count = Object.keys(state.entities.players).length;
     }
-    player.pos.x = state.world.width / 4;
     if ( (count + 1) % 2 === 0) {
-      player.pos.x = player.pos.x + state.world.width / 2;
+      player.pos.x = 80;  
     }
-    player.pos.y = state.world.height / 4;
+    else {
+      player.pos.x = state.world.width - 80; 
+    }
     if (count > 1) {
-      player.pos.y = player.pos.y + state.world.height/2;
+      player.pos.y = state.world.height - 80; 
+    }
+    else {
+      player.pos.y = 80; 
     }
     state.entities.players[player.id] = player;
     return player;
