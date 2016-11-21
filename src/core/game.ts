@@ -3,6 +3,7 @@ import { Bullet, BulletState } from './bullet';
 import { EntityState, Entity } from './entity';
 import { WallState, MapCatalog, Wall } from './wall';
 import { Event } from './event';
+import * as _ from 'lodash'
 
 export interface InputFrame {
   left: boolean;
@@ -30,6 +31,7 @@ export interface GameState {
     minPlayers: number;
     maxPlayers: number;
   };
+  isFinished: boolean;
 };
 
 const defaultMap = MapCatalog[0].reduce((prev, wallData) => {
@@ -46,6 +48,7 @@ export class Game {
                   maxPlayers: Game.settings.maxPlayers },
       world: { width: 960, height: 720 },
       entities: { players: {}, bullets: {}, walls: defaultMap },
+      isFinished: false
     };
     return Object.assign(defaults, overrides) as GameState;
   }
@@ -117,6 +120,30 @@ export class Game {
           break;
       }
     });
+  }
+
+  static isFinished(game: GameState) {
+    const players = game.entities.players;
+    let playersAlive = Object.keys(players).length;
+
+    _.forEach(players, (player) => {
+      if (!player.alive) {
+        playersAlive--;
+      }
+    });
+    return (playersAlive === 1);
+  }
+
+  static getWinner(game: GameState) {
+    const players = game.entities.players;
+    let winner = "";
+    _.forEach(players, (player) => {
+      if (player.alive) {
+        winner = player.id;
+      }
+    });
+    game.isFinished = true;
+    return winner;
   }
 
   static addPlayer(state: GameState) {

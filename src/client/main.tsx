@@ -8,8 +8,9 @@ import { Lobby } from './lobby'
 import { START_GAME, GAME_LOBBY_COUNTDOWN, NEW_PLAYER_JOINED } from '../server/server-interface'
 import { Mapper } from './mapper';
 import { Game } from '../core/game';
+import { GameOver } from './game-over'
 
-enum Stages { MAPPER, SPLASH, LOADING, RUNNING };
+enum Stages { MAPPER, SPLASH, LOADING, RUNNING, GAMEOVER };
 export interface ClientState {
   stage: Stages;
   numPlayersInLobby: number;
@@ -21,10 +22,12 @@ export class Main extends React.Component<{}, ClientState> {
   socket: SocketIOClient.Socket;
   gameToJoin: string;
   activePlayer: string;
+  isWinner: boolean;
 
   constructor() {
     super();
     this.gameState = Game.init();
+    this.isWinner = false;
     this.state = {
       stage: Stages.SPLASH,
       numPlayersInLobby: 0,
@@ -61,10 +64,31 @@ export class Main extends React.Component<{}, ClientState> {
   startGame(initialState: GameState, playerId: string) {
       this.gameState = initialState;
       this.activePlayer = playerId;
-      this.controller = new ClientController(this.gameState, this.socket);
+      this.controller = new ClientController(this.gameState, this.socket, (winner: string) => {
+        this.socket.disconnect()
+        if (winner === this.activePlayer) {
+          this.isWinner = true;
+        }
+        this.setState({
+          stage: Stages.GAMEOVER
+        } as ClientState);
+      });
       this.setState({
         stage: Stages.RUNNING
       } as ClientState);
+  }
+
+  goToMainMenu() {
+    this.gameState = Game.init();
+    this.isWinner = false;
+    this.activePlayer = "";
+    this.controller = null;
+    this.socket = null;
+
+    this.setState({
+      stage: Stages.SPLASH,
+      numPlayersInLobby: 0
+    })
   }
 
   render() {
@@ -90,6 +114,14 @@ export class Main extends React.Component<{}, ClientState> {
               onTick={(input) => this.controller.update(input)}
             />
           </div>
+        );
+      case Stages.GAMEOVER:
+        return (
+          <GameOver
+            isWinner={this.isWinner}
+            maxCountdownTime={10}
+            onBackToMainMenu={() => this.goToMainMenu()}
+          />
         );
     }
   }
