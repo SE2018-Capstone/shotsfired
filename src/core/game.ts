@@ -110,8 +110,18 @@ export class Game {
 
   static addPlayer(state: GameState) {
     let player = Player.init();
-    player.pos.x = state.world.width / 2;
-    player.pos.y = state.world.height / 2;
+    let count = 0; 
+    if (state.entities.players) {
+      count = Object.keys(state.entities.players).length;
+    }
+    player.pos.x = state.world.width / 4;
+    if ( (count + 1) % 2 === 0) {
+      player.pos.x = player.pos.x + state.world.width / 2;
+    }
+    player.pos.y = state.world.height / 4;
+    if (count > 1) {
+      player.pos.y = player.pos.y + state.world.height/2; 
+    }
     state.entities.players[player.id] = player;
     return player;
   }
