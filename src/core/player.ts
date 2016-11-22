@@ -44,13 +44,13 @@ export class Player extends Entity {
 
 
     let events: any = [];
-
-    events.push(EventFactory.createEvent('MOVEMENT', player.id, null, {
-      angle: input.angle,
-      xVel: inputVel.x,
-      yVel: inputVel.y,
-    }));
-
+    if (input.up || input.down || input.left || input.right) {
+      events.push(EventFactory.createEvent('MOVEMENT', player.id, null, {
+        angle: input.angle,
+        xVel: inputVel.x,
+        yVel: inputVel.y,
+      }));
+    }
 
      // TODO: Investigate whether this Date.now business messes up with server
     if (input.fired && player.lastFire + player.gunCooldown < Date.now()) {
