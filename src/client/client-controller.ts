@@ -30,6 +30,7 @@ export class ClientController {
         ({timestamp}) => timestamp > serverUpdate.timestamp);
       const newUnsyncedEvents = Game.applyInputs(this.game, newUnsyncedFrames);
       Game.resolveEvents(this.game, newUnsyncedEvents);
+      console.log(input.timestamp - serverUpdate.timestamp);
       Game.update(this.game, input.timestamp - serverUpdate.timestamp);
 
       this.unsyncedFrames = newUnsyncedFrames;
