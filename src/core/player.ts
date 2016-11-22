@@ -8,6 +8,12 @@ export interface PlayerState extends EntityState {
   gunCooldown: number;
   lastFire: number;
 }
+export interface PlayerMovement {
+  angle: number;
+  xVel: number;
+  yVel: number;  
+}
+
 export const OFFSET = 15; 
 const INPUT_VEL = 200;
 export class Player extends Entity {
@@ -35,18 +41,31 @@ export class Player extends Entity {
     if (input.down) { inputVel.y += step; }
     if (input.left) { inputVel.x -= step; }
     if (input.right) { inputVel.x += step; }
-
-    player.orientation = input.angle;
-    player.pos.x += inputVel.x;
-    player.pos.y += inputVel.y;
+    
 
     let events: any = [];
+    
+    events.push(EventFactory.createEvent('MOVEMENT', player.id, null, {
+      angle: input.angle,
+      xVel: inputVel.x,
+      yVel: inputVel.y, 
+    }));
+
+
      // TODO: Investigate whether this Date.now business messes up with server
     if (input.fired && player.lastFire + player.gunCooldown < Date.now()) {
       player.lastFire = Date.now();
       events.push(EventFactory.createEvent('SPAWN_BULLET', player.id, null));
     }
     return events;
+  }
+  
+  static move(player: PlayerState, angle: number, xvel: number, yvel: number) {
+    if (player) {
+      player.orientation = angle;
+      player.pos.x += xvel;
+      player.pos.y += yvel;
+    }
   }
 
   static takeDamage(player: PlayerState, dmg: number) {
