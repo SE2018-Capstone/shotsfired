@@ -62,7 +62,9 @@ export class LobbyServer {
   }
 
   startRandGamePrematurely() {
-    this.gameServer.startGame(this.currentRandLobby);
-    this.refreshRandGame();
+    this.playersInRandLobby = this.gameServer.startGame(this.currentRandLobby);
+    if (this.playersInRandLobby >= Game.settings.minPlayers) {
+      this.refreshRandGame();
+    }
   }
 }
