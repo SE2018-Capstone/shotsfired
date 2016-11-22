@@ -18,7 +18,7 @@ export class Lobby extends React.Component<LobbyProps, LobbyState> {
 
   constructor(props: LobbyProps) {
     super(props);
-    this.state = { countdownTime: this.props.maxCountdownTime };
+    this.state = { countdownTime: this.props.maxCountdownTime / 1000 };
   }
 
   updateCountdown(time: number) {

@@ -77,14 +77,14 @@ export class Main extends React.Component<{}, ClientState> {
       case Stages.SPLASH:
         return (
           <Splash
-            onConnectToLobby={(s:string, b:boolean) => this.socketInit(s,b)}
+            onConnectToLobby={(gameCode, isPrivateGame) => this.socketInit(gameCode, isPrivateGame)}
             onEnterLobby={() => this.enterLobby()} />
         );
       case Stages.LOBBY:
         return (
           <Lobby
             numPlayersInLobby={this.state.numPlayersInLobby}
-            maxCountdownTime={GAME_LOBBY_COUNTDOWN/1000}
+            maxCountdownTime={GAME_LOBBY_COUNTDOWN}
             gameCode={this.gameCode}
             isPrivateLobby={this.isPrivateGame}
           />

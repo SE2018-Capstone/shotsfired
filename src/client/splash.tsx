@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 
 interface SplashProps {
   onEnterLobby: () => void;
-  onConnectToLobby: (s: string, b: boolean) => void;
+  onConnectToLobby: (gameCode: string, isPrivateGame: boolean) => void;
 }
 
 export class Splash extends React.Component<SplashProps, {}> {
