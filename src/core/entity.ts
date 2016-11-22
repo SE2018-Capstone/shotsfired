@@ -72,9 +72,9 @@ export class Entity {
           other.pos.x - other.radius > wall.pos.x && other.pos.x - other.radius < wall.pos.x + wall.width)) {
             extraResult = true; 
         }
-      // return;
+      return extraResult;
     }
-    return Vec.mag(Vec.subtract(a.pos, b.pos)) < a.radius + b.radius || extraResult;
+    return Vec.mag(Vec.subtract(a.pos, b.pos)) < a.radius + b.radius;
   }
 
   static interact(entity: EntityState, other: EntityState, state: GameState) {

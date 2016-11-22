@@ -3,6 +3,7 @@ import { Bullet, BulletState } from './bullet';
 import { EntityState, Entity } from './entity';
 import { WallState, MapCatalog, Wall, WallSprite } from './wall';
 import { Event } from './event';
+import * as _ from "lodash";
 
 export interface InputFrame {
   left: boolean;
@@ -32,7 +33,7 @@ export interface GameState {
   };
 };
 
-const defaultMap = MapCatalog[0].reduce((prev, wallData) => {
+const defaultMap = MapCatalog[0].walls.reduce((prev, wallData) => {
   const wallEntity: WallState = Wall.init(wallData);
   (prev as any)[wallEntity.id] = wallEntity;
   return prev;
@@ -102,13 +103,13 @@ export class Game {
       let sender = allEntities[event.initiator];
       let receiver = allEntities[event.receptor];
       switch(event.type) {
-        case 'COLLISION': // handles static motion
+        case 'COLLISION': 
           switch(sender.type) {
             case 'player': Player.collideWith(sender as PlayerState, receiver, game); break;
             case 'bullet': Bullet.collideWith(sender as BulletState, receiver, game); break;
           }
           break;
-        case 'SPAWN_BULLET': // spawns the missiles
+        case 'SPAWN_BULLET': 
           switch(sender.type) {
             case 'player':
               let bullet = Bullet.spawnFrom(sender as PlayerState);
@@ -116,21 +117,22 @@ export class Game {
               break;
           }
           break;
-        case 'MOVEMENT': // HANDLES dynamic motion. 
+        case 'MOVEMENT': 
           if (sender) {
             let movementData = event.data as PlayerMovement; 
             Player.move(sender as PlayerState, movementData.angle, movementData.xVel, movementData.yVel);
-            for (let i = 0; i < Object.keys(walls).length; i++) {
-              if (Entity.colliding(sender, walls[Object.keys(walls)[i]])) {
-                Player.move(sender as PlayerState, movementData.angle, movementData.xVel*-1, movementData.yVel*-1);
-                return;
+            let foundCollision = _.find(walls, (value : any, key : any) => {
+              if (Entity.colliding(sender, value)) {
+                return true;
               }
-            }
-            for (let i = 0; i < Object.keys(players).length; i++) {
-              if (sender.id != Object.keys(players)[i] && Entity.colliding(sender, players[Object.keys(players)[i]])) {
-                Player.move(sender as PlayerState, movementData.angle, movementData.xVel*-1, movementData.yVel*-1);
-                break;
+            }) !== undefined;
+            foundCollision = foundCollision = _.find(players, (value : any, key : any) => {
+              if (Entity.colliding(sender, value) && sender.id !== key) {
+                return true;
               }
+            }) !== undefined || foundCollision;
+            if (foundCollision) {
+              Player.move(sender as PlayerState, movementData.angle, movementData.xVel*-1, movementData.yVel*-1);
             }
           }
           break;
@@ -144,18 +146,7 @@ export class Game {
     if (state.entities.players) {
       count = Object.keys(state.entities.players).length;
     }
-    if ( (count + 1) % 2 === 0) {
-      player.pos.x = 80;  
-    }
-    else {
-      player.pos.x = state.world.width - 80; 
-    }
-    if (count > 1) {
-      player.pos.y = state.world.height - 80; 
-    }
-    else {
-      player.pos.y = 80; 
-    }
+    player.pos = MapCatalog[0].startPositions[count]; 
     state.entities.players[player.id] = player;
     return player;
   }
