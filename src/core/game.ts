@@ -1,7 +1,7 @@
-import { Player, PlayerState } from './player';
+import { Player, PlayerState, PlayerMovement } from './player';
 import { Bullet, BulletState } from './bullet';
 import { EntityState, Entity } from './entity';
-import { WallState, MapCatalog, Wall } from './wall';
+import { WallState, MapCatalog, Wall, WallSprite, BorderWalls } from './wall';
 import { Event } from './event';
 import * as _ from 'lodash'
 
@@ -34,7 +34,9 @@ export interface GameState {
   isFinished: boolean;
 };
 
-const defaultMap = MapCatalog[0].reduce((prev, wallData) => {
+export const WorldSize = { width: 960, height: 720 }
+
+const defaultMap = MapCatalog[0].walls.concat(BorderWalls(WorldSize)).reduce((prev, wallData) => {
   const wallEntity: WallState = Wall.init(wallData);
   (prev as any)[wallEntity.id] = wallEntity;
   return prev;
@@ -43,10 +45,10 @@ const defaultMap = MapCatalog[0].reduce((prev, wallData) => {
 export class Game {
   static settings = { minPlayers: 2, maxPlayers: 4 };
   static init(overrides: any = {}) {
-    const defaults: GameState = {
+    let defaults: GameState = {
       settings: { minPlayers: Game.settings.minPlayers,
                   maxPlayers: Game.settings.maxPlayers },
-      world: { width: 960, height: 720 },
+      world: WorldSize,
       entities: { players: {}, bullets: {}, walls: defaultMap },
       isFinished: false
     };
@@ -99,6 +101,7 @@ export class Game {
       Object.assign(list, (game.entities as any)[key]);
       return list;
     }, {});
+    let { walls, players }  = game.entities;
 
     events.forEach(event => {
       let sender = allEntities[event.initiator];
@@ -110,12 +113,23 @@ export class Game {
             case 'bullet': Bullet.collideWith(sender as BulletState, receiver, game); break;
           }
           break;
-        case 'SPAWN_BULLET':
+        case 'SPAWN_BULLET': 
           switch(sender.type) {
             case 'player':
               let bullet = Bullet.spawnFrom(sender as PlayerState);
               game.entities.bullets[bullet.id] = bullet;
               break;
+          }
+          break;
+        case 'MOVEMENT': 
+          if (sender) {
+            let movementData = event.data as PlayerMovement; 
+            Player.move(sender as PlayerState, movementData.angle, movementData.xVel, movementData.yVel);
+            let foundCollision = !!_.find(walls, wall => Entity.colliding(sender, wall))
+                  || !!_.find(players, (player, playerId) => Entity.colliding(sender, player) && sender.id !== playerId);
+            if (foundCollision) {
+              Player.move(sender as PlayerState, movementData.angle, movementData.xVel*-1, movementData.yVel*-1);
+            }
           }
           break;
       }
@@ -136,14 +150,7 @@ export class Game {
     if (state.entities.players) {
       count = Object.keys(state.entities.players).length;
     }
-    player.pos.x = state.world.width / 4;
-    if ( (count + 1) % 2 === 0) {
-      player.pos.x = player.pos.x + state.world.width / 2;
-    }
-    player.pos.y = state.world.height / 4;
-    if (count > 1) {
-      player.pos.y = player.pos.y + state.world.height/2;
-    }
+    player.pos = MapCatalog[0].startPositions[count]; 
     state.entities.players[player.id] = player;
     return player;
   }
