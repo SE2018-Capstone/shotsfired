@@ -62,13 +62,13 @@ export class Main extends React.Component<{}, ClientState> {
   startGame(initialState: GameState, playerId: string) {
       this.gameState = initialState;
       this.activePlayer = playerId;
-      this.controller = new ClientController(this.gameState, this.socket, () => this.onGameFinishCallback());
+      this.controller = new ClientController(this.gameState, this.socket, () => this.onGameFinished());
       this.setState({
         stage: Stages.RUNNING
       } as ClientState);
   }
 
-  onGameFinishCallback() {
+  onGameFinished() {
     this.socket.disconnect()
     this.setState({
       stage: Stages.GAMEOVER

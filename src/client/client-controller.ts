@@ -46,7 +46,8 @@ export class ClientController {
     events = events.concat(Game.update(this.game, input.duration));
     Game.resolveEvents(this.game, events);
 
-    if (Game.isFinished(this.game)) {
+    Game.setIsFinished(this.game);
+    if (this.game.isFinished) {
       this.onGameFinished();
     }
   }

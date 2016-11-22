@@ -122,10 +122,8 @@ export class Game {
     });
   }
 
-  static isFinished(game: GameState) {
-    //leaving member variable isFinished since calling function in game-canvas returns true for player 1 at start
+  static setIsFinished(game: GameState) {
     game.isFinished = _.size(_.filter(game.entities.players, p => p.alive)) === 1;
-    return game.isFinished;
   }
 
   static getWinner(game: GameState) {
