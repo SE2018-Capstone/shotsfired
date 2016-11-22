@@ -14,7 +14,10 @@ export interface PlayerMovement {
   yVel: number;
 }
 
-export const OFFSET = 15;
+export const GUNPOINT_OFFSETS = {
+  center: { x: 9, y: 9 },
+  distance: { x: 17, y: 10 },
+};
 const INPUT_VEL = 200;
 export class Player extends Entity {
   static init(overrides: any = {}) {
@@ -42,11 +45,12 @@ export class Player extends Entity {
     if (input.left) { inputVel.x -= step; }
     if (input.right) { inputVel.x += step; }
 
+    player.orientation = input.angle;
 
+    // Movement are events to allow for collision
     let events: any = [];
     if (input.up || input.down || input.left || input.right) {
       events.push(EventFactory.createEvent('MOVEMENT', player.id, null, {
-        angle: input.angle,
         xVel: inputVel.x,
         yVel: inputVel.y,
       }));
@@ -60,9 +64,8 @@ export class Player extends Entity {
     return events;
   }
 
-  static move(player: PlayerState, angle: number, xvel: number, yvel: number) {
+  static move(player: PlayerState, xvel: number, yvel: number) {
     if (player) {
-      player.orientation = angle;
       player.pos.x += xvel;
       player.pos.y += yvel;
     }

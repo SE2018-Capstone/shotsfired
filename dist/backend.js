@@ -147,8 +147,10 @@
 	        this.playersInRandLobby = 0;
 	    }
 	    startRandGamePrematurely() {
-	        this.gameServer.startGame(this.currentRandLobby);
-	        this.refreshRandGame();
+	        this.playersInRandLobby = this.gameServer.startGame(this.currentRandLobby);
+	        if (this.playersInRandLobby >= game_1.Game.settings.minPlayers) {
+	            this.refreshRandGame();
+	        }
 	    }
 	}
 	exports.LobbyServer = LobbyServer;
@@ -179,7 +181,8 @@
 	                maxPlayers: Game.settings.maxPlayers },
 	            world: exports.WorldSize,
 	            entities: { players: {}, bullets: {}, walls: defaultMap },
-	            isFinished: false
+	            isFinished: false,
+	            winner: null,
 	        };
 	        return Object.assign(defaults, overrides);
 	    }
@@ -193,7 +196,7 @@
 	        Object.keys(game.entities).forEach(entityType => {
 	            let entities = game.entities[entityType];
 	            Object.keys(entities).forEach(id => {
-	                if (!entities[id].alive) {
+	                if (!entities[id].alive && entityType !== 'players') {
 	                    delete entities[id];
 	                }
 	            });
@@ -211,7 +214,7 @@
 	        const players = state.entities.players;
 	        var events = [];
 	        inputs.forEach(input => {
-	            if (!players[input.playerId]) {
+	            if (!_.get(players[input.playerId], 'alive', null)) {
 	                return;
 	            }
 	            events = events.concat(player_1.Player.applyInput(players[input.playerId], input, state));
@@ -249,11 +252,11 @@
 	                case 'MOVEMENT':
 	                    if (sender) {
 	                        let movementData = event.data;
-	                        player_1.Player.move(sender, movementData.angle, movementData.xVel, movementData.yVel);
+	                        player_1.Player.move(sender, movementData.xVel, movementData.yVel);
 	                        let foundCollision = !!_.find(walls, wall => entity_1.Entity.colliding(sender, wall))
 	                            || !!_.find(players, (player, playerId) => entity_1.Entity.colliding(sender, player) && sender.id !== playerId);
 	                        if (foundCollision) {
-	                            player_1.Player.move(sender, movementData.angle, movementData.xVel * -1, movementData.yVel * -1);
+	                            player_1.Player.move(sender, movementData.xVel * -1, movementData.yVel * -1);
 	                        }
 	                    }
 	                    break;
@@ -261,23 +264,26 @@
 	        });
 	    }
 	    static setIsFinished(game) {
-	        game.isFinished = _.size(_.filter(game.entities.players, p => p.alive)) === 1;
+	        game.isFinished = !!game.winner || _.size(_.filter(game.entities.players, p => p.alive)) <= 1;
+	        if (game.isFinished) {
+	            game.winner = game.winner || _.get(_.find(game.entities.players, p => p.alive), 'id', null);
+	        }
 	    }
 	    static getWinner(game) {
-	        return _.find(game.entities.players, p => p.alive).id;
+	        return game.winner;
 	    }
-	    static addPlayer(state) {
+	    static addPlayer(game) {
 	        let player = player_1.Player.init();
 	        let count = 0;
-	        if (state.entities.players) {
-	            count = Object.keys(state.entities.players).length;
+	        if (game.entities.players) {
+	            count = Object.keys(game.entities.players).length;
 	        }
 	        player.pos = wall_1.MapCatalog[0].startPositions[count];
-	        state.entities.players[player.id] = player;
+	        game.entities.players[player.id] = player;
 	        return player;
 	    }
-	    static removePlayer(state, playerId) {
-	        delete state.entities.players[playerId];
+	    static removePlayer(game, playerId) {
+	        delete game.entities.players[playerId];
 	    }
 	}
 	exports.Game = Game;
@@ -291,7 +297,10 @@
 	"use strict";
 	const entity_1 = __webpack_require__(8);
 	const event_1 = __webpack_require__(9);
-	exports.OFFSET = 15;
+	exports.GUNPOINT_OFFSETS = {
+	    center: { x: 9, y: 9 },
+	    distance: { x: 17, y: 10 },
+	};
 	const INPUT_VEL = 200;
 	class Player extends entity_1.Entity {
 	    static init(overrides = {}) {
@@ -324,10 +333,11 @@
 	        if (input.right) {
 	            inputVel.x += step;
 	        }
+	        player.orientation = input.angle;
+	        // Movement are events to allow for collision
 	        let events = [];
 	        if (input.up || input.down || input.left || input.right) {
 	            events.push(event_1.EventFactory.createEvent('MOVEMENT', player.id, null, {
-	                angle: input.angle,
 	                xVel: inputVel.x,
 	                yVel: inputVel.y,
 	            }));
@@ -339,9 +349,8 @@
 	        }
 	        return events;
 	    }
-	    static move(player, angle, xvel, yvel) {
+	    static move(player, xvel, yvel) {
 	        if (player) {
-	            player.orientation = angle;
 	            player.pos.x += xvel;
 	            player.pos.y += yvel;
 	        }
@@ -522,7 +531,11 @@
 	        let base = Bullet.init();
 	        base.source = entity.id;
 	        let directionVector = vector_1.Vec.direction(entity.orientation);
-	        base.pos = { x: entity.pos.x + directionVector.x * player_1.OFFSET, y: entity.pos.y + directionVector.y * player_1.OFFSET };
+	        let { center, distance } = player_1.GUNPOINT_OFFSETS;
+	        base.pos = {
+	            x: entity.pos.x + distance.x * directionVector.x - distance.y * directionVector.y - center.x,
+	            y: entity.pos.y + distance.y * directionVector.y + distance.y * directionVector.x - center.y,
+	        };
 	        base.vel = vector_1.Vec.mul(directionVector, BULLET_SPEED);
 	        return base;
 	    }
@@ -628,7 +641,7 @@
 	        this.io.on('connection', this.onConnection.bind(this));
 	    }
 	    startGame(gameCode) {
-	        this.activeGames.get(gameCode).startGame();
+	        return this.activeGames.get(gameCode).startGame();
 	    }
 	    onConnection(socket) {
 	        const gameCode = socket.handshake.query.gamecode;
@@ -667,20 +680,32 @@
 	        }
 	    }
 	    startGame() {
-	        for (var socket of this.sockets) {
-	            let player = game_1.Game.addPlayer(this.game);
-	            socket.on(client_interface_1.SEND_FRAMES, (frames) => this.acceptFrames(frames, player.id));
-	            socket.on('disconnect', () => this.onInGameDisconnection(player.id));
-	            socket.emit(server_interface_1.START_GAME, {
-	                playerId: player.id,
-	                gameState: this.game,
-	            });
-	            this.playerSockets.set(player.id, socket);
+	        if (this.sockets.length >= game_1.Game.settings.minPlayers) {
+	            for (var socket of this.sockets) {
+	                let player = game_1.Game.addPlayer(this.game);
+	                socket.on(client_interface_1.SEND_FRAMES, (frames) => this.acceptFrames(frames, player.id));
+	                socket.on('disconnect', () => this.onInGameDisconnection(player.id));
+	                socket.emit(server_interface_1.START_GAME, {
+	                    playerId: player.id,
+	                    gameState: this.game,
+	                });
+	                this.playerSockets.set(player.id, socket);
+	            }
+	            this.tick();
 	        }
-	        this.tick();
+	        else {
+	            // Can't start a game with < min players
+	            for (let s of this.sockets) {
+	                s.emit(server_interface_1.NEW_PLAYER_JOINED, this.sockets.length);
+	            }
+	        }
+	        return this.sockets.length;
 	    }
 	    onDisconnection(socket) {
 	        this.sockets.splice(this.sockets.indexOf(socket), 1);
+	        for (let s of this.sockets) {
+	            s.emit(server_interface_1.NEW_PLAYER_JOINED, this.sockets.length);
+	        }
 	    }
 	    onInGameDisconnection(playerId) {
 	        if (this.sockets.length <= 1) {

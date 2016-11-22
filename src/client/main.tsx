@@ -79,14 +79,14 @@ export class Main extends React.Component<{}, ClientState> {
   }
 
   goToMainMenu() {
-    this.gameState = Game.init();
-    this.activePlayer = "";
-    this.controller = null;
-    this.socket = null;
-
     this.setState({
       stage: Stages.SPLASH,
       numPlayersInLobby: 0
+    }, () => {
+      this.gameState = Game.init();
+      this.activePlayer = "";
+      this.controller = null;
+      this.socket = null;
     });
   }
 
@@ -120,7 +120,7 @@ export class Main extends React.Component<{}, ClientState> {
           </div>
         );
       case Stages.GAMEOVER:
-        const isWinner = Game.getWinner(this.gameState) === this.activePlayer;
+        const isWinner = this.gameState.winner === this.activePlayer;
         return (
           <GameOver
             isWinner={isWinner}

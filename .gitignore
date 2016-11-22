@@ -1,5 +1,4 @@
 *.gz
-*.pdf
 *.aux
 *.log
 node_modules
