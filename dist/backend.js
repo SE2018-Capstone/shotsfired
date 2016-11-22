@@ -214,7 +214,7 @@
 	        const players = state.entities.players;
 	        var events = [];
 	        inputs.forEach(input => {
-	            if (!_.get(players[input.playerId], 'alive', null)) {
+	            if (!players[input.playerId]) {
 	                return;
 	            }
 	            events = events.concat(player_1.Player.applyInput(players[input.playerId], input, state));
