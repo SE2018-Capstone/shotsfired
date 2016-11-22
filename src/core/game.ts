@@ -91,7 +91,7 @@ export class Game {
 
     var events: Event[] = [];
     inputs.forEach(input => {
-      if (!players[input.playerId]) { return; }
+      if (!_.get(players[input.playerId], 'alive', null)) { return; }
       events = events.concat(Player.applyInput(players[input.playerId], input, state));
     });
 
