@@ -124,11 +124,11 @@ export class Game {
         case 'MOVEMENT':
           if (sender) {
             let movementData = event.data as PlayerMovement;
-            Player.move(sender as PlayerState, movementData.angle, movementData.xVel, movementData.yVel);
+            Player.move(sender as PlayerState, movementData.xVel, movementData.yVel);
             let foundCollision = !!_.find(walls, wall => Entity.colliding(sender, wall))
                   || !!_.find(players, (player, playerId) => Entity.colliding(sender, player) && sender.id !== playerId);
             if (foundCollision) {
-              Player.move(sender as PlayerState, movementData.angle, movementData.xVel*-1, movementData.yVel*-1);
+              Player.move(sender as PlayerState, movementData.xVel*-1, movementData.yVel*-1);
             }
           }
           break;
