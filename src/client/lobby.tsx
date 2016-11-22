@@ -31,7 +31,7 @@ export class Lobby extends React.Component<LobbyProps, LobbyState> {
   }
 
   clearTimer() {
-    if (this.countdownTimer != null) {
+    if (this.countdownTimer !== null) {
       clearTimeout(this.countdownTimer);
     }
     this.countdownTimer = null;

@@ -1,4 +1,4 @@
-import { Game, GameState, InputFrame } from './game';
+import { GameState } from './game';
 import { Event, EventFactory } from './event';
 import { Vec, Vector } from './vector';
 import { WallState } from './wall';
@@ -54,23 +54,23 @@ export class Entity {
   }
 
   static colliding(a: EntityState, b: EntityState) {
-    let extraResult = false; 
+    let extraResult = false;
       if (b.type === 'wall') { // This code is only here due to a weird typescript dependency error.
         let other = a;
         let wall = b as WallState;
-        if (other.pos.x > wall.pos.x && other.pos.x < wall.pos.x + wall.width && 
+        if (other.pos.x > wall.pos.x && other.pos.x < wall.pos.x + wall.width &&
         other.pos.y > wall.pos.y && other.pos.y < wall.pos.y + wall.height ) {
-          extraResult = true; 
+          extraResult = true;
         }
-        if (other.pos.x > wall.pos.x && other.pos.x < wall.pos.x && 
+        if (other.pos.x > wall.pos.x && other.pos.x < wall.pos.x &&
           (other.pos.y + other.radius > wall.pos.y && other.pos.y + other.radius < wall.pos.y + wall.height ||
           other.pos.y - other.radius > wall.pos.y && other.pos.y - other.radius < wall.pos.y + wall.height)) {
-            extraResult = true; 
+            extraResult = true;
         }
-        if (other.pos.y > wall.pos.y && other.pos.y < wall.pos.y && 
+        if (other.pos.y > wall.pos.y && other.pos.y < wall.pos.y &&
           (other.pos.x + other.radius > wall.pos.x && other.pos.x + other.radius < wall.pos.x + wall.width ||
           other.pos.x - other.radius > wall.pos.x && other.pos.x - other.radius < wall.pos.x + wall.width)) {
-            extraResult = true; 
+            extraResult = true;
         }
       return extraResult;
     }

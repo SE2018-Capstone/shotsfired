@@ -4,11 +4,11 @@ import { GameCanvas } from './game-canvas';
 import { GameState } from '../core/game';
 import { ClientController } from './client-controller';
 import { Splash } from './splash';
-import { Lobby } from './lobby'
+import { Lobby } from './lobby';
 import { START_GAME, GAME_LOBBY_COUNTDOWN, NEW_PLAYER_JOINED } from '../server/server-interface'
 import { Mapper } from './mapper';
 import { Game } from '../core/game';
-import { GameOver } from './game-over'
+import { GameOver } from './game-over';
 
 enum Stages { MAPPER, SPLASH, LOBBY, RUNNING, GAMEOVER };
 export interface ClientState {
@@ -72,7 +72,7 @@ export class Main extends React.Component<{}, ClientState> {
   }
 
   onGameFinished() {
-    this.socket.disconnect()
+    this.socket.disconnect();
     this.setState({
       stage: Stages.GAMEOVER
     } as ClientState);
@@ -87,7 +87,7 @@ export class Main extends React.Component<{}, ClientState> {
     this.setState({
       stage: Stages.SPLASH,
       numPlayersInLobby: 0
-    })
+    });
   }
 
   render() {
@@ -112,7 +112,6 @@ export class Main extends React.Component<{}, ClientState> {
       case Stages.RUNNING:
         return (
           <div>
-          <div> Player: {this.activePlayer} </div>
             <GameCanvas
               game={this.gameState}
               playerId={this.activePlayer}

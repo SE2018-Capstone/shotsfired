@@ -1,6 +1,6 @@
 import { Entity, EntityState } from './entity';
 import { InputFrame, GameState } from './game';
-import { EventFactory } from './event'
+import { EventFactory } from './event';
 
 export interface PlayerState extends EntityState {
   health: number;
@@ -11,10 +11,10 @@ export interface PlayerState extends EntityState {
 export interface PlayerMovement {
   angle: number;
   xVel: number;
-  yVel: number;  
+  yVel: number;
 }
 
-export const OFFSET = 15; 
+export const OFFSET = 15;
 const INPUT_VEL = 200;
 export class Player extends Entity {
   static init(overrides: any = {}) {
@@ -41,14 +41,14 @@ export class Player extends Entity {
     if (input.down) { inputVel.y += step; }
     if (input.left) { inputVel.x -= step; }
     if (input.right) { inputVel.x += step; }
-    
+
 
     let events: any = [];
-    
+
     events.push(EventFactory.createEvent('MOVEMENT', player.id, null, {
       angle: input.angle,
       xVel: inputVel.x,
-      yVel: inputVel.y, 
+      yVel: inputVel.y,
     }));
 
 
@@ -59,7 +59,7 @@ export class Player extends Entity {
     }
     return events;
   }
-  
+
   static move(player: PlayerState, angle: number, xvel: number, yvel: number) {
     if (player) {
       player.orientation = angle;

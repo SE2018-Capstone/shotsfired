@@ -1,7 +1,6 @@
 import * as express from 'express';
 import * as path from 'path';
 import * as http from 'http';
-import * as os from 'os';
 import * as process from 'process';
 import { LobbyServer } from './lobby-server';
 import { GameServer } from './game-server';

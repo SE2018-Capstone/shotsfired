@@ -24,7 +24,7 @@ export class GameOver extends React.Component<GameOverProps, GameOverState> {
   updateCountdown() {
     this.setState({countdownTime: this.state.countdownTime - 1}, () => {
       if (this.state.countdownTime - 1 >= 0) {
-        this.countdownTimer = setTimeout(this.updateCountdown.bind(this), 1000)
+        this.countdownTimer = setTimeout(this.updateCountdown.bind(this), 1000);
       } else {
         this.goToMainMenu();
       }
@@ -32,7 +32,7 @@ export class GameOver extends React.Component<GameOverProps, GameOverState> {
   }
 
   clearTimer() {
-    if (this.countdownTimer != null) {
+    if (this.countdownTimer !== null) {
       clearTimeout(this.countdownTimer);
     }
     this.countdownTimer = null;
@@ -57,7 +57,7 @@ export class GameOver extends React.Component<GameOverProps, GameOverState> {
           height: 480
         }}>
         <h1> {gameOverText} </h1>
-        
+
         <div style={{paddingTop: 40, paddingBottom: 20}} >
         Returning to main menu in {this.state.countdownTime}
         </div>

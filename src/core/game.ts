@@ -1,9 +1,9 @@
 import { Player, PlayerState, PlayerMovement } from './player';
 import { Bullet, BulletState } from './bullet';
 import { EntityState, Entity } from './entity';
-import { WallState, MapCatalog, Wall, WallSprite, BorderWalls } from './wall';
+import { WallState, MapCatalog, Wall, BorderWalls } from './wall';
 import { Event } from './event';
-import * as _ from 'lodash'
+import * as _ from 'lodash';
 
 export interface InputFrame {
   left: boolean;
@@ -34,7 +34,7 @@ export interface GameState {
   isFinished: boolean;
 };
 
-export const WorldSize = { width: 960, height: 720 }
+export const WorldSize = { width: 960, height: 720 };
 
 const defaultMap = MapCatalog[0].walls.concat(BorderWalls(WorldSize)).reduce((prev, wallData) => {
   const wallEntity: WallState = Wall.init(wallData);
@@ -113,7 +113,7 @@ export class Game {
             case 'bullet': Bullet.collideWith(sender as BulletState, receiver, game); break;
           }
           break;
-        case 'SPAWN_BULLET': 
+        case 'SPAWN_BULLET':
           switch(sender.type) {
             case 'player':
               let bullet = Bullet.spawnFrom(sender as PlayerState);
@@ -121,9 +121,9 @@ export class Game {
               break;
           }
           break;
-        case 'MOVEMENT': 
+        case 'MOVEMENT':
           if (sender) {
-            let movementData = event.data as PlayerMovement; 
+            let movementData = event.data as PlayerMovement;
             Player.move(sender as PlayerState, movementData.angle, movementData.xVel, movementData.yVel);
             let foundCollision = !!_.find(walls, wall => Entity.colliding(sender, wall))
                   || !!_.find(players, (player, playerId) => Entity.colliding(sender, player) && sender.id !== playerId);
@@ -150,7 +150,7 @@ export class Game {
     if (state.entities.players) {
       count = Object.keys(state.entities.players).length;
     }
-    player.pos = MapCatalog[0].startPositions[count]; 
+    player.pos = MapCatalog[0].startPositions[count];
     state.entities.players[player.id] = player;
     return player;
   }

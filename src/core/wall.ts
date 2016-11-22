@@ -1,6 +1,6 @@
 import { Entity, EntityState } from './entity';
 import { GameState } from './game';
-import { Event } from './event'
+import { Event } from './event';
 
 export enum WallSprite {
   BUNKER_1x2_1,
@@ -24,12 +24,12 @@ export class Wall extends Entity {
       type: 'wall',
     }, overrides) as WallState;
   }
-  
+
   static update(wall: WallState, delta: number, game: GameState){
     let events: Event[] = [];
     return events;
   }
-  
+
   static collideWith(wall: WallState, other: EntityState, game: GameState) {
     return;
   }
@@ -76,4 +76,3 @@ function BorderWalls(worldsize : any) {
 
 export { BorderWalls };
 
- 
