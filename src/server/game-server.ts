@@ -17,8 +17,8 @@ export class GameServer {
     this.io.on('connection', this.onConnection.bind(this));
   }
 
-  startGame(gameCode: string) {
-    this.activeGames.get(gameCode).startGame();
+  startGame(gameCode: string) : number {
+    return this.activeGames.get(gameCode).startGame();
   }
 
   onConnection(socket: SocketIO.Socket) {
@@ -65,22 +65,33 @@ class GameInstance {
     }
   }
 
-  startGame() {
-    for (var socket of this.sockets) {
-      let player = Game.addPlayer(this.game);
-      socket.on(SEND_FRAMES, (frames: InputFrame[]) => this.acceptFrames(frames, player.id));
-      socket.on('disconnect', () => this.onInGameDisconnection(player.id));
-      socket.emit(START_GAME, {
-        playerId: player.id,
-        gameState: this.game,
-      });
-      this.playerSockets.set(player.id, socket);
+  startGame() : number {
+    if (this.sockets.length >= Game.settings.minPlayers) {
+      for (var socket of this.sockets) {
+        let player = Game.addPlayer(this.game);
+        socket.on(SEND_FRAMES, (frames: InputFrame[]) => this.acceptFrames(frames, player.id));
+        socket.on('disconnect', () => this.onInGameDisconnection(player.id));
+        socket.emit(START_GAME, {
+          playerId: player.id,
+          gameState: this.game,
+        });
+        this.playerSockets.set(player.id, socket);
+      }
+      this.tick();
+    } else {
+      // Can't start a game with < min players
+      for (let s of this.sockets) {
+        s.emit(NEW_PLAYER_JOINED, this.sockets.length);
+      }
     }
-    this.tick();
+    return this.sockets.length;
   }
 
   onDisconnection(socket: SocketIO.Socket) {
     this.sockets.splice(this.sockets.indexOf(socket), 1);
+    for (let s of this.sockets) {
+      s.emit(NEW_PLAYER_JOINED, this.sockets.length);
+    }
   }
 
   onInGameDisconnection(playerId: string) {
