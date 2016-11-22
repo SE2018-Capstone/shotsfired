@@ -106,9 +106,7 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     };
 
     // Tell the controller that a frame has occured
-    if (!game.isFinished) {
-      this.props.onTick(input);
-    }
+    this.props.onTick(input);
     let { players, bullets } = game.entities;
 
     if (players[playerId]) {

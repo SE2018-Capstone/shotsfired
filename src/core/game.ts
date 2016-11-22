@@ -32,6 +32,7 @@ export interface GameState {
     maxPlayers: number;
   };
   isFinished: boolean;
+  winner: string;
 };
 
 export const WorldSize = { width: 960, height: 720 };
@@ -50,7 +51,8 @@ export class Game {
                   maxPlayers: Game.settings.maxPlayers },
       world: WorldSize,
       entities: { players: {}, bullets: {}, walls: defaultMap },
-      isFinished: false
+      isFinished: false,
+      winner: null,
     };
     return Object.assign(defaults, overrides) as GameState;
   }
@@ -68,7 +70,7 @@ export class Game {
     Object.keys(game.entities).forEach(entityType => {
       let entities = (game.entities as any)[entityType] as {[s: string]: EntityState};
       Object.keys(entities).forEach(id => {
-        if (!entities[id].alive) { delete entities[id]; }
+        if (!entities[id].alive && entityType !== 'players') { delete entities[id]; }
       });
     });
 
@@ -137,25 +139,26 @@ export class Game {
   }
 
   static setIsFinished(game: GameState) {
-    game.isFinished = _.size(_.filter(game.entities.players, p => p.alive)) === 1;
+    game.isFinished = !!game.winner || _.size(_.filter(game.entities.players, p => p.alive)) <= 1;
+    if (game.isFinished) { game.winner = game.winner || _.get(_.find(game.entities.players, p => p.alive), 'id', null); }
   }
 
   static getWinner(game: GameState) {
-    return _.find(game.entities.players, p => p.alive).id;
+    return game.winner;
   }
 
-  static addPlayer(state: GameState) {
+  static addPlayer(game: GameState) {
     let player = Player.init();
     let count = 0;
-    if (state.entities.players) {
-      count = Object.keys(state.entities.players).length;
+    if (game.entities.players) {
+      count = Object.keys(game.entities.players).length;
     }
     player.pos = MapCatalog[0].startPositions[count];
-    state.entities.players[player.id] = player;
+    game.entities.players[player.id] = player;
     return player;
   }
 
-  static removePlayer(state: GameState, playerId: string) {
-    delete state.entities.players[playerId];
+  static removePlayer(game: GameState, playerId: string) {
+    delete game.entities.players[playerId];
   }
 }
