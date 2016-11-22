@@ -1,8 +1,9 @@
-import { Player, PlayerState } from './player';
+import { Player, PlayerState, PlayerMovement } from './player';
 import { Bullet, BulletState } from './bullet';
 import { EntityState, Entity } from './entity';
-import { WallState, MapCatalog, Wall } from './wall';
+import { WallState, MapCatalog, Wall, BorderWalls } from './wall';
 import { Event } from './event';
+import * as _ from 'lodash';
 
 export interface InputFrame {
   left: boolean;
@@ -30,9 +31,12 @@ export interface GameState {
     minPlayers: number;
     maxPlayers: number;
   };
+  isFinished: boolean;
 };
 
-const defaultMap = MapCatalog[0].reduce((prev, wallData) => {
+export const WorldSize = { width: 960, height: 720 };
+
+const defaultMap = MapCatalog[0].walls.concat(BorderWalls(WorldSize)).reduce((prev, wallData) => {
   const wallEntity: WallState = Wall.init(wallData);
   (prev as any)[wallEntity.id] = wallEntity;
   return prev;
@@ -41,11 +45,12 @@ const defaultMap = MapCatalog[0].reduce((prev, wallData) => {
 export class Game {
   static settings = { minPlayers: 2, maxPlayers: 4 };
   static init(overrides: any = {}) {
-    const defaults: GameState = {
+    let defaults: GameState = {
       settings: { minPlayers: Game.settings.minPlayers,
                   maxPlayers: Game.settings.maxPlayers },
-      world: { width: 960, height: 720 },
+      world: WorldSize,
       entities: { players: {}, bullets: {}, walls: defaultMap },
+      isFinished: false
     };
     return Object.assign(defaults, overrides) as GameState;
   }
@@ -96,6 +101,7 @@ export class Game {
       Object.assign(list, (game.entities as any)[key]);
       return list;
     }, {});
+    let { walls, players }  = game.entities;
 
     events.forEach(event => {
       let sender = allEntities[event.initiator];
@@ -115,8 +121,27 @@ export class Game {
               break;
           }
           break;
+        case 'MOVEMENT':
+          if (sender) {
+            let movementData = event.data as PlayerMovement;
+            Player.move(sender as PlayerState, movementData.angle, movementData.xVel, movementData.yVel);
+            let foundCollision = !!_.find(walls, wall => Entity.colliding(sender, wall))
+                  || !!_.find(players, (player, playerId) => Entity.colliding(sender, player) && sender.id !== playerId);
+            if (foundCollision) {
+              Player.move(sender as PlayerState, movementData.angle, movementData.xVel*-1, movementData.yVel*-1);
+            }
+          }
+          break;
       }
     });
+  }
+
+  static setIsFinished(game: GameState) {
+    game.isFinished = _.size(_.filter(game.entities.players, p => p.alive)) === 1;
+  }
+
+  static getWinner(game: GameState) {
+    return _.find(game.entities.players, p => p.alive).id;
   }
 
   static addPlayer(state: GameState) {
@@ -125,14 +150,7 @@ export class Game {
     if (state.entities.players) {
       count = Object.keys(state.entities.players).length;
     }
-    player.pos.x = state.world.width / 4;
-    if ( (count + 1) % 2 === 0) {
-      player.pos.x = player.pos.x + state.world.width / 2;
-    }
-    player.pos.y = state.world.height / 4;
-    if (count > 1) {
-      player.pos.y = player.pos.y + state.world.height/2;
-    }
+    player.pos = MapCatalog[0].startPositions[count];
     state.entities.players[player.id] = player;
     return player;
   }

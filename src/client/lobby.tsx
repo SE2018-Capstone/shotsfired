@@ -5,6 +5,8 @@ import { Game } from '../core/game';
 interface LobbyProps {
   numPlayersInLobby: number;
   maxCountdownTime: number;
+  gameCode: string;
+  isPrivateLobby: boolean
 }
 
 interface LobbyState {
@@ -16,7 +18,7 @@ export class Lobby extends React.Component<LobbyProps, LobbyState> {
 
   constructor(props: LobbyProps) {
     super(props);
-    this.state = { countdownTime: this.props.maxCountdownTime };
+    this.state = { countdownTime: this.props.maxCountdownTime / 1000 };
   }
 
   updateCountdown(time: number) {
@@ -28,8 +30,8 @@ export class Lobby extends React.Component<LobbyProps, LobbyState> {
     }
   }
 
-  resetTimer() {
-    if (this.countdownTimer != null) {
+  clearTimer() {
+    if (this.countdownTimer !== null) {
       clearTimeout(this.countdownTimer);
     }
     this.countdownTimer = null;
@@ -38,24 +40,33 @@ export class Lobby extends React.Component<LobbyProps, LobbyState> {
   //TODO have the server send time remaining updates to the client
   componentWillReceiveProps(nextProps: LobbyProps) {
     if (nextProps.numPlayersInLobby !== this.props.numPlayersInLobby) {
-      this.resetTimer();
+      this.clearTimer();
       if (nextProps.numPlayersInLobby >= Game.settings.minPlayers &&
-        nextProps.numPlayersInLobby < Game.settings.maxPlayers) {
+        nextProps.numPlayersInLobby < Game.settings.maxPlayers && !nextProps.isPrivateLobby) {
 
-        this.updateCountdown(this.props.maxCountdownTime);
+        this.updateCountdown(this.props.maxCountdownTime/1000);
       }
     }
   }
 
+  componentWillUnmount() {
+    this.clearTimer();
+  }
+
   render() {
     const moreThanOnePlayer = (this.props.numPlayersInLobby > 1);
+    const timeDisplay = (moreThanOnePlayer && !this.props.isPrivateLobby) ? this.state.countdownTime : "";
+    let urlText:any = "";
+    if (this.props.isPrivateLobby) {
+      urlText = (<h3> Shareable URL: {window.location.origin}/game/{this.props.gameCode} </h3>);
+    }
     return (
       <div style={{textAlign: 'center'}} >
-        <h2>
-          Waiting for more players to join... {(moreThanOnePlayer) ? this.state.countdownTime : ""}
-        </h2>
+        <h2> Waiting for more players to join... {timeDisplay} </h2>
         <br/>
         Currently {this.props.numPlayersInLobby} player{(moreThanOnePlayer) ? "s" : ""} in the lobby
+        <br/>
+        {urlText}
       </div>
     );
   }

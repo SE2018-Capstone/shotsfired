@@ -11,7 +11,7 @@ import { WallSprite } from '../core/wall';
   The game object parameter should not be modified directly at any point in this class
 */
 
-const CAMERA_WIDTH: number = null;
+const CAMERA_WIDTH: number = 760;
 const CAMERA_HEIGHT: number = null;
 
 export interface GameCanvasProps {
@@ -106,7 +106,9 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     };
 
     // Tell the controller that a frame has occured
-    this.props.onTick(input);
+    if (!game.isFinished) {
+      this.props.onTick(input);
+    }
     let { players, bullets } = game.entities;
 
     if (players[playerId]) {

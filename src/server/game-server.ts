@@ -57,7 +57,7 @@ class GameInstance {
   addPlayer(socket: SocketIO.Socket) {
     this.sockets.push(socket);
     socket.on('disconnect', () => this.onDisconnection(socket));
-    if (this.sockets.length == Game.settings.maxPlayers) {
+    if (this.sockets.length === Game.settings.maxPlayers) {
       this.startGame();
     }
     for (let s of this.sockets) {

@@ -1,9 +1,8 @@
 import * as express from 'express';
 import { Server }  from 'http';
-import { Worker } from 'cluster';
 import { GameServer } from './game-server';
 import { Game } from '../core/game';
-import { GAME_LOBBY_COUNTDOWN, GAME_CODE_LENGTH } from './server-interface'
+import { GAME_LOBBY_COUNTDOWN, GAME_CODE_LENGTH } from './server-interface';
 
 export class LobbyServer {
   server: Server;
@@ -22,10 +21,10 @@ export class LobbyServer {
 
   // Returns new lobby's hashcode
   createNewLobby() : string {
-    const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+    const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
     let code = "";
     for (let i = 0; i < GAME_CODE_LENGTH; i++) {
-      code += alphabet[Math.floor(Math.random()*alphabet.length)]
+      code += alphabet[Math.floor(Math.random()*alphabet.length)];
     }
     return code;
   }
@@ -35,23 +34,22 @@ export class LobbyServer {
     console.log("Players waiting for random game to start: ", this.playersInRandLobby);
 
     this.resetTimer();
-    if (this.playersInRandLobby == Game.settings.maxPlayers) {
+    res.setHeader('Content-Type', 'application/json');
+    res.send({gameCode: this.currentRandLobby});
+    if (this.playersInRandLobby === Game.settings.maxPlayers) {
       this.refreshRandGame();
     } else if (this.playersInRandLobby >= Game.settings.minPlayers) {
       this.gameStartTimer = setTimeout(this.startRandGamePrematurely.bind(this), GAME_LOBBY_COUNTDOWN);
     }
-
-    res.setHeader('Content-Type', 'application/json');
-    res.send({gameCode: this.currentRandLobby});
   }
 
   createPrivate(req: express.Request, res: express.Response) {
     res.setHeader('Content-Type', 'application/json');
     res.send({gameCode: this.createNewLobby()});
   }
-  
+
   resetTimer() {
-      if (this.gameStartTimer != null) {
+      if (this.gameStartTimer !== null) {
         clearTimeout(this.gameStartTimer);
       }
       this.gameStartTimer = null;
@@ -62,7 +60,7 @@ export class LobbyServer {
     this.currentRandLobby = this.createNewLobby();
     this.playersInRandLobby = 0;
   }
-  
+
   startRandGamePrematurely() {
     this.gameServer.startGame(this.currentRandLobby);
     this.refreshRandGame();

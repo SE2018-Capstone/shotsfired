@@ -1,6 +1,5 @@
-import { EntityState, Entity } from './entity'
-import { Game, GameState, InputFrame }  from './game'
-import { EventFactory, Event } from './event'
+import { EntityState, Entity } from './entity';
+import { GameState }  from './game';
 import { Player, PlayerState, OFFSET } from './player';
 import { Vec } from './vector';
 
@@ -40,6 +39,9 @@ export class Bullet extends Entity {
           Player.takeDamage(other as PlayerState, bullet.damage);
           bullet.alive = false;
         }
+        break;
+      case 'wall':
+        bullet.alive = false;
         break;
     }
   }
