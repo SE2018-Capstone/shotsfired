@@ -30,7 +30,7 @@ export class Lobby extends React.Component<LobbyProps, LobbyState> {
     }
   }
 
-  resetTimer() {
+  clearTimer() {
     if (this.countdownTimer != null) {
       clearTimeout(this.countdownTimer);
     }
@@ -40,13 +40,17 @@ export class Lobby extends React.Component<LobbyProps, LobbyState> {
   //TODO have the server send time remaining updates to the client
   componentWillReceiveProps(nextProps: LobbyProps) {
     if (nextProps.numPlayersInLobby !== this.props.numPlayersInLobby) {
-      this.resetTimer();
+      this.clearTimer();
       if (nextProps.numPlayersInLobby >= Game.settings.minPlayers &&
         nextProps.numPlayersInLobby < Game.settings.maxPlayers && !nextProps.isPrivateLobby) {
 
         this.updateCountdown(this.props.maxCountdownTime);
       }
     }
+  }
+
+  componentWillUnmount() {
+    this.clearTimer();
   }
 
   render() {

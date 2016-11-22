@@ -35,14 +35,13 @@ export class LobbyServer {
     console.log("Players waiting for random game to start: ", this.playersInRandLobby);
 
     this.resetTimer();
+    res.setHeader('Content-Type', 'application/json');
+    res.send({gameCode: this.currentRandLobby});
     if (this.playersInRandLobby == Game.settings.maxPlayers) {
       this.refreshRandGame();
     } else if (this.playersInRandLobby >= Game.settings.minPlayers) {
       this.gameStartTimer = setTimeout(this.startRandGamePrematurely.bind(this), GAME_LOBBY_COUNTDOWN);
     }
-
-    res.setHeader('Content-Type', 'application/json');
-    res.send({gameCode: this.currentRandLobby});
   }
 
   createPrivate(req: express.Request, res: express.Response) {

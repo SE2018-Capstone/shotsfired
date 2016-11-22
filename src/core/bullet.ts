@@ -41,6 +41,9 @@ export class Bullet extends Entity {
           bullet.alive = false;
         }
         break;
+      case 'wall':
+        bullet.alive = false; 
+        break;
     }
   }
 

@@ -32,7 +32,7 @@ number of players have entered the lobby, or at least the minimum number of play
 have entered the lobby and a time limit has been reached.\\
 
 With respect to the first user scenario, a user is presented with a splash screen.
-They then click the "Private Match" button to start a new private game that they
+They then click the ``Private Match" button to start a new private game that they
 can play with friends. The first person to create the private match will be presented
 with a screen that shows a URL that they can provide to their friends. When someone
 goes to this URL, they will be entered into the lobby. In this mode,
@@ -40,32 +40,31 @@ there needs to be 4 players in the lobby in order to start the game. Once there 
 people in the lobby, the gameplay will commence.\\
 
 With regards to the second user scenario, the user is presented with the same splash
-screen. They then click the "Quick Play" button to join the lobby for a game with
+screen. They then click the ``Quick Play" button to join the lobby for a game with
 random users who also wish to play this mode. Once there are at least 2 people in the
 lobby, a 5 second countdown starts. Each time a person joins the lobby, the countdown
 is restarted. Once the maximum number of players (4) have joined, or the countdown hits
 0 when there are more than the minimum number of players (2), the game will start.\\
 
 In both game modes, the gameplay is the same. Each person is given a character sprite
-and is placed on one corner of the map. The character has unlimited ammo and ?? lives.
-That being said, the character can be hit ?? number of times before they are eliminated
+and is placed on one corner of the map. The character has unlimited ammo and a finite number of lives.
+That being said, the character can be hit that finite number of times before they are eliminated
 from the game. Once there is only 1 character remaining, the game is over and all users
 are presented with a game over screen.\\
 
 The user who won will see a slightly modified screen, congratulating them for being
 the winner, whereas everyone else will see a game over screen. In both screens,
-the user is presented with the option to begin a rematch or go to the main menu.
-WILL UPDATE ONCE GAMEOVER FUNCTIONALITY CONFIRMED
+the user is presented with an option to go to the main menu.
 
 
 \section{Status Report}
 \hspace*{5mm}
 Our app currently contains most of the functionality we specified in our original
 proposal. Right now, a user has the option to play a game with friends through the
-"Private Match" option and they have the option to play with random people using
-the "Quick Play" option. This accounts for our requirement of a user being able to
-join a matched game (through the "Quick Play" option) and for a user being able to play
-with known people in an isolated environment (through the "Private Match" option).\\
+``Private Match" option and they have the option to play with random people using
+the ``Quick Play" option. This accounts for our requirement of a user being able to
+join a matched game (through the ``Quick Play" option) and for a user being able to play
+with known people in an isolated environment (through the ``Private Match" option).\\
 
 Our app conforms to the 2D arena style game that we proposed where human players will
 have their own character and must navigate through a 2D map. In terms of the player
@@ -76,20 +75,31 @@ on the mouse. The player movement agrees with the movement requirements that we 
 in the proposal.\\
 
 In terms of restrictions
-to the user, we currently have each character set up such that they have ?? amount of
+to the user, we currently have each character set up such that they have a finite amount of
 health and every player starts off with this amount of health. Each character also
 has a weapon with infinite ammo, meaning that the user can just keep shooting without
 having to worry about anything happening to the gun or bullets. Each of these restrictions
 were specified in the style of game that we had in the proposal.\\
 
-At the end of the game, the user is then presented with an option to play a rematch or
-go back to the main menu.
-CONFIRM ONCE GAME OVER FUNCTIONALITY DONE\\
+Our app is also able to support running multiple instances of the game at once. This satsifies
+the functional requirement of the application being able to run multiple simultaneous games.\\
 
-CAN HANDLE MULTIPLE SIMULTANEOUS GAMES??\\
+With respect to the non-functional requirements that we specified in our proposal, we had
+mentioned being able to have good performance, usability, simplicity and compatibility.
+Our app is compatible with Chrome 52+ as mentioned in the requirement so this is satisfied.
+It's also very easy to join a game, be it a Quick Play or Private Match and the controls are
+simple to use by just having the 4 keyboard keys plus the mouse. This satsifies usability and
+simplicity respectively. In terms of performance, the app runs relatively well. Having more
+games run simultaneously does hurt this performance however as it puts a strain on the server.\\
 
-UNIMPLEMENTED FUNCTIONALITY??\\
-TALK ABOUT NON-FUNCTIONAL PROPERTIES??\\
+We did experience some difficulties while working on this app. One issue was with respect to
+client/server synchronization and making sure that client inputs reach the server and the server
+is able to update all the other clients in a timely manner without major lag. Another issue
+was with respect to the use of socket connections with SocketIO and the difficulty of obtaining
+information through their documentation. A last issue was with regards to deployment. It was
+hard to deploy this app as deployment servers want to run their own commands on the repo instead
+of the commands that we wish for the server to run. These were some of the difficulties that
+we encountered while working on our application.
 
 
 \end{document}
