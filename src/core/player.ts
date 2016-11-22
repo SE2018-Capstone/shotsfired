@@ -14,7 +14,10 @@ export interface PlayerMovement {
   yVel: number;
 }
 
-export const OFFSET = 15;
+export const GUNPOINT_OFFSETS = {
+  center: { x: 9, y: 9 },
+  distance: { x: 17, y: 10 },
+};
 const INPUT_VEL = 200;
 export class Player extends Entity {
   static init(overrides: any = {}) {

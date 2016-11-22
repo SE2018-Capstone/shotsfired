@@ -5,6 +5,7 @@ import * as Phaser from 'phaser';
 import * as _ from 'lodash';
 import { GameState, InputFrame, Game } from '../core/game';
 import { WallSprite } from '../core/wall';
+import { Vec } from '../core/vector';
 
 /*
   This class is the "View" class which uses Phaser for input commands and output visuals.
@@ -109,7 +110,7 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
     this.props.onTick(input);
     let { players, bullets } = game.entities;
 
-    if (players[playerId]) {
+    if (players[playerId] && players[playerId].alive) {
       const playerState = game.entities.players[playerId];
       player.x = playerState.pos.x;
       player.y = playerState.pos.y;
@@ -122,7 +123,7 @@ export class GameCanvas extends React.Component<GameCanvasProps, {}> {
 
     // TODO: Make this cleaner
     let i = 0;
-    Object.keys(players).filter(id => id !== playerId).forEach(id => {
+    Object.keys(players).filter(id => id !== playerId && players[id].alive).forEach(id => {
       let player = players[id];
       let enemy = this.enemies[i++];
       enemy.exists = true;
