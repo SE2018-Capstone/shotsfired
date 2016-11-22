@@ -123,27 +123,13 @@ export class Game {
   }
 
   static isFinished(game: GameState) {
-    const players = game.entities.players;
-    let playersAlive = Object.keys(players).length;
-
-    _.forEach(players, (player) => {
-      if (!player.alive) {
-        playersAlive--;
-      }
-    });
-    return (playersAlive === 1);
+    //leaving member variable isFinished since calling function in game-canvas returns true for player 1 at start
+    game.isFinished = _.size(_.filter(game.entities.players, p => p.alive)) === 1;
+    return game.isFinished;
   }
 
   static getWinner(game: GameState) {
-    const players = game.entities.players;
-    let winner = "";
-    _.forEach(players, (player) => {
-      if (player.alive) {
-        winner = player.id;
-      }
-    });
-    game.isFinished = true;
-    return winner;
+    return _.find(game.entities.players, p => p.alive).id;
   }
 
   static addPlayer(state: GameState) {

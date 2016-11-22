@@ -9,9 +9,9 @@ export class ClientController {
   socket: SocketIOClient.Socket;
   serverUpdate: StatePayload | null = null;
   unsyncedFrames: InputFrame[] = []; // Frames that the server copy does not include yet
-  onGameFinished: (s: string) => void;
+  onGameFinished: () => void;
 
-  constructor(game: GameState, socket: SocketIOClient.Socket, onGameFinished: (s: string) => void) {
+  constructor(game: GameState, socket: SocketIOClient.Socket, onGameFinished: () => void) {
     this.game = game;
     this.socket = socket;
     this.socket.on(SEND_STATE_UPDATE, this.receiveServerUpdate.bind(this));
@@ -47,7 +47,7 @@ export class ClientController {
     Game.resolveEvents(this.game, events);
 
     if (Game.isFinished(this.game)) {
-      this.onGameFinished(Game.getWinner(this.game));
+      this.onGameFinished();
     }
   }
 

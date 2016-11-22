@@ -2,7 +2,6 @@ import * as React from 'react';
 
 interface GameOverProps {
   isWinner: boolean;
-  maxCountdownTime: number;
   // onPlayAgain: () => void;
   onBackToMainMenu: () => void;
 }
@@ -10,6 +9,7 @@ interface GameOverState {
   countdownTime: number;
 }
 
+const GAMEOVER_COUNTDOWN_TIME = 10;
 export class GameOver extends React.Component<GameOverProps, GameOverState> {
   countdownTimer: number;
 
@@ -17,21 +17,21 @@ export class GameOver extends React.Component<GameOverProps, GameOverState> {
     super(props);
 
     //not really necessary for just going back to main menu, but would be if rematch was an option
-    this.state = {countdownTime: this.props.maxCountdownTime};
-    this.countdownTimer = setTimeout(this.updateCountdown.bind(this), 1000, this.state.countdownTime - 1);
+    this.state = {countdownTime: GAMEOVER_COUNTDOWN_TIME};
+    this.countdownTimer = setTimeout(this.updateCountdown.bind(this), 1000);
   }
 
-  updateCountdown(time: number) {
-    this.setState({countdownTime: time});
-    if (time - 1 >= 0) {
-      this.countdownTimer = setTimeout(this.updateCountdown.bind(this), 1000, time - 1);
-    }
-    else {
-      this.goToMainMenu();
-    }
+  updateCountdown() {
+    this.setState({countdownTime: this.state.countdownTime - 1}, () => {
+      if (this.state.countdownTime - 1 >= 0) {
+        this.countdownTimer = setTimeout(this.updateCountdown.bind(this), 1000)
+      } else {
+        this.goToMainMenu();
+      }
+    });
   }
 
-  resetTimer() {
+  clearTimer() {
     if (this.countdownTimer != null) {
       clearTimeout(this.countdownTimer);
     }
@@ -39,18 +39,13 @@ export class GameOver extends React.Component<GameOverProps, GameOverState> {
   }
 
   goToMainMenu() {
-    this.resetTimer();
+    this.clearTimer();
     this.props.onBackToMainMenu();
   }
 
   render() {
-    let gameOverText = "";
-    if (this.props.isWinner) {
-      gameOverText = "Congratulations, you won!"
-    }
-    else {
-      gameOverText = "Game Over! Better luck next time..."
-    }
+    const gameOverText = this.props.isWinner ? "Congratulations, you won!"
+                                             : "Game Over! Better luck next time...";
     return (
       <div
         id="game-over-screen"
@@ -64,7 +59,7 @@ export class GameOver extends React.Component<GameOverProps, GameOverState> {
         <h1> {gameOverText} </h1>
         
         <div style={{paddingTop: 40, paddingBottom: 20}} >
-        Going back to main menu in... {this.state.countdownTime}
+        Returning to main menu in {this.state.countdownTime}
         </div>
 
         <button

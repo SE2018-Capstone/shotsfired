@@ -22,12 +22,10 @@ export class Main extends React.Component<{}, ClientState> {
   socket: SocketIOClient.Socket;
   gameToJoin: string;
   activePlayer: string;
-  isWinner: boolean;
 
   constructor() {
     super();
     this.gameState = Game.init();
-    this.isWinner = false;
     this.state = {
       stage: Stages.SPLASH,
       numPlayersInLobby: 0,
@@ -64,23 +62,21 @@ export class Main extends React.Component<{}, ClientState> {
   startGame(initialState: GameState, playerId: string) {
       this.gameState = initialState;
       this.activePlayer = playerId;
-      this.controller = new ClientController(this.gameState, this.socket, (winner: string) => {
-        this.socket.disconnect()
-        if (winner === this.activePlayer) {
-          this.isWinner = true;
-        }
-        this.setState({
-          stage: Stages.GAMEOVER
-        } as ClientState);
-      });
+      this.controller = new ClientController(this.gameState, this.socket, () => this.onGameFinishCallback());
       this.setState({
         stage: Stages.RUNNING
       } as ClientState);
   }
 
+  onGameFinishCallback() {
+    this.socket.disconnect()
+    this.setState({
+      stage: Stages.GAMEOVER
+    } as ClientState);
+  }
+
   goToMainMenu() {
     this.gameState = Game.init();
-    this.isWinner = false;
     this.activePlayer = "";
     this.controller = null;
     this.socket = null;
@@ -116,10 +112,10 @@ export class Main extends React.Component<{}, ClientState> {
           </div>
         );
       case Stages.GAMEOVER:
+        const isWinner = Game.getWinner(this.gameState) === this.activePlayer;
         return (
           <GameOver
-            isWinner={this.isWinner}
-            maxCountdownTime={10}
+            isWinner={isWinner}
             onBackToMainMenu={() => this.goToMainMenu()}
           />
         );
