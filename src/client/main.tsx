@@ -9,7 +9,7 @@ import { START_GAME, GAME_LOBBY_COUNTDOWN, NEW_PLAYER_JOINED } from '../server/s
 import { Mapper } from './mapper';
 import { Game } from '../core/game';
 
-enum Stages { MAPPER, SPLASH, LOADING, RUNNING };
+enum Stages { MAPPER, SPLASH, LOBBY, RUNNING };
 export interface ClientState {
   stage: Stages;
   numPlayersInLobby: number;
@@ -19,8 +19,9 @@ export class Main extends React.Component<{}, ClientState> {
   gameState: GameState;
   controller: ClientController;
   socket: SocketIOClient.Socket;
-  gameToJoin: string;
+  gameCode: string;
   activePlayer: string;
+  isPrivateGame: boolean;
 
   constructor() {
     super();
@@ -31,19 +32,21 @@ export class Main extends React.Component<{}, ClientState> {
     };
     let pathName = window.location.pathname;
     if (pathName.startsWith('/game/')) {
-      this.socketInit(pathName.substring(6));
-      this.state.stage = Stages.LOADING;
+      this.socketInit(pathName.substring(6), true);
+      this.state.stage = Stages.LOBBY;
     }
   }
 
   enterLobby() {
     this.setState({
-      stage: Stages.LOADING
+      stage: Stages.LOBBY
     } as ClientState);
   }
 
-  socketInit(gameCode: string) {
+  socketInit(gameCode: string, isPrivateGame: boolean) {
     console.log("GAMECODE: ", gameCode);
+    this.isPrivateGame = isPrivateGame;
+    this.gameCode = gameCode;
     this.socket = socketIo({query: 'gamecode='+gameCode});
     this.socket.on(START_GAME, (initialData: {playerId: string, gameState: GameState}) => {
       this.startGame(initialData.gameState, initialData.playerId);
@@ -54,7 +57,7 @@ export class Main extends React.Component<{}, ClientState> {
       } as ClientState);
     });
     this.setState({
-      stage: Stages.LOADING
+      stage: Stages.LOBBY
     } as ClientState);
   }
 
@@ -72,12 +75,18 @@ export class Main extends React.Component<{}, ClientState> {
       case Stages.MAPPER: // Allows construction of maps
         return <Mapper game={this.gameState}/>;
       case Stages.SPLASH:
-        return <Splash onConnectToLobby={(s:string) => this.socketInit(s)} onEnterLobby={() => this.enterLobby()} />;
-      case Stages.LOADING:
+        return (
+          <Splash
+            onConnectToLobby={(s:string, b:boolean) => this.socketInit(s,b)}
+            onEnterLobby={() => this.enterLobby()} />
+        );
+      case Stages.LOBBY:
         return (
           <Lobby
             numPlayersInLobby={this.state.numPlayersInLobby}
             maxCountdownTime={GAME_LOBBY_COUNTDOWN/1000}
+            gameCode={this.gameCode}
+            isPrivateLobby={this.isPrivateGame}
           />
         );
       case Stages.RUNNING:

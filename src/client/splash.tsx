@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 
 interface SplashProps {
   onEnterLobby: () => void;
-  onConnectToLobby: (s: string) => void;
+  onConnectToLobby: (s: string, b: boolean) => void;
 }
 
 export class Splash extends React.Component<SplashProps, {}> {
@@ -20,7 +20,7 @@ export class Splash extends React.Component<SplashProps, {}> {
     let currentUrl = window.location.origin;
     fetch(currentUrl+'/'+endpoint).then((response: any) => {
       response.json().then((json: any) => {
-        this.props.onConnectToLobby(json['gameCode']);
+        this.props.onConnectToLobby(json['gameCode'], endpoint === 'createPrivate');
       });
     });
     this.props.onEnterLobby();
