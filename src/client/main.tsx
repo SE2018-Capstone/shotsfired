@@ -8,8 +8,9 @@ import { Lobby } from './lobby'
 import { START_GAME, GAME_LOBBY_COUNTDOWN, NEW_PLAYER_JOINED } from '../server/server-interface'
 import { Mapper } from './mapper';
 import { Game } from '../core/game';
+import { GameOver } from './game-over'
 
-enum Stages { MAPPER, SPLASH, LOADING, RUNNING };
+enum Stages { MAPPER, SPLASH, LOADING, RUNNING, GAMEOVER };
 export interface ClientState {
   stage: Stages;
   numPlayersInLobby: number;
@@ -61,10 +62,29 @@ export class Main extends React.Component<{}, ClientState> {
   startGame(initialState: GameState, playerId: string) {
       this.gameState = initialState;
       this.activePlayer = playerId;
-      this.controller = new ClientController(this.gameState, this.socket);
+      this.controller = new ClientController(this.gameState, this.socket, () => this.onGameFinished());
       this.setState({
         stage: Stages.RUNNING
       } as ClientState);
+  }
+
+  onGameFinished() {
+    this.socket.disconnect()
+    this.setState({
+      stage: Stages.GAMEOVER
+    } as ClientState);
+  }
+
+  goToMainMenu() {
+    this.gameState = Game.init();
+    this.activePlayer = "";
+    this.controller = null;
+    this.socket = null;
+
+    this.setState({
+      stage: Stages.SPLASH,
+      numPlayersInLobby: 0
+    })
   }
 
   render() {
@@ -90,6 +110,14 @@ export class Main extends React.Component<{}, ClientState> {
               onTick={(input) => this.controller.update(input)}
             />
           </div>
+        );
+      case Stages.GAMEOVER:
+        const isWinner = Game.getWinner(this.gameState) === this.activePlayer;
+        return (
+          <GameOver
+            isWinner={isWinner}
+            onBackToMainMenu={() => this.goToMainMenu()}
+          />
         );
     }
   }

@@ -3,7 +3,7 @@ import { Bullet, BulletState } from './bullet';
 import { EntityState, Entity } from './entity';
 import { WallState, MapCatalog, Wall, WallSprite, BorderWalls } from './wall';
 import { Event } from './event';
-import * as _ from "lodash";
+import * as _ from 'lodash'
 
 export interface InputFrame {
   left: boolean;
@@ -31,6 +31,7 @@ export interface GameState {
     minPlayers: number;
     maxPlayers: number;
   };
+  isFinished: boolean;
 };
 
 export const WorldSize = { width: 960, height: 720 }
@@ -49,6 +50,7 @@ export class Game {
                   maxPlayers: Game.settings.maxPlayers },
       world: WorldSize,
       entities: { players: {}, bullets: {}, walls: defaultMap },
+      isFinished: false
     };
     return Object.assign(defaults, overrides) as GameState;
   }
@@ -132,6 +134,14 @@ export class Game {
           break;
       }
     });
+  }
+
+  static setIsFinished(game: GameState) {
+    game.isFinished = _.size(_.filter(game.entities.players, p => p.alive)) === 1;
+  }
+
+  static getWinner(game: GameState) {
+    return _.find(game.entities.players, p => p.alive).id;
   }
 
   static addPlayer(state: GameState) {
