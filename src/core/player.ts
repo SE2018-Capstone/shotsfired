@@ -48,9 +48,9 @@ export class Player extends Entity {
       events.push(EventFactory.createEvent('MOVEMENT', player.id, null, {
         angle: input.angle,
         xVel: inputVel.x,
-        yVel: inputVel.y, 
+        yVel: inputVel.y,
       }));
-    } 
+    }
 
      // TODO: Investigate whether this Date.now business messes up with server
     if (input.fired && player.lastFire + player.gunCooldown < Date.now()) {
