@@ -1,6 +1,6 @@
 import { EntityState, Entity } from './entity';
 import { GameState }  from './game';
-import { Player, PlayerState, OFFSET } from './player';
+import { Player, PlayerState, GUNPOINT_OFFSETS } from './player';
 import { Vec } from './vector';
 
 export interface BulletState extends EntityState {
@@ -50,7 +50,11 @@ export class Bullet extends Entity {
     let base = Bullet.init();
     base.source = entity.id;
     let directionVector = Vec.direction(entity.orientation);
-    base.pos = {x: entity.pos.x + directionVector.x*OFFSET, y: entity.pos.y + directionVector.y*OFFSET};
+    let { center, distance } = GUNPOINT_OFFSETS;
+    base.pos = {
+      x: entity.pos.x + distance.x*directionVector.x - distance.y * directionVector.y - center.x,
+      y: entity.pos.y + distance.y*directionVector.y + distance.y * directionVector.x - center.y,
+    };
     base.vel = Vec.mul(directionVector, BULLET_SPEED);
     return base;
   }

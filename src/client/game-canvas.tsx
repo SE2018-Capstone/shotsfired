@@ -5,6 +5,7 @@ import * as Phaser from 'phaser';
 import * as _ from 'lodash';
 import { GameState, InputFrame, Game } from '../core/game';
 import { WallSprite } from '../core/wall';
+import { Vec } from '../core/vector';
 
 /*
   This class is the "View" class which uses Phaser for input commands and output visuals.
