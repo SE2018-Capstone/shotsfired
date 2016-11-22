@@ -56,10 +56,6 @@ export const MapCatalog = [{
     {pos: {x: 205, y: 470}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
     {pos: {x: 650, y: 505}, width: 140, height: 70, sprite: WallSprite.BUNKER_2x1_2},
     {pos: {x: 685, y: 110}, width: 70, height: 140, sprite: WallSprite.BUNKER_1x2_1},
-    {pos: {x: 0, y: 720}, width: 960, height: 50, sprite: WallSprite.BUNKER_2x1_2},
-    {pos: {x: 0, y: -50}, width: 960, height: 50, sprite: WallSprite.BUNKER_2x1_2},
-    {pos: {x: -50, y: 0}, width: 50, height: 720, sprite: WallSprite.BUNKER_2x1_2},
-    {pos: {x: 960, y: 0}, width: 50, height: 720, sprite: WallSprite.BUNKER_2x1_2},
   ],
   startPositions: [
     {x: 30, y: 30},
@@ -68,5 +64,16 @@ export const MapCatalog = [{
     {x: 930, y: 690},
   ]
 }];
+
+function BorderWalls(worldsize : any) {
+  return [
+    {pos: {x: 0, y: worldsize.height}, width: 960, height: 50, sprite: WallSprite.BUNKER_2x1_2},
+    {pos: {x: 0, y: -50}, width: 960, height: 50, sprite: WallSprite.BUNKER_2x1_2},
+    {pos: {x: -50, y: 0}, width: 50, height: 720, sprite: WallSprite.BUNKER_2x1_2},
+    {pos: {x: worldsize.width, y: 0}, width: 50, height: 720, sprite: WallSprite.BUNKER_2x1_2},
+  ];
+}
+
+export { BorderWalls };
 
  

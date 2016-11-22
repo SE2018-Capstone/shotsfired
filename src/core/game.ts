@@ -1,7 +1,7 @@
 import { Player, PlayerState, PlayerMovement } from './player';
 import { Bullet, BulletState } from './bullet';
 import { EntityState, Entity } from './entity';
-import { WallState, MapCatalog, Wall, WallSprite } from './wall';
+import { WallState, MapCatalog, Wall, WallSprite, BorderWalls } from './wall';
 import { Event } from './event';
 import * as _ from "lodash";
 
@@ -33,7 +33,9 @@ export interface GameState {
   };
 };
 
-const defaultMap = MapCatalog[0].walls.reduce((prev, wallData) => {
+export const WorldSize = { width: 960, height: 720 }
+
+const defaultMap = MapCatalog[0].walls.concat(BorderWalls(WorldSize)).reduce((prev, wallData) => {
   const wallEntity: WallState = Wall.init(wallData);
   (prev as any)[wallEntity.id] = wallEntity;
   return prev;
@@ -45,7 +47,7 @@ export class Game {
     let defaults: GameState = {
       settings: { minPlayers: Game.settings.minPlayers,
                   maxPlayers: Game.settings.maxPlayers },
-      world: { width: 960, height: 720 },
+      world: WorldSize,
       entities: { players: {}, bullets: {}, walls: defaultMap },
     };
     return Object.assign(defaults, overrides) as GameState;
@@ -103,7 +105,7 @@ export class Game {
       let sender = allEntities[event.initiator];
       let receiver = allEntities[event.receptor];
       switch(event.type) {
-        case 'COLLISION': 
+        case 'COLLISION':
           switch(sender.type) {
             case 'player': Player.collideWith(sender as PlayerState, receiver, game); break;
             case 'bullet': Bullet.collideWith(sender as BulletState, receiver, game); break;
@@ -121,16 +123,8 @@ export class Game {
           if (sender) {
             let movementData = event.data as PlayerMovement; 
             Player.move(sender as PlayerState, movementData.angle, movementData.xVel, movementData.yVel);
-            let foundCollision = _.find(walls, (value : any, key : any) => {
-              if (Entity.colliding(sender, value)) {
-                return true;
-              }
-            }) !== undefined;
-            foundCollision = foundCollision = _.find(players, (value : any, key : any) => {
-              if (Entity.colliding(sender, value) && sender.id !== key) {
-                return true;
-              }
-            }) !== undefined || foundCollision;
+            let foundCollision = !!_.find(walls, wall => Entity.colliding(sender, wall))
+                  || !!_.find(players, (player, playerId) => Entity.colliding(sender, player) && sender.id !== playerId);
             if (foundCollision) {
               Player.move(sender as PlayerState, movementData.angle, movementData.xVel*-1, movementData.yVel*-1);
             }
