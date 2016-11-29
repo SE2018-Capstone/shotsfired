@@ -1,0 +1,58 @@
+\documentclass[12pt]{report}
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+\usepackage{fullpage}
+\setlength{\parskip}{1em}
+\author{Shiranka Miskin, Sam Maier, Dhruv Lal, Addison Keizer}
+\title{Shots Fired - Architecture and Design}
+\begin{document}
+\maketitle
+
+\tableofcontents
+\chapter{Architecture}
+\section{Requirements}
+\subsection{Functional Requirements}
+\subsection{Non-functional Attributes}
+\section{Challenges}
+
+The main challenge that is shared amongst many games is that the complexity
+involved is much higher than most other types of applications that may only need
+to display information and handle simple interactivity.  Games such as ours must
+be able to handle multiple entities acting simultaneously, performing a variety
+of different tasks such as movement, performing actions like firing weapons, and
+having other entities be able to affect them such as being damaged.  Inputs
+through potentially multiple devices must be constantly polled and applied, and
+the game must be continually drawn and updated.
+
+This complexity is increased by a potentially large factor when online
+multiplayer is added. Now a single game must be synchronized between machines
+despite the significant delay between updates due to having to transmit data
+over an internet connection.  Significant effort was put into attempting
+different ways of dealing with this latency.
+
+Another challenge that applies to games more than it does to other applications
+is performance.  The entire game must be able to process the inputs, update the
+game, and display its results at a sufficient framerate to appear smooth to
+users, the standard target framerate being 60 frames per second.
+
+\section{Final Architecture}
+\subsection{Client/Server}
+There are multiple ways of solving the issue of synchronizing a game between
+multiple computers (which will be referred to as "clients") over a network.  The
+differences lie in what type of data is being transmitted from each client, and
+which machine has "authority" about what the true state of the game is.  One
+implementation would be to have each client run the game logic and send
+events of their actions to a server, which would then forward those actions to
+the other clients.  The issue with this type of implementation is that there is
+a question of what the "true" game state actually is, since there are simply
+multiple copies of it on multiple machines.  
+
+\subsection{Node.js, Typescript, and Phaser}
+\subsection{Blackboard}
+\subsection{Pipe and Filter}
+\subsection{Events}
+
+\chapter{Design}
+
+\end{document}
