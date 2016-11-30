@@ -9,7 +9,6 @@ const TICKS_PER_SECOND = 60;
 const DEV_DELAY = 0; // Delays the updates sent to clients to simulate slower connections
 export class GameServer {
   io: SocketIO.Server;
-  sockets: SocketIO.Socket[];
   activeGames: Map<string,GameInstance> = new Map<string,GameInstance>(); // String is unique hash given by lobby-server
 
   constructor(server: Server) {

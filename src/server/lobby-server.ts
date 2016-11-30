@@ -1,20 +1,15 @@
 import * as express from 'express';
-import { Server }  from 'http';
 import { GameServer } from './game-server';
 import { Game } from '../core/game';
 import { GAME_LOBBY_COUNTDOWN, GAME_CODE_LENGTH } from './server-interface';
 
 export class LobbyServer {
-  server: Server;
-  app: express.Express;
   gameStartTimer: number = null; // Timeout id
   playersInRandLobby: number = 0; // Number of players sitting in random lobby
   currentRandLobby: string; // Unique hash for lobby
   gameServer: GameServer;
 
-  constructor(server: Server, app: express.Express, gameServer: GameServer) {
-    this.app = app;
-    this.server = server;
+  constructor(gameServer: GameServer) {
     this.gameServer = gameServer;
     this.refreshRandGame();
   }

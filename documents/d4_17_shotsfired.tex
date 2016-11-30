@@ -1,0 +1,137 @@
+\documentclass[12pt]{report}
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+\usepackage{hyperref}
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+\usepackage{fullpage}
+\setlength{\parskip}{1em}
+\author{Shiranka Miskin, Sam Maier, Dhruv Lal, Addison Keizer}
+\title{Shots Fired - Architecture and Design}
+\begin{document}
+\maketitle
+
+\tableofcontents
+\chapter{Architecture}
+\section{Requirements}
+\subsection{Functional Requirements}
+\subsection{Non-functional Attributes}
+\section{Challenges}
+
+The main challenge that is shared amongst many games is that the complexity
+involved is much higher than most other types of applications that may only need
+to display information and handle simple interactivity.  Games such as ours must
+be able to handle multiple entities acting simultaneously, performing a variety
+of different tasks such as movement, performing actions like firing weapons, and
+having other entities be able to affect them such as being damaged.  Inputs
+through potentially multiple devices must be constantly polled and applied, and
+the game must be continually drawn and updated.
+
+This complexity is increased by a potentially large factor when online
+multiplayer is added. Now a single game must be synchronized between machines
+despite the significant delay between updates due to having to transmit data
+over an internet connection.  Significant effort was put into attempting
+different ways of dealing with this latency.
+
+Another challenge that applies to games more than it does to other applications
+is performance.  The entire game must be able to process the inputs, update the
+game, and display its results at a sufficient framerate to appear smooth to
+users, the standard target framerate being 60 frames per second.
+
+\section{Final Architecture}
+\subsection{Client/Server}
+There are multiple ways of solving the issue of synchronizing a game between
+multiple computers (which will be referred to as "clients") over a network.  The
+differences lie in what type of data is being transmitted from each client, and
+which machine has "authority" about what the true state of the game is.
+
+In Shots Fired, the server runs an entire copy of the game, which allows it to
+act as the "source of truth" to keep all clients in sync.  The only information
+that clients send to the server are their inputs, and then the server sends a
+master copy of the game state to all the clients.  This allows for two very
+important benefits, but has serious implications on the code.  To understand the
+benefits, consider a scenario where the server did not have to run the game
+logic, and it was only ran on the clients:  
+\begin{enumerate}
+    \item There is now the question of what the "true" state of the game is.
+        Due to latency being in the hundreds of miliseconds, there is no
+        guarantee that each client will process the game in exactly the same
+        way.  Small differences in each client's state can result in a
+        "butterfly effect", where each successive change simply increases just
+        how desynchronized the clients are.  A way to get around this while
+        still avoiding having to run the game on the server is to have one
+        computer act as the host, and their state is taken to be the true state
+        of the game.  The issue that arises here is the concept of "host
+        advantage", where the player acting as a host now has 0 latency, while
+        all other players have hundreds of miliseconds of latency.  
+    \item Since the clients are given a measure of authority on the game state,
+        it now becomes much easier to hack our game.  In order to run on
+        browsers, the game is written in JavaScript, which, due to it being a
+        scripted language and the debuggers that come built in to browsers, is
+        easier for a user to make changes to than with other environments.  A
+        player could theoretically simply send events to say "eliminate all
+        other players" and they would win.  This is impossible in our
+        architecture, as the only valid messages the server can process are
+        snapshots of user input, such as which buttons they are pressing.
+\end{enumerate}
+
+\subsection{Node.js and Typescript}
+One of the most significant implications of having to run the game logic on both
+the client and the server is that in order for the code to be shared, it must be
+able to be run on both platforms.  Since the game runs on the browser it must
+be ran on JavaScript, or a language which can compile to JavaScript.  The forces
+our choice of server technology to be Node.js, which allows servers to be
+developed using JavaScript.
+
+Significant effort was made to attempt a concurrent architecture on the server,
+however after numerous road blocks due to the details of Node, it was deemed
+to be infeasible.  JavaScript as a language is designed to be single threaded,
+and Node.js simply does not accomodate for communication and sharing between
+processes.
+
+Out of the many language options which compile to JavaScript, TypeScript was
+chosen in order to gain the many benefits of static type checking.  Being able
+to assert the types of objects was even more significant due to the use of the
+blackboard pattern.
+
+\subsection{Blackboard}
+In order to keep all clients in sync, the server must be able to send
+sufficient information on the game state over a websocket connection to the
+clients.  This data must therefore be serializable, and must be sent over at a fast
+enough rate, ideally 60 ticks per second just like the client, as to not allow
+discrepancies between clients to build up.  To accomodate this, Shots Fired
+implements a Blackboard style, where the entirety of the game state is stored in
+a single JavaScript object.  The server is then able to easily forward updates
+to the clients by simply sending this JavaScript object over, no potentially
+costly serialization or deserialization is necessary.
+
+There were other benefits of this architectural decision to store the game state in a
+single JavaScript object.  In order to have the client replace its state with
+the same state as the server, all that is necessary is to replace the value of
+the state variable in the client with the data received from the server.  Having
+it be a plain JavaScript object is also a great aid when it comes to debugging,
+as a simple \texttt{console.log(game)} call will output the entire object in an
+interactive and easily viewable format in the browser's debug menu.  It becomes
+incredibly simple to view the entire state of the app at some point in time and
+be able to figure out the cause of the issue at hand.
+
+\subsection{Pipe and Filter}
+Shots Fired involves multiple entities which need to undergo a various set of
+changes every frame of the game.  To process these in a structured manner, a
+pipe and filter approach was implemented.  These updates to a game were kept
+in strictly separate stages in order to reduce coupling between these
+functionalities.  The original game object would be passed through these stages
+to determine the state of the game for the next frame.
+
+\subsection{Events}
+In a game such as this, each entity may have various ways of affecting other
+entities, such as a bullet damaging a character or two character colliding.  In
+order to handle this very large number of possible interactions, an event-based
+approach was selected.  Game entities are not permitted to affect change in any
+other entities other than through events.  Once all individual updates are
+applied to every entity, the resulting events are applied afterwards in their
+own stage.  Entity interaction becomes strictly decoupled from any individual
+interactions such as simple movement physics.
+
+\chapter{Design}
+
+\end{document}

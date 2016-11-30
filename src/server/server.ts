@@ -18,7 +18,7 @@ server.listen(process.env.PORT || 3000, function () {
   console.log('Listening on port ', process.env.PORT || 3000);
 });
 
-let lobby = new LobbyServer(server, app, new GameServer(server));
+let lobby = new LobbyServer(new GameServer(server));
 app.get('/join', (req: express.Request, res: express.Response) => lobby.joinRandom(req,res));
 app.get('/createprivate', (req: express.Request, res: express.Response) => lobby.createPrivate(req,res));
 app.get(/game\/.+/, function (req: express.Request, res: express.Response) {
