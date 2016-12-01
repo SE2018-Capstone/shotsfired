@@ -12,9 +12,6 @@
 
 \tableofcontents
 \chapter{Architecture}
-\section{Requirements}
-\subsection{Functional Requirements}
-\subsection{Non-functional Attributes}
 \section{Challenges}
 
 The main challenge that is shared amongst many games is that the complexity
@@ -91,7 +88,7 @@ processes.
 Out of the many language options which compile to JavaScript, TypeScript was
 chosen in order to gain the many benefits of static type checking.  Being able
 to assert the types of objects was even more significant due to the use of the
-blackboard pattern.
+blackboard pattern. 
 
 \subsection{Blackboard}
 In order to keep all clients in sync, the server must be able to send
@@ -112,7 +109,8 @@ it be a plain JavaScript object is also a great aid when it comes to debugging,
 as a simple \texttt{console.log(game)} call will output the entire object in an
 interactive and easily viewable format in the browser's debug menu.  It becomes
 incredibly simple to view the entire state of the app at some point in time and
-be able to figure out the cause of the issue at hand.
+be able to figure out the cause of the issue at hand. Using typescript for type enforcement
+allowed us to implement the objects this way and still ensure code clarity. 
 
 \subsection{Pipe and Filter}
 Shots Fired involves multiple entities which need to undergo a various set of
@@ -132,6 +130,74 @@ applied to every entity, the resulting events are applied afterwards in their
 own stage.  Entity interaction becomes strictly decoupled from any individual
 interactions such as simple movement physics.
 
+\section{Requirements Results}
+We were able to support the fundamentals of both of our functional and non functional requirements. 
+\subsection{Functional Requirements}
+The described architecture above results in a system which supports our Functional Requirements. Most of our functional requirements revolve around the implementation details of our system. The chosen architecture supports these by allowing or some computation to be done in the server, and some in the client. It allows for games to remain synced by the Blackboard pattern, and it uses a modified pipe and filter to implement game details.  
+\subsection{Non-functional Attributes}
+The chosen architecture allows us to satisfy our nonfunctional requirements. Our performance, when run locally, is quite smooth, and our method of sending inputs to the server and having the server send back the master state allowed this to work. We had some performance issues when running on Heroku, but the Heroku server has 400 ping, which will severely impact any game. Within reason we therefore support the performance nonfunctional property. \\
+Our game is easy to join due to our architecture allowing for the matchmaking system as well as the system to send a URL to friends to join a custom game. In addition since we implement this as a web application it is also very easy because a prospective user simply has to visit our website and click one button and they will be able to play a game. \\
+The final two nonfunctional properties are not affected by architecture in particular, though we do support them nevertheless. Our game has a simple control scheme which satisfies the Simplicity nonfunctional property and we satisfied the Chrome 52+ requirement by ensuring we used supported javascript and polyfills if necessary in the build process.
+
+
 \chapter{Design}
+
+\section{Introduction}
+Our application has three main sections. The server, the client, and the shared core functionality of the game. Each sections design will be discussed in turn in the design section of this document. In each of these sections we will discuss our design, implementation, how we minimized coupling, increased cohesion and how the design connects to the architecture. 
+\section{Core -- Game Code}
+
+The core code is found in the \texttt{src/core} folder. This is where the different game models and entities are contained.
+
+
+The \texttt{Game} model is found in the \texttt{game.ts} file, and is the main interface of the Game component in the architecture diagram. When created, it initializes an object of type \texttt{GameState}. This object will contain everything about the game such as the game?s settings like the minimum and maximum number of players, the list of players, the list of bullets, and a boolean which corresponds to whether the game is done or not. All of the methods within \texttt{Game} are used to modify a \texttt{GameState} variable given in the parameters. These methods include \texttt{applyInputs}, \texttt{update} and \texttt{resolveEvents}. They are called by the \texttt{ClientController}'s update function and this is whenever the previously mentioned \texttt{onTick} function is called in the \texttt{phaserUpdate()}. They are also called by the \texttt{GameServer} so that the server can update its copy of the game. The game implements the \textit{Mediator} design pattern. It does this through events. Game entities (see below), generate events. The entities do not change each other, they propagate these events to the \texttt{Game} system and the \texttt{Game} handles any changes necessary. This drastically decreases coupling in the application, by removing responsibility to make changes to entities to one interface (note that entities can still change themselves). The \texttt{GameState} itself is a singleton, but is an appropriate use of a singleton because it is necessary for the game to function for the game state to be a singleton. We do not want multiple representations of the game every on a machine. The server and clients will each have their own true, but their communication is indirect. It is necessary for the \texttt{GameState} to be a singleton on its machine because the server must be able to update the entire game state, and making it one central objects makes this very easy and efficient. 
+
+
+The \texttt{Entity} model is a very important model in the core. An \texttt{Entity} represents anything can be seen visually in the game like players, bullets and walls. This class contains base methods for updating \texttt{EntityState} objects. These objects contain base properties like their position, velocity and ID. When creating a new object that should be displayed, that class should inherit from the \texttt{Entity} class and manage a state object that inherits from \texttt{EntityState}. This is so as to maintain the properties of a general entity as well as add any properties that may be specific to each new object type. This makes the game extensible since it is easy to add new entities into the game by just inheriting from the \texttt{Entity} class and \texttt{EntityState} object interface, and making sure to have an update function that calls \texttt{super.update} which references the \texttt{Entity.update} function. Currently there exists an entity class and state object for \texttt{Player}, \texttt{Bullet}, and \texttt{Wall}. The creation of each of these entities is done through the design pattern Building. The \texttt{Entity} class and its subclasses all define an \texttt{init()} function that is the Builder function for the entity interface, the \texttt{EntityState}. The \texttt{EntityState} is also a modified form of the Memento pattern, we externalize an objects internal state as an interface. This allows us to represent the internal state as purely JSON data, so when we perform updates on the clients representation it is easier to restore the state to the current server decided state. 
+
+
+The core method of allowing for interactions between objects is the \texttt{event.ts} file which contains a class called \texttt{EventFactory} and the interface for an \texttt{Event} object. This class is used to generate an \texttt{Event} object given the type of event, initiator, receiver, and additional data. This is critical since the major portions of the game are event based with respect to things like bullet collisions with players or bullet collisions with walls. Not every entity type needs to create events but collision is an example of a basic event that is handled in the \texttt{Entity.update} function itself. These events tie are part of the fabric of the implementation of the Memento pattern described above. 
+
+
+\section{Server}
+
+The server?s code is found in \texttt{src/server}. When we run \texttt{npm start}, we have a master server which is initialized in \texttt{server.ts}. This master server listens on some endpoints: \texttt{/}, which just serves our built frontend HTML and Javascript. \texttt{/join} and \texttt{/creategame} get forwarded to the \texttt{LobbyServer}, which provides the unique game URL to connect to. \texttt{/game/*} connects people to a specific game.
+Games are uniquely identified by a randomly generated string of characters - one might look like \texttt{by6qp}. The \texttt{LobbyServer} performs the work of routing people to an appropriate game (assigning each player one of these strings of characters). It keeps track of the current ?random? lobby (in \texttt{currentRandLobby}), so that when people choose to join the quick play match, it knows which game to route to. Once 4 people have joined that lobby, it generates a new game identifier, and makes it the \texttt{currentRandLobby}. If only 2 or 3 people have joined, it starts a countdown, and if that countdown hits zero, it calls \texttt{startGame()} on its \texttt{GameServer}.
+
+
+\texttt{GameServer} does not need to be 1:1 with \texttt{LobbyServer} - it was designed to be 1 \texttt{LobbyServer} to many \texttt{GameServers}, with each \texttt{GameServer} running on separate cores/machines to increase scalability and performance. However, due to issues with Node.js? very restrictive multi-process API, we could not get multiple \texttt{GameServers} running across different cores.
+
+
+\texttt{SocketIO::Socket} is a library class from SocketIO that we use for live communication from the server to the client. Each \texttt{GameInstance} stores 2-4 socket connections that is uses to communicate with the players.
+
+
+Each \texttt{GameServer} has some number of \texttt{GameInstances}. It spins up a new one whenever a new game ID is requested. This \texttt{GameInstance} keeps its own  \texttt{Core::GameState} model as well as a buffer of \texttt{Core::InputFrames}. When players send new \texttt{Core::InputFrames} to the server, it buffers the \texttt{Core::InputFrames} until it can apply them on its master copy of the server. It then periodically resends its master copy of \texttt{Core::GameState} to the clients. It treats everything in \texttt{Core} as a complete black box - we just get these objects call \texttt{Core::InputFrame}, we apply them to another object called \texttt{Core::GameInstance}, and send the resulting \texttt{GameInstance} to the clients.
+
+\section{Client}
+
+The client code is found in \texttt{src/client}. Here we have the code for the client UI as well as the controller which the client uses to communicate with the server. The file \texttt{main.tsx} acts as the state manager. Depending on the state, a different component will be rendered for the client?s display. The game starts out in the \texttt{SPLASH} state.
+
+
+The initial component is the \texttt{Splash} component. This component takes as input a function to connect to the lobby (\texttt{onConnectToLobby}) as well as a function to enter the lobby (\texttt{onEnterLobby}). This is the screen that contains the main menu. Here we see the name of the game, a brief description of the two game modes (Quick Play and Private Match), as well as the buttons to enter the lobbies for these game modes. When one of these buttons are clicked, the program will then either cause to user to join a random lobby, or allow them to make a private lobby that is only accessible to them. The state of \texttt{Main} gets changed to \texttt{LOBBY} regardless of the choice.
+
+
+Once in the \texttt{LOBBY} state, the component on display is \texttt{Lobby}. This component takes in the number of players in the lobby, the starting countdown time, the game code for the specific lobby as well as whether this lobby is private or not. There are represented by the parameters: \texttt{numPlayersInLobby}, \texttt{maxCountdownTime}, \texttt{gameCode}, and \texttt{isPrivateLobby} respectively. Here, a message is displayed to the user saying that you are waiting for more players to join. Once two or more people have entered the lobby, a countdown starts with \texttt{maxCountdownTime = 5000} milliseconds, which is displayed in seconds. As mentioned in the server section, once the countdown runs out or the maximum number of people have joined, the game will start. The state in \texttt{Main} changes to \texttt{RUNNING}.
+
+
+In this state, the \texttt{GameCanvas} component is now rendering. This component takes the game state, player ID and a periodic function that executes to update the game on the server, as input. These are given by the parameters: \texttt{game}, \texttt{playerId} and \texttt{onTick} respectively. \texttt{GameCanvas} is primarily Phaser based meaning that it contains functions that will allow it to re-render/update itself without anyone else telling the component to update. This is made possible by the \texttt{phaserPreload()}, \texttt{phaserCreate()}, \texttt{phaserUpdate()}, and \texttt{phaserRender()} functions. \texttt{phaserPreload()} is used to load all the necessary images and sprites. \texttt{phaserCreate()} initializes all the game entities and the map. \texttt{phaserUpdate()} is a periodic function that creates an \texttt{InputFrame} object with the user?s input and updates the UI for the user. The aforementioned \texttt{onTick} function is called here to update the game state that is on the server and get the latest game state from the server to display for the client. Once the gameplay has ended, \texttt{Main} will change to a \texttt{GAMEOVER} state.
+
+
+When in the \texttt{GAMOVER} state, the \texttt{GameOver} component will render. This component takes in the parameters: \texttt{isWinner} for if the user was the winner and \texttt{onBackToMainMenu} as a function to execute when the user should be returned to the main menu. Depending on the value of \texttt{isWinner}, the component displays different text. Both options however provide a button at the bottom to go back to the main menu which executes the \texttt{onBackToMainMenu} parameter function when pressed. There is also a countdown on the page that goes for 10 seconds. If the user has not exited the screen by then, the \texttt{onBackToMainMenu} function will automatically be called. Upon being brought back to the main menu, the state of \texttt{Main} changes back to \texttt{SPLASH} and this is one whole cycle of the game.
+
+
+One part of the client code that is not UI related, is the \texttt{ClientController}. This component is used to allow the client to interact with the server. It takes the game state, the user?s socket and a callback function to execute once the game is done. This is given by the parameters: \texttt{game: GameState}, \texttt{socket: SocketIOClient.Socket}, and \texttt{onGameFinished: () => void} respectively. In the \texttt{GameCanvas} component, it was mentioned that there was an \texttt{onTick} function as a parameter. The value of this was of \texttt{this.controller.update(input: InputFrame)}. That being said, the controller is what allows the user?s input frames to be sent to the server, and it is also what allows the client?s version of the game to be updated to the server copy of the game if the user?s copy is outdated. The controller also checks for when the game as finished. When the game is done, it then executes the \texttt{onGameFinished()} function it was given as a parameter.
+
+\chapter{Contributions}
+
+Shiranka Miskin: \\
+Sam Maier: \\
+Addison Keizer: \\
+Dhruv Lal: \\
+
+
 
 \end{document}
