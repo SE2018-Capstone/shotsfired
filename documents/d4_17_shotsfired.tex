@@ -200,10 +200,13 @@ We also use an Observer pattern in the server to track events. This is necessary
 
 \section{Client}
 
-The client code is found in \texttt{src/client}. Our system is structured similar to the MVC design pattern, where we have the View (our UI Client code), a ClientController class that operates the interaction between the backend and the UI and also controls the local game code. The model can be seen as the "true state" server that fixes what our local game state simulates. This allows us to easily separate the UI code from the Control code, allowing for a more robust code system. 
+The client code is found in \texttt{src/client}. Our system is structured similar to the MVP design pattern, where we have the presenter (our UI Client code), a ClientController class that operates the interaction between the backend and the UI and also controls the local game code (the view). The model can be seen as the "true state" server that fixes what our local game state simulates. This allows us to easily separate the UI code from the Control code, allowing for a more robust code system. 
 
-The UI code is run with React.js and uses their system of including HTML code as XML style markup in display classes. the \texttt{main.tsx} file handles the upper level will load different pages that may need to be loaded. Primary pages that may be loaded include the Lobby, and Game system. 
+The UI code is run with React.js and uses their system of including HTML code as XML style markup in display classes. the \texttt{main.tsx} file handles the upper level will load different pages that may need to be loaded. Primary pages that may be loaded include the Lobby, and Game system. To display the game, the UI uses a library called Phaser, which is used by the UI to display sprites, and handle react updates. Using this UI handler allowed us to focus on the multiplayer and game mechanic architecture. 
 
+The ClientController, is essentially the view in the MVP pattern. It has responsibility to run the local copy of the game state, one model, and interface with the master copy on the server, another model. It propagates updates back to the presenter, which is the UI layer that implements Phaser. 
+
+This implementation is has low coupling due to the separation of concerns and single responsibility principle of the MVP pattern, whereby the separation in to "View" and "Presenter" logic allows independent coding of display and functional requirements. 
 %Here we have the code for the client UI as well as the controller which the client uses to communicate with the server. The file \texttt{main.tsx} acts as the state manager. Depending on the state, a different component will be rendered for the client's display. The game starts out in the \texttt{SPLASH} state.
 
 
