@@ -30,9 +30,6 @@ export class Wall extends Entity {
     return events;
   }
 
-  static collideWith(wall: WallState, other: EntityState, game: GameState) {
-    return;
-  }
 
 }
 
