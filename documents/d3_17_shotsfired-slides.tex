@@ -4,6 +4,7 @@
 %\usetheme{Antibes}
 \usetheme{CambridgeUS}
 \usecolortheme{dolphin}
+\usepackage{varwidth}
 
 \title%[SE390] % (optional, only for long titles)
 {SE464 Project Deliverable 1 Presentation}
@@ -34,34 +35,18 @@
 %  \includegraphics[scale=0.06]{images/mockup.jpg}
 %  \end{center}
 \begin{enumerate}
-  \item Top-down arena style 2D multiplayer shooting game
+  \item Top-down arena style 2D online multiplayer shooting game
   \item Can easily join a game with friends (low barrier to entry)
   \item 2-4 player game played on separate machines connected online
-  \item Characters are controlled with Keyboard and Mouse
   \item When a player loses all their health they are out
   \item Last person standing wins!
 \end{enumerate}
 \end{frame}
 
 \begin{frame}
-\frametitle{Game Mode 1: Quick Play}
-\begin{enumerate}
-  \item Player clicks the 'Quick Play' option in the main menu
-  \item They are put in a lobby, waiting until more people have joined
-  \item Once there are at least 2 players in the lobby, a countdown starts
-  \item Countdown resets every time a new player joins the lobby
-  \item If the countdown reaches 0 or the max number of players (4) have joined, the game starts
-\end{enumerate}
-\end{frame}
-
-\begin{frame}
-\frametitle{Game Mode 2: Private Match}
-\begin{enumerate}
-  \item Player clicks the 'Private Match' option in the main menu
-  \item Display custom URL to join the game.
-  \item Other players enter the URL to join the private lobby
-  \item Once the lobby has 4 people, the game will start
-\end{enumerate}
+\frametitle{Game Screen Capture}
+\centering
+\includegraphics[scale=0.3]{images/gamescreenshot.png}
 \end{frame}
 
 \begin{frame}
@@ -92,6 +77,60 @@
 \end{enumerate}
 \end{frame}
 
+\begin{frame}
+\frametitle{Handling Game Operations}
+\begin{enumerate}
+  \item Various operations were split into stages, each modifying the game state
+    and passing it to the next stage, resembles pipe and filter
+    \begin{enumerate}
+      \item Apply game inputs
+      \item Handle any game object deletions
+      \item Update individual entities
+      \item Resolve interactions between entities
+    \end{enumerate}
+  \item Interactions between entities handled using events
+  \item Attempted a more functional approach, however mutability was still
+    allowed for performance reasons, as updates are made at 60 frames per
+    second.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Client Synchronization}
+\begin{enumerate}
+  \item Clients forward \textbf{only their inputs} to the server
+  \item Game continues to be simulated on the clients
+  \item Server collects inputs from all clients
+  \item Server applies inputs and updates
+  \item Server forwards the entire state of the game to clients (the game state
+    acts as a blackboard)
+  \item Clients re-sync on receiving the server copy
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Mitigating Latency Effects}
+\begin{enumerate}
+  \item The game state received by the server may be significantly delayed
+  \item The server copy is simulated up to the current time on the client
+  \item Inputs from the client which occured after the time of the server update
+    are reapplied
+
+\end{enumerate}
+  \centering
+  \includegraphics[scale=0.25]{images/csgo-lag-compensation.png}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Node.js Concurrency}
+\begin{enumerate}
+  \item Efforts were made to improve performance through concurrency, using
+    multiple cores
+  \item Problems due to JavaScript being single-threaded by design and Node.js having
+    poor multi-process support
+  \item Issues also arise with deployment due to only one port being allowed
+\end{enumerate}
+\end{frame}
 %\begin{frame}
 %\frametitle{Requirements}
 %\begin{enumerate}
@@ -103,34 +142,21 @@
 %\end{frame}
 
 \begin{frame}
-\frametitle{Major Challenges}
-\begin{enumerate}
-  \item Client/Server Synchronization
-\item Lag on client side
-\item Socket connections
-\item Allowing server to run multiple processes
-\item Deployment of a Node application
-\end{enumerate}
-\end{frame}
-
-\begin{frame}
 \frametitle{Overall Architecture}
+\centering
 \includegraphics[scale=0.4]{images/overall_architecture.png}
 \end{frame}
 
 \begin{frame}
 \frametitle{Server Architecture}
+\centering
 \includegraphics[scale=0.7]{images/ServerArchitecture.png}
 \end{frame}
 
 \begin{frame}
 \frametitle{Client Architecture}
+\centering
 \includegraphics[scale=0.4]{images/ClientArchitecture.png}
-\end{frame}
-
-\begin{frame}
-\frametitle{Game Screen Capture}
-\includegraphics[scale=0.3]{images/gamescreenshot.png}
 \end{frame}
 
 
