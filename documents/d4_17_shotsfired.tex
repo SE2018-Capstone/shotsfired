@@ -4,9 +4,11 @@
 \usepackage{hyperref}
 \usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
 \usepackage{fullpage}
+
 \setlength{\parskip}{1em}
-\author{Shiranka Miskin, Sam Maier, Dhruv Lal, Addison Keizer}
+\author{Shiranka Miskin, Sam Maier, Dhruv Lal, William (Addison) Keizer \\ Source Code Here: https://github.com/SE2018-Capstone/shotsfired}
 \title{Shots Fired - Architecture and Design}
+
 \begin{document}
 \maketitle
 
@@ -23,7 +25,7 @@ having other entities be able to affect them such as being damaged.  Inputs
 through potentially multiple devices must be constantly polled and applied, and
 the game must be continually drawn and updated.
 
-This complexity is increased by a potentially large factor when online
+This complexity is increased by a large factor when online
 multiplayer is added. Now a single game must be synchronized between machines
 despite the significant delay between updates due to having to transmit data
 over an internet connection.  Significant effort was put into attempting
@@ -118,32 +120,39 @@ changes every frame of the game.  To process these in a structured manner, a
 pipe and filter approach was implemented.  These updates to a game were kept
 in strictly separate stages in order to reduce coupling between these
 functionalities.  The original game object would be passed through these stages
-to determine the state of the game for the next frame.
+to determine the state of the game for the next frame. This was done using events
+and will be discussed further in the design portion of this report.
 
-\subsection{Events}
-In a game such as this, each entity may have various ways of affecting other
-entities, such as a bullet damaging a character or two character colliding.  In
-order to handle this very large number of possible interactions, an event-based
-approach was selected.  Game entities are not permitted to affect change in any
-other entities other than through events.  Once all individual updates are
-applied to every entity, the resulting events are applied afterwards in their
-own stage.  Entity interaction becomes strictly decoupled from any individual
-interactions such as simple movement physics.
+%\subsection{Events}
+%In a game such as this, each entity may have various ways of affecting other
+%entities, such as a bullet damaging a character or two character colliding.  In
+%order to handle this very large number of possible interactions, an event-based
+%approach was selected. Game entities are not permitted to affect change in any
+%other entities other than through events.  Once all individual updates are
+%applied to every entity, the resulting events are applied afterwards in their
+%own stage.  Entity interaction becomes strictly decoupled from any individual
+%interactions such as simple movement physics.
 
 \section{Diagrams}
 \subsection{Overall Architecture}
 Clients and server run same Game Logic \\
-\includegraphics[width=\linewidth]{images/overall_architecture.png}
+\includegraphics[width=\linewidth,height=5cm]{images/overall_architecture.png}
+
+\subsection{Server Side Architecture}
+\includegraphics[width=\linewidth,height=7cm]{images/betterServerArchitecture.png}
+
+\subsection{Client Side Architecture}
+\includegraphics[width=\linewidth,height=7cm]{images/ClientArchitecture.png}
 
 \subsection{Deployment Diagram}
-\includegraphics[]{images/deploy_diagram.png}
+\includegraphics[height=7cm]{images/deploy_diagram.png}
 
 \section{Requirements Results}
 We were able to support the fundamentals of both of our functional and non functional requirements. 
 \subsection{Functional Requirements}
 The described architecture above results in a system which supports our Functional Requirements. Most of our functional requirements revolve around the implementation details of our system. The chosen architecture supports these by allowing or some computation to be done in the server, and some in the client. It allows for games to remain synced by the Blackboard pattern, and it uses a modified pipe and filter to implement game details.  
 \subsection{Non-functional Attributes}
-The chosen architecture allows us to satisfy our nonfunctional requirements. Our performance, when run locally, is quite smooth, and our method of sending inputs to the server and having the server send back the master state allowed this to work. We had some performance issues when running on Heroku, but the Heroku server has 400 ping, which will severely impact any game. Within reason we therefore support the performance nonfunctional property. \\
+The chosen architecture allows us to satisfy our nonfunctional requirements. Our performance, when run locally, is quite smooth, and our method of sending inputs to the server and having the server send back the master state allowed this to work. We had some performance issues when running on Heroku, but the Heroku server has extremely variable ping which often gets quite high. This will severely impact any game. Within reason we therefore support the performance nonfunctional property. \\
 Our game is easy to join due to our architecture allowing for the matchmaking system as well as the system to send a URL to friends to join a custom game. In addition since we implement this as a web application it is also very easy because a prospective user simply has to visit our website and click one button and they will be able to play a game. \\
 The final two nonfunctional properties are not affected by architecture in particular, though we do support them nevertheless. Our game has a simple control scheme which satisfies the Simplicity nonfunctional property and we satisfied the Chrome 52+ requirement by ensuring we used supported javascript and polyfills if necessary in the build process.
 
@@ -151,22 +160,37 @@ The final two nonfunctional properties are not affected by architecture in parti
 \chapter{Design}
 
 \section{Introduction}
-Our application has three main sections. The server, the client, and the shared core functionality of the game. Each sections design will be discussed in turn in the design section of this document. In each of these sections we will discuss our design, implementation, how we minimized coupling, increased cohesion and how the design connects to the architecture. 
+Our application has three main sections. The server, the client, and the shared core functionality of the game. Each sections design will be discussed in turn in the design section of this document. A major part of the design in this application was our attempt to implement good Functional programming practices, whilst still using Design concepts from SE 464. Our emphasis on functional programming increases the coherence of our code, as most of our code is implement functionally.  
 \section{Core -- Game Code}
 
 The core code is found in the \texttt{src/core} folder. This is where the different game models and entities are contained. This code runs on both the client and the server. 
 
 
-The \texttt{Game} model is found in the \texttt{game.ts} file, and is the main interface of the Game component in the architecture diagram. When created, it initializes an object of type \texttt{GameState}. This object will contain everything about the game such as the game's settings like the minimum and maximum number of players, the list of players, the list of bullets, and a boolean which corresponds to whether the game is done or not. All of the methods within \texttt{Game} are used to modify a \texttt{GameState} variable given in the parameters. These methods include \texttt{applyInputs}, \texttt{update} and \texttt{resolveEvents}. They are called by the \texttt{ClientController}'s update function and this is whenever the previously mentioned \texttt{onTick} function is called in the \texttt{phaserUpdate()}. They are also called by the \texttt{GameServer} so that the server can update its copy of the game. The game implements the \textit{Mediator} design pattern. It does this through events. Game entities (see below), generate events. The entities do not change each other, they propagate these events to the \texttt{Game} system and the \texttt{Game} handles any changes necessary. This drastically decreases coupling in the application, by removing responsibility to make changes to entities to one interface (note that entities can still change themselves). The \texttt{GameState} itself is a singleton on the client, but is an appropriate use of a singleton because it is necessary for the game to function for the game state to be a singleton. We do not want multiple representations of the game on a client. Each client will each have its own true, but they have no interaction and are not run on the same machine. It is necessary for the \texttt{GameState} to be a singleton on its machine because the server must be able to update the entire game state, and making it one central objects makes this very easy and efficient. There is no need for multiple games on the same client. Furthermore internal to one GameInstance, there is no need for more then one game on the server. Having more would be necessary and would not happen. 
+The \texttt{Game} model is found in the \texttt{game.ts} file, and is the main interface of the Game component in the architecture diagram. When created, it initializes an object of type \texttt{GameState}. This object will contain everything about the game 
+%such as the game's settings like the minimum and maximum number of players, the list of players, the list of bullets, and a boolean which corresponds to whether the game is done or not. 
+All of the methods within \texttt{Game} are used to modify a \texttt{GameState} variable given in the parameters. 
+%These methods include \texttt{applyInputs}, \texttt{update} and \texttt{resolveEvents}. 
+%They are called by the \texttt{ClientController}'s update function and this is whenever the previously mentioned \texttt{onTick} function is called in the \texttt{phaserUpdate()}. They are also called by the \texttt{GameServer} so that the server can update its copy of the game. 
+The game display is updated at 60 fps. 
 
+The \texttt{GameState} itself is a singleton on the client, but is an appropriate use of a singleton because it is necessary for the game to function for the game state to be a singleton. We do not want multiple representations of the game on a client, and there is no possible case for the future where this would happen. Each client will have its own, but the clients never directly interact.
+It is necessary for the \texttt{GameState} to be a singleton on its machine because the server must be able to update the entire game state, and making it one central objects makes this very easy and efficient.
 
-The \texttt{Entity} model is a very important model in the core. An \texttt{Entity} represents anything can be seen visually in the game like players, bullets and walls. This class contains base methods for updating \texttt{EntityState} objects. These objects contain base properties like their position, velocity and ID. When creating a new object that should be displayed, that class should inherit from the \texttt{Entity} class and manage a state object that inherits from \texttt{EntityState}. This is so as to maintain the properties of a general entity as well as add any properties that may be specific to each new object type. This makes the game extensible since it is easy to add new entities into the game by just inheriting from the \texttt{Entity} class and \texttt{EntityState} object interface, and making sure to have an update function that calls \texttt{super.update} which references the \texttt{Entity.update} function. Currently there exists an entity class and state object for \texttt{Player}, \texttt{Bullet}, and \texttt{Wall}. The creation of each of these entities is done through the design pattern Building. The \texttt{Entity} class and its subclasses all define an \texttt{init()} function that is the Builder function for the entity interface, the \texttt{EntityState}. The \texttt{EntityState} is also a modified form of the Memento pattern, we externalize an objects internal state as an interface. This allows us to represent the internal state as purely JSON data, so when we perform updates on the clients representation it is easier to restore the state to the current server decided state.
+% The game implements the \textit{Mediator} design pattern. It does this through events. Game entities (see below), generate events. The entities do not change each other, they propagate these events to the \texttt{Game} system and the \texttt{Game} handles any changes necessary. This drastically decreases coupling in the application, by removing responsibility to make changes to entities to one interface (note that entities can still change themselves). 
 
-The core method of allowing for interactions between objects is the \texttt{event.ts} file which contains a class called \texttt{EventFactory} and the interface for an \texttt{Event} object. This class is used to generate an \texttt{Event} object given the type of event, initiator, receiver, and additional data. This is critical since the major portions of the game are event based with respect to things like bullet collisions with players or bullet collisions with walls. Not every entity type needs to create events but collision is an example of a basic event that is handled in the \texttt{Entity.update} function itself. These events tie are part of the fabric of the implementation of the Memento pattern described above. 
+%There is no need for multiple games on the same client. Furthermore internal to one GameInstance, there is no need for more then one game on the server. Having more would be unnecessary and would not happen. 
 
-The core algorithm of this system is the handling of events and interactions between entities. This was done as described above with the Pipe and Filter architecture where we take input, entities update themselves, entities generate events, we resolve events after all have been generated to ensure a consistent game state. This is done by the mediator \texttt{Game}.
+The \texttt{Entity} model is a very important class in the core. An \texttt{Entity} provides functions for anything that can be seen visually in the game like players, bullets and walls. This class contains base methods for updating \texttt{EntityState} objects. An \texttt{EntityState} contains information on the state of the entity. New Entity types should inherit from \texttt{Entity} for their class and \texttt{EntityState} for their data representation. This makes the game extensible since it is easy to add new entities into the game. The creation of a new data set (object) is done by a builder design pattern. The \texttt{Entity} class and its subclasses all define an \texttt{init()} function that is the builder function for the entity interface inheriting from \texttt{EntityState}. 
 
-This system ensures that it is extendable by adhering to the Single Responsibility principle by ensuring that each entity only changes itself, and the central resolver and dispatch necessary changes to the entities to change themselves. We also extensively use the Liskov Substitutability principle, and ensure that when an State object that inherits from EntityState is used, an EntityState could also be used there. This allows us greater reuse of methods. Our system is 
+The \texttt{EntityState} interface family is a modified form of the Memento pattern.The internal state data is externalized as a data interface permanently. This allows us to represent the internal state as purely JSON data, so when we perform updates on the clients representation it is easy and efficient to restore the state to the current server decided state while simultaneously ensuring proper type checking. 
+
+Entities, as a result single responsibility principle, can only modify a state of their own type. This leads to the necessity of handling interactions between entities. This is done through events in the  \texttt{event.ts} file. Events are created from the \texttt{EventFactory} and the interface for an \texttt{Event} object. This builder pattern, is used to generate an \texttt{Event} object containing necessary information which will be returned by an entity upon updating if necessary.
+
+The \texttt{Game} class collects these events and reconciles all entities and ensure a coherent resultant game state. This is an example of the \textit{Mediator} design pattern. This drastically reduces coupling and increases coherence by making the computation sequential and ensuring that entities can only change their own type (Single Responsibility Principle). This part of the system is the Pipe and Filter architecture described above. 
+
+Another design consideration was adhering to the Liskov Substitutability principle to ensure that when an State object that inherits from EntityState is used, an EntityState could also be used. This allows us greater reuse of methods. If more specific information is needed, those changes should happen inside the class that is the same type as the state.
+
+Our system is very extensible. It can handle additions of any number of new game objects types. All it requires is adding a new state type and extending the correct classes. Alternate designs without the event system were considered. The event system was selected over not doing it to ensure an extensible system through reduced coupling. 
 
 \subsection{Diagram of Entities}
 This describes the inheritance relationship of the entities. It is easy to extend as you just have to inherit from entity.\\
@@ -174,7 +198,7 @@ This describes the inheritance relationship of the entities. It is easy to exten
 
 \subsection{State Relation Diagram}
 Describes the Date Object interfaces used by the classes in Typescript. \\
-\includegraphics[width=\linewidth]{images/data_objects.png}
+\includegraphics[width=\linewidth,height=5cm]{images/data_objects.png}
 
 
 \section{Server}
@@ -183,7 +207,7 @@ The server's code is found in \texttt{src/server}. When we run \texttt{npm start
 Games are uniquely identified by a randomly generated string of characters - one might look like \texttt{by6qp}. The \texttt{LobbyServer} performs the work of routing people to an appropriate game (assigning each player one of these strings of characters). It keeps track of the current lobby (in \texttt{currentRandLobby}), so that when people choose to join the quick play match, it knows which game to route to. Once 4 people have joined that lobby, it generates a new game identifier, and makes it the \texttt{currentRandLobby}. If only 2 or 3 people have joined, it starts a countdown, and if that countdown hits zero, it calls \texttt{startGame()} on its \texttt{GameServer}.
 
 
-\texttt{GameServer} does not need to be 1:1 with \texttt{LobbyServer} - it was designed to be 1 \texttt{LobbyServer} to many \texttt{GameServers}, with each \texttt{GameServer} running on separate cores/machines to increase scalability and performance. However, due to issues with Node.js's very restrictive multi-process API, we could not get multiple \texttt{GameServers} running across different cores.
+\texttt{GameServer} does not need to be 1:1 with \texttt{LobbyServer} - it was designed to be 1 \texttt{LobbyServer} to many \texttt{GameServers}, with each \texttt{GameServer} running on separate cores/machines to increase scalability and performance. We considered an alternate design where we used more concurrency, however, due to issues with Node.js's very restrictive multi-process API, we could not get multiple \texttt{GameServers} running across different cores.
 
 
 \texttt{SocketIO::Socket} is a library class from SocketIO that we use for live communication from the server to the client. Each \texttt{GameInstance} stores 2-4 socket connections that is uses to communicate with the players.
@@ -200,13 +224,18 @@ We also use an Observer pattern in the server to track events. This is necessary
 
 \section{Client}
 
-The client code is found in \texttt{src/client}. Our system is structured similar to the MVP design pattern, where we have the presenter (our UI Client code), a ClientController class that operates the interaction between the backend and the UI and also controls the local game code (the view). The model can be seen as the "true state" server that fixes what our local game state simulates. This allows us to easily separate the UI code from the Control code, allowing for a more robust code system. 
+The client code is found in \texttt{src/client}. Our system is structured similar to the MVP design pattern, where we have the view (our UI Client code), a ClientController class that operates the interaction between the backend and the UI and also controls the local game code (the presenter). The model can be seen as the "true state" server that fixes what our local game state simulates. This allows us to easily separate the UI code from the Control code, allowing for a more robust code system. 
 
-The UI code is run with React.js and uses their system of including HTML code as XML style markup in display classes. the \texttt{main.tsx} file handles the upper level will load different pages that may need to be loaded. Primary pages that may be loaded include the Lobby, and Game system. To display the game, the UI uses a library called Phaser, which is used by the UI to display sprites, and handle react updates. Using this UI handler allowed us to focus on the multiplayer and game mechanic architecture. 
+The view is run with React.js and uses their standard system of including HTML code as XML style markup in display classes. the \texttt{main.tsx} file handles the upper level will load different pages that may need to be loaded. Primary pages that may be loaded include the Lobby, and Game system. To display the game, the UI uses a library called Phaser, which is used by the UI to display sprites, and handle react updates. Using this UI handler allowed us to focus on the multiplayer and game mechanic architecture. 
 
-The ClientController, is essentially the view in the MVP pattern. It has responsibility to run the local copy of the game state, one model, and interface with the master copy on the server, another model. It propagates updates back to the presenter, which is the UI layer that implements Phaser. 
+The ClientController, is essentially the presenter in the MVP pattern. It has responsibility to run the local copy of the game state, one model, and interface with the master copy on the server, another model. It propagates updates back to the presenter, which is the UI layer that implements Phaser. 
 
 This implementation is has low coupling due to the separation of concerns and single responsibility principle of the MVP pattern, whereby the separation in to "View" and "Presenter" logic allows independent coding of display and functional requirements. 
+
+Alternatives without the MVP style design were considered, but discarded due to the difficulty in ensuring enough separation from the game logic to allow it to run on both the client and server. 
+
+\subsection{Architecture}
+\includegraphics[width=\linewidth]{images/client_arch.png}
 %Here we have the code for the client UI as well as the controller which the client uses to communicate with the server. The file \texttt{main.tsx} acts as the state manager. Depending on the state, a different component will be rendered for the client's display. The game starts out in the \texttt{SPLASH} state.
 
 
@@ -227,14 +256,17 @@ This implementation is has low coupling due to the separation of concerns and si
 \section{User Scenario Diagram}
 This diagram shows the process of our user scenarios. Essentially covering the whole process, both user scenarios can be shown in the same diagram, they simply have different lobby types: random vs preset.
 
-\includegraphics[width=\linewidth]{images/game_process.png}
+\includegraphics[width=\linewidth,height=7cm]{images/game_process.png}
 
 \chapter{Contributions}
 
-Shiranka Miskin: \\
-Sam Maier: \\
-Addison Keizer: Primarily worked on developing the code in the core game functionality. Built the Event system and interactions between objects, worked on adding entities like Walls and Bullets. Significant Document work. \\
-Dhruv Lal: \\
+Shiranka Miskin:  did much of the initial work, developing the core of the application and implementing sufficient basic features to satisfy Deliverable 2.  Afterwards, he worked on researching and applying methods to mitigate latency effects on the client, as well as creating the map maker.  His code made up the Game Canvas, Client Controller, Mapper, as well as portions of the Server (\texttt{server/game-server.ts}), Game Logic (\texttt{core/game.ts}) and Main.  He also wrote the build process to compile and run the typescript application.\\
+
+Sam Maier: focused primarily on backend work. He implemented the lobby code, deployed the application, and invested a lot of time on getting multi-process to work (which, in the end, it didn't). The majority of the code in src/server was written by him. \\
+
+Addison Keizer: primarily worked on developing the code in the core game functionality. He built the Event system and interactions between objects, worked on adding entities like Walls and Bullets and contributed significantly to the rest of the core files. He also spent time developing the initial architecture designs. He spent significant time on the documents to submit. \\
+
+Dhruv Lal: Dhruv Lal: He primarily worked on the client side functionality of the game as well as the functionality to determine when the game is supposed to be finished. He created the user interface for all of the non-gameplay screens (the main menu, lobby and game over screens). He also contributed a significant amount to the documents for each deliverable. \\
 
 
 
