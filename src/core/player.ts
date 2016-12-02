@@ -76,8 +76,5 @@ export class Player extends Entity {
     if (player.health < 0) { player.alive = false; }
   }
 
-  static collideWith(player: PlayerState, other: EntityState, game: GameState) {
-    return;
-  }
 
 }

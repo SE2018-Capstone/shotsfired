@@ -80,4 +80,7 @@ export class Entity {
   static interact(entity: EntityState, other: EntityState, state: GameState) {
     return;
   }
+  static collideWith(entity: EntityState, other: EntityState, game: GameState) {
+    return;
+  }
 }
